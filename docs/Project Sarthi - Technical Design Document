@@ -1820,3 +1820,521 @@ The parser engine understands plugins.
 The Project Graph understands software.
 
 Maintaining these responsibilities ensures that Project Sarthi remains modular, extensible and maintainable as the platform evolves.
+
+--------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 5 - Analysis Engine & Insight Generation
+
+---
+
+### 1. Introduction
+
+The Project Graph represents everything Project Sarthi knows about a software project.
+
+However, a graph by itself is only structured data.
+
+The Analysis Engine is responsible for transforming that data into understanding.
+
+This is where Project Sarthi becomes significantly different from a repository browser or architecture visualizer.
+
+The parser answers:
+
+> "What exists?"
+
+The Project Graph answers:
+
+> "How are things connected?"
+
+The Analysis Engine answers:
+
+> "What does this mean?"
+
+Every insight shown to the user originates from this engine.
+
+---
+
+### 2. Responsibilities
+
+The Analysis Engine has five primary responsibilities.
+
+1. Analyze the completed Project Graph.
+2. Detect meaningful relationships.
+3. Generate project health metrics.
+4. Produce contextual summaries.
+5. Prepare data for visualizations.
+
+The Analysis Engine never parses source code.
+
+It only works with the Project Graph.
+
+---
+
+### 3. Position in the Architecture
+
+The complete backend pipeline now becomes:
+
+```text
+GitHub Repository
+        │
+        ▼
+Clone Repository
+        │
+        ▼
+Parser Engine
+        │
+        ▼
+Normalized Parser Output
+        │
+        ▼
+Graph Builder
+        │
+        ▼
+Project Graph
+        │
+        ▼
+Analysis Engine
+        │
+        ▼
+Insights
+        │
+        ▼
+Database
+        │
+        ▼
+Frontend
+```
+
+The frontend never directly analyzes code.
+
+Everything displayed has already been processed by the backend.
+
+---
+
+### 4. Design Philosophy
+
+The Analysis Engine follows one simple principle.
+
+It should answer questions that developers repeatedly ask themselves.
+
+Examples include:
+
+* What changed?
+* What depends on this?
+* Where should I continue?
+* What looks risky?
+* What documentation is outdated?
+* Which module is becoming too complex?
+
+The engine should not overwhelm users with statistics.
+
+Every insight must help someone make a better engineering decision.
+
+---
+
+### 5. Categories of Analysis
+
+Version 1 divides all analysis into six categories.
+
+#### Structural Analysis
+
+Understands how the software is organized.
+
+Examples:
+
+* Number of modules.
+* Number of routes.
+* Number of services.
+* Number of database models.
+* Module hierarchy.
+
+This information powers the Project Overview page.
+
+---
+
+#### Dependency Analysis
+
+Determines how different parts of the project interact.
+
+Examples:
+
+Which services use this database model?
+
+Which routes use JWT middleware?
+
+Which frontend pages consume this endpoint?
+
+Which modules depend on the Authentication module?
+
+This becomes the basis for the Dependency Graph.
+
+---
+
+#### Documentation Analysis
+
+Compares documentation against implementation.
+
+Possible findings:
+
+Documented route no longer exists.
+
+Existing route has no documentation.
+
+Documentation references renamed modules.
+
+README mentions features that are missing.
+
+Initially these checks should remain conservative to avoid false positives.
+
+---
+
+#### Complexity Analysis
+
+Detects areas that are becoming difficult to maintain.
+
+Version 1 metrics may include:
+
+Large files.
+
+Large modules.
+
+Highly connected services.
+
+Circular dependencies.
+
+Services with many consumers.
+
+Modules containing unusually high numbers of routes.
+
+The goal is to identify potential maintenance risks rather than enforce coding style.
+
+---
+
+#### Consistency Analysis
+
+Checks whether different parts of the project agree with each other.
+
+Examples:
+
+Frontend calls API that no longer exists.
+
+OpenAPI specification differs from implementation.
+
+Markdown documentation references removed endpoints.
+
+Missing environment variables.
+
+Orphan controllers.
+
+Unused middleware.
+
+---
+
+#### Historical Analysis
+
+Compares the current Project Graph with previous graph versions.
+
+Possible insights:
+
+New module introduced.
+
+Routes removed.
+
+Dependencies increased.
+
+Database schema changed.
+
+Documentation coverage improved.
+
+Version 1 only stores this information.
+
+Advanced historical visualization is intentionally postponed.
+
+---
+
+### 6. Insight Generation
+
+An insight is a human-readable observation produced from graph analysis.
+
+Every insight contains:
+
+Title
+
+Description
+
+Severity
+
+Related entities
+
+Recommended navigation target
+
+Example:
+
+Title:
+
+Authentication documentation is outdated.
+
+Description:
+
+The Authentication module contains four implemented routes but only two are documented.
+
+Severity:
+
+Medium
+
+Navigation Target:
+
+Authentication Module
+
+Insights should always point users toward something actionable.
+
+---
+
+### 7. Project Health
+
+Project Health is not a percentage.
+
+Instead, it is a collection of engineering signals.
+
+Version 1 includes:
+
+Documentation Coverage
+
+Dependency Complexity
+
+Module Size
+
+Circular Dependencies
+
+Unused Routes
+
+Unused Middleware
+
+Missing Environment Variables
+
+Disconnected Documentation
+
+Each signal receives its own score.
+
+The frontend may later combine these into an overall health indicator.
+
+---
+
+### 8. Resume Session
+
+Resume Session is one of the defining features of Project Sarthi.
+
+When a project is reopened after a previous analysis, the Analysis Engine prepares a contextual briefing.
+
+Example:
+
+Last analyzed:
+
+12 days ago
+
+Repository changes:
+
+18 commits
+
+New APIs:
+
+3
+
+Removed APIs:
+
+1
+
+Modified Modules:
+
+Authentication
+
+Orders
+
+Inventory
+
+Potential Issues:
+
+Documentation for Orders module is now outdated.
+
+Suggested Starting Point:
+
+Review the Orders module because it has changed significantly since your previous analysis.
+
+The purpose is not to summarize Git history.
+
+The purpose is to restore the developer's mental context.
+
+---
+
+### 9. Navigation Recommendations
+
+The Analysis Engine should guide exploration.
+
+Example recommendations include:
+
+Most recently modified module.
+
+Largest module.
+
+Least documented module.
+
+Most interconnected module.
+
+Module with highest dependency growth.
+
+These recommendations help users decide where to begin.
+
+---
+
+### 10. Risk Detection
+
+Project Sarthi is not a debugger.
+
+However, it can identify areas that deserve additional attention.
+
+Examples include:
+
+Service used by many modules.
+
+Database model referenced by many services.
+
+Highly connected middleware.
+
+Large dependency chains.
+
+Circular dependencies.
+
+Missing validation middleware.
+
+These are engineering risks rather than confirmed bugs.
+
+The UI should communicate this distinction clearly.
+
+---
+
+### 11. Why This Is Useful
+
+Developers rarely struggle because they cannot read code.
+
+They struggle because they cannot immediately determine where to look.
+
+The Analysis Engine reduces exploration time by highlighting important areas before the developer begins reading source files.
+
+This supports the central promise of Project Sarthi:
+
+Help developers understand software before they modify it.
+
+---
+
+### 12. Analysis Results
+
+Every analysis produces a structured report.
+
+Version 1 stores:
+
+Project Summary
+
+Module Summaries
+
+Dependency Statistics
+
+Health Metrics
+
+Generated Insights
+
+Warnings
+
+Graph Version
+
+Analysis Timestamp
+
+These results are persisted and reused by the frontend.
+
+---
+
+### 13. Performance Strategy
+
+Analysis should remain responsive even for medium-sized repositories.
+
+Initial strategies include:
+
+Run analysis after graph construction only.
+
+Reuse graph instead of reparsing.
+
+Separate parsing from analysis.
+
+Cache future graph versions.
+
+Run independent analyses in parallel where possible.
+
+Heavy computations should never block the frontend.
+
+---
+
+### 14. Future Expansion
+
+The architecture intentionally leaves room for more advanced analyses.
+
+Examples include:
+
+Impact Analysis
+
+"If I modify this service, what will likely be affected?"
+
+Architecture Drift
+
+"How has the project's structure evolved over time?"
+
+Code Hotspots
+
+"Which files change together most frequently?"
+
+Test Coverage Visualization
+
+"Which critical modules have insufficient tests?"
+
+Runtime Correlation
+
+"Which frequently failing endpoints correspond to highly coupled modules?"
+
+These analyses build upon the existing Project Graph and require no architectural redesign.
+
+---
+
+### 15. Relationship with AI
+
+The Analysis Engine must remain completely deterministic.
+
+Its output should never depend on an AI model.
+
+Future AI features will consume:
+
+Project Graph
+
+Analysis Results
+
+Project Metadata
+
+This approach allows AI to explain existing insights rather than invent new ones.
+
+The platform remains fully functional without AI.
+
+---
+
+### 16. Engineering Principles
+
+The Analysis Engine should never guess.
+
+Every insight must be traceable to information contained within the Project Graph.
+
+Every warning should be reproducible.
+
+Every recommendation should be explainable.
+
+Trust is more important than feature count.
+
+Project Sarthi should occasionally report fewer insights if that means every reported insight is accurate, understandable and genuinely useful.
+
+----------------------------------------------------------------------------------
