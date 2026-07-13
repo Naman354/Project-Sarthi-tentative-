@@ -1315,3 +1315,508 @@ Maintaining this separation of responsibilities is essential for long-term scala
 
 -------------------------------------------------------------------------------
 
+# Project Sarthi - Technical Design Document
+
+## Chapter 4 - Parser Engine & Plugin Architecture
+
+---
+
+### 1. Introduction
+
+The Parser Engine is responsible for converting raw source code into structured information that can be represented inside the Project Graph.
+
+It is the heart of Project Sarthi.
+
+Without the parser engine, the application is simply a user interface.
+
+With the parser engine, Project Sarthi gains the ability to understand software.
+
+The parser engine does **not** execute code.
+
+It performs **static analysis**.
+
+This means it reads source files, understands their syntax and relationships, and extracts meaningful information without running the application.
+
+This approach makes analysis fast, deterministic, and safe.
+
+---
+
+### 2. Responsibilities of the Parser Engine
+
+The parser engine has six primary responsibilities.
+
+1. Detect the technologies used in the repository.
+2. Select the appropriate parser plugins.
+3. Parse supported files.
+4. Extract project entities.
+5. Build Project Graph nodes and edges.
+6. Pass the completed graph to the Analysis Engine.
+
+The parser engine never generates visualizations.
+
+It never communicates directly with the frontend.
+
+Its only responsibility is to transform source code into a structured graph.
+
+---
+
+### 3. High-Level Flow
+
+The complete parsing pipeline is shown below.
+
+```text
+GitHub Repository
+        │
+        ▼
+Clone Repository
+        │
+        ▼
+Technology Detection
+        │
+        ▼
+Load Compatible Parser Plugins
+        │
+        ▼
+Parse Source Files
+        │
+        ▼
+Extract Entities
+        │
+        ▼
+Generate Nodes
+        │
+        ▼
+Generate Relationships
+        │
+        ▼
+Build Project Graph
+        │
+        ▼
+Graph Validation
+        │
+        ▼
+Analysis Engine
+        │
+        ▼
+Database
+```
+
+Every project follows this exact pipeline regardless of its size.
+
+---
+
+### 4. Why Plugins?
+
+The parser engine is designed around plugins.
+
+The core application should never know how Express works.
+
+It should never know how React works.
+
+It should never know how Prisma works.
+
+Instead, every technology is understood by an independent parser plugin.
+
+This provides several advantages.
+
+* Easier maintenance.
+* Easier testing.
+* Easy support for new frameworks.
+* Separation of responsibilities.
+* Future community contributions.
+
+Adding support for NestJS in the future should require writing a NestJS parser plugin rather than modifying the entire parser engine.
+
+---
+
+### 5. Supported Plugins (Version 1)
+
+The MVP supports the following plugins.
+
+#### React Parser
+
+Responsibilities:
+
+* Detect pages and components.
+* Detect API calls.
+* Detect routing structure.
+* Connect frontend components to backend routes.
+
+---
+
+#### Next.js Parser
+
+Responsibilities:
+
+* Detect App Router structure.
+* Detect Pages Router (if present).
+* Detect layouts.
+* Detect client/server components.
+* Detect API route handlers.
+
+---
+
+#### Express Parser
+
+Responsibilities:
+
+* Detect routes.
+* Detect routers.
+* Detect middleware.
+* Detect controllers.
+* Detect service usage.
+
+This parser is responsible for route-based module detection.
+
+---
+
+#### Prisma Parser
+
+Responsibilities:
+
+* Parse schema.prisma.
+* Detect models.
+* Detect relations.
+* Detect enums.
+* Detect database structure.
+
+---
+
+#### Mongoose Parser
+
+Responsibilities:
+
+* Detect schemas.
+* Detect models.
+* Detect relationships.
+* Detect collection names.
+
+---
+
+#### Markdown Parser
+
+Responsibilities:
+
+* Parse README files.
+* Parse documentation.
+* Extract headings.
+* Associate documentation with modules.
+
+---
+
+#### OpenAPI Parser
+
+Responsibilities:
+
+* Parse OpenAPI specifications.
+* Extract endpoints.
+* Compare documentation with implementation.
+* Detect undocumented or outdated APIs.
+
+---
+
+### 6. Plugin Lifecycle
+
+Every parser follows the same lifecycle.
+
+```text
+Initialize
+
+↓
+
+Verify Compatibility
+
+↓
+
+Collect Files
+
+↓
+
+Parse AST
+
+↓
+
+Extract Information
+
+↓
+
+Generate Nodes
+
+↓
+
+Generate Edges
+
+↓
+
+Return Results
+```
+
+The core engine simply combines the results from every plugin.
+
+---
+
+### 7. Plugin Interface
+
+Every parser implements the same interface.
+
+Conceptually, every plugin should expose functionality similar to:
+
+```typescript
+supports(project): boolean
+
+collectFiles(project): File[]
+
+parse(files): ParsedResult
+
+generateNodes(parsed): GraphNode[]
+
+generateEdges(parsed): GraphEdge[]
+```
+
+The parser engine does not need to know anything about framework-specific implementation details.
+
+It only consumes graph nodes and graph edges.
+
+---
+
+### 8. Repository Detection
+
+Before loading plugins, Sarthi determines which technologies are present.
+
+Detection is performed using common project indicators.
+
+Examples:
+
+React
+
+* react package
+
+Next.js
+
+* next package
+
+Express
+
+* express package
+
+Prisma
+
+* schema.prisma
+
+Mongoose
+
+* mongoose package
+
+Markdown
+
+* *.md files
+
+OpenAPI
+
+* openapi.yaml
+* swagger.yaml
+
+Only compatible plugins are loaded.
+
+This keeps analysis efficient.
+
+---
+
+### 9. Why Static Analysis?
+
+Executing arbitrary repositories would introduce significant security risks.
+
+Instead, Sarthi performs static analysis.
+
+Advantages include:
+
+* Safe.
+* Fast.
+* Deterministic.
+* No dependency installation required.
+* Works without running the application.
+
+Most project understanding can be achieved without executing code.
+
+Future versions may introduce optional runtime analysis, but it is outside the MVP scope.
+
+---
+
+### 10. Parsing with the Abstract Syntax Tree (AST)
+
+The parser never analyzes raw text.
+
+Instead, every source file is converted into an Abstract Syntax Tree (AST).
+
+For example, an Express route such as:
+
+```typescript
+router.post("/login", validateLogin, loginController)
+```
+
+becomes a structured representation.
+
+From this structure, the parser can identify:
+
+* HTTP method
+* Route path
+* Middleware
+* Controller
+
+Likewise, a service calling a Prisma model becomes another structured relationship.
+
+The parser extracts meaning rather than searching for text patterns.
+
+This makes the analysis significantly more reliable.
+
+---
+
+### 11. Route-Based Module Detection
+
+Project Sarthi groups software by routes rather than folders.
+
+Example:
+
+```
+/auth/login
+/auth/register
+/auth/logout
+/auth/refresh
+```
+
+These routes become the **Authentication** module.
+
+Similarly,
+
+```
+/orders
+/orders/:id
+/orders/history
+```
+
+become the **Orders** module.
+
+Supporting files such as controllers, services, middleware and models are attached to the module through graph relationships.
+
+This approach reflects how developers naturally think about software features rather than directory structures.
+
+---
+
+### 12. Parser Output
+
+Each parser returns only two things.
+
+Nodes.
+
+Edges.
+
+Example:
+
+```
+Nodes
+
+Authentication Module
+
+POST /login
+
+Login Controller
+
+Auth Service
+
+User Model
+
+JWT Middleware
+```
+
+```
+Edges
+
+Authentication
+contains
+POST /login
+
+POST /login
+handled_by
+Login Controller
+
+Login Controller
+uses
+Auth Service
+
+Auth Service
+queries
+User Model
+```
+
+The parser does not decide how these relationships will be displayed.
+
+It simply reports them.
+
+---
+
+### 13. Error Handling
+
+Individual parser failures should never terminate the entire analysis.
+
+If one parser encounters an unsupported syntax or malformed file:
+
+* Log the error.
+* Skip the affected file.
+* Continue analysis.
+* Report warnings after completion.
+
+A partially analyzed project is significantly more valuable than a failed analysis.
+
+---
+
+### 14. Performance Considerations
+
+The parser engine should be designed for scalability.
+
+Initial strategies include:
+
+* Ignore node_modules.
+* Ignore build folders.
+* Ignore generated files.
+* Parse only supported file types.
+* Process plugins independently.
+* Cache unchanged analysis in future versions.
+
+Large repositories should remain responsive without sacrificing correctness.
+
+---
+
+### 15. Future Expansion
+
+The plugin architecture allows future support for additional ecosystems.
+
+Examples include:
+
+* NestJS
+* Fastify
+* Django
+* Flask
+* Spring Boot
+* Go
+* Rust
+* GraphQL
+* Docker Compose
+* Kubernetes
+
+None of these require changes to the parser engine itself.
+
+Only new parser plugins that emit Project Graph nodes and edges.
+
+---
+
+### 16. Engineering Principles
+
+The parser engine should remain framework-agnostic.
+
+Plugins understand technologies.
+
+The parser engine understands plugins.
+
+The Project Graph understands software.
+
+Maintaining these responsibilities ensures that Project Sarthi remains modular, extensible and maintainable as the platform evolves.
