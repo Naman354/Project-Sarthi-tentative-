@@ -6016,4 +6016,644 @@ The success of Project Sarthi depends on making this transformation reliable, pr
 
 --------------------------------------------------------------------------------
 
+# Project Sarthi - Technical Design Document
+
+## Chapter 12 – Plugin Development Guide & Extensibility
+
+---
+
+### 1. Introduction
+
+Project Sarthi is designed around one fundamental principle:
+
+**The core application should understand software, not frameworks.**
+
+Frameworks evolve.
+
+New languages appear.
+
+Libraries change.
+
+The Project Graph should remain stable.
+
+Parser plugins act as translators between specific technologies and the Project Graph.
+
+This architecture allows Project Sarthi to grow without rewriting its core.
+
+---
+
+### 2. Why Plugins?
+
+Without plugins, adding support for a new framework would require modifying:
+
+* Parser Engine
+* Graph Builder
+* Analysis Engine
+* Tests
+* Database logic
+
+With plugins:
+
+Only one component changes.
+
+The new parser.
+
+Everything else continues to work.
+
+This dramatically improves maintainability.
+
+---
+
+### 3. Core Principle
+
+Every plugin has exactly one responsibility:
+
+Convert framework-specific code into framework-independent information.
+
+The parser should never concern itself with:
+
+* UI
+* Database
+* Graph visualization
+* Authentication
+* Search
+* Analysis
+
+It simply describes what exists.
+
+---
+
+### 4. Responsibilities of a Plugin
+
+Every parser plugin should:
+
+Detect whether it supports the project.
+
+Collect relevant files.
+
+Parse those files.
+
+Extract entities.
+
+Extract relationships.
+
+Generate normalized output.
+
+Return the result.
+
+Nothing more.
+
+---
+
+### 5. Responsibilities of the Core
+
+The core system is responsible for:
+
+Loading plugins.
+
+Managing execution order.
+
+Combining parser results.
+
+Building the Project Graph.
+
+Running analysis.
+
+Persisting data.
+
+Rendering visualizations.
+
+This separation prevents tight coupling.
+
+---
+
+### 6. Plugin Lifecycle
+
+Every parser follows the same execution flow.
+
+```text
+Repository
+
+↓
+
+supports()
+
+↓
+
+collectFiles()
+
+↓
+
+parse()
+
+↓
+
+extract()
+
+↓
+
+normalize()
+
+↓
+
+return
+```
+
+The Parser Manager coordinates this lifecycle.
+
+---
+
+### 7. Parser Interface
+
+Every plugin implements a shared contract.
+
+Conceptually:
+
+```ts
+interface ParserPlugin {
+
+  id: string
+
+  name: string
+
+  version: string
+
+  supports(project): boolean
+
+  collectFiles(project): File[]
+
+  parse(files): ParsedOutput
+
+}
+```
+
+Future versions may introduce optional lifecycle hooks.
+
+---
+
+### 8. Normalized Output
+
+Plugins never generate graph nodes directly.
+
+Instead they return a normalized structure.
+
+Example:
+
+```text
+Entity
+
+Type
+
+Metadata
+
+Relationships
+```
+
+Example Route Entity
+
+```text
+Type
+
+Route
+
+Name
+
+POST /login
+
+Metadata
+
+Method
+
+POST
+
+Path
+
+/login
+
+Relationships
+
+handled_by
+
+LoginController
+```
+
+Every parser returns the same structure.
+
+The Graph Builder handles graph creation.
+
+---
+
+### 9. Supported Plugins (Version 1)
+
+React Parser
+
+Responsibilities:
+
+Detect pages.
+
+Detect components.
+
+Detect API consumers.
+
+---
+
+Next.js Parser
+
+Responsibilities:
+
+Detect App Router.
+
+Detect layouts.
+
+Detect server/client components.
+
+---
+
+Express Parser
+
+Responsibilities:
+
+Detect routes.
+
+Detect middleware.
+
+Detect controllers.
+
+Detect services.
+
+Determine route-based modules.
+
+---
+
+Prisma Parser
+
+Responsibilities:
+
+Parse schema.
+
+Extract models.
+
+Extract relationships.
+
+---
+
+Mongoose Parser
+
+Responsibilities:
+
+Parse schemas.
+
+Extract collections.
+
+Extract relationships.
+
+---
+
+Markdown Parser
+
+Responsibilities:
+
+Parse documentation.
+
+Extract headings.
+
+Associate documentation.
+
+---
+
+OpenAPI Parser
+
+Responsibilities:
+
+Parse specification.
+
+Extract endpoints.
+
+Compare implementation.
+
+---
+
+### 10. Communication Rules
+
+Plugins should never communicate with one another.
+
+Example:
+
+The React parser should not ask the Express parser for routes.
+
+Instead:
+
+React parser returns:
+
+Frontend API usage.
+
+Express parser returns:
+
+Backend routes.
+
+The Graph Builder later connects them.
+
+This guarantees independence.
+
+---
+
+### 11. Error Isolation
+
+Plugin failures should remain isolated.
+
+Example:
+
+OpenAPI parser fails.
+
+↓
+
+React parser continues.
+
+↓
+
+Express parser continues.
+
+↓
+
+Graph still builds.
+
+↓
+
+Warning generated.
+
+One plugin should never compromise the entire analysis.
+
+---
+
+### 12. Versioning
+
+Every parser has its own version.
+
+Example:
+
+```text
+Express Parser
+
+v1.0.0
+```
+
+Graph Versions record:
+
+Parser Version
+
+Project Version
+
+Analysis Timestamp
+
+This simplifies debugging.
+
+---
+
+### 13. Testing Plugins
+
+Every parser should have independent test repositories.
+
+Example:
+
+```text
+test-projects/
+
+react-basic/
+
+express-auth/
+
+next-dashboard/
+
+prisma-blog/
+
+mongoose-api/
+```
+
+Each repository exists solely to verify parser correctness.
+
+This greatly simplifies regression testing.
+
+---
+
+### 14. Development Workflow
+
+Adding a new framework follows a predictable process.
+
+Example:
+
+Support NestJS.
+
+Step 1
+
+Create NestJS Parser.
+
+↓
+
+Step 2
+
+Implement interface.
+
+↓
+
+Step 3
+
+Generate normalized output.
+
+↓
+
+Step 4
+
+Run parser tests.
+
+↓
+
+Step 5
+
+Parser Manager loads plugin automatically.
+
+No other architecture changes are required.
+
+---
+
+### 15. Why This Matters
+
+Imagine Version 3 of Project Sarthi.
+
+A user imports:
+
+React
+
+NestJS
+
+PostgreSQL
+
+GraphQL
+
+Docker
+
+Kubernetes
+
+The core application does not know these technologies.
+
+It only understands the Project Graph.
+
+Parser plugins perform the translation.
+
+This makes the architecture future-proof.
+
+---
+
+### 16. Plugin Directory
+
+Recommended structure:
+
+```text
+parsers/
+
+react/
+
+index.ts
+
+parser.ts
+
+visitor.ts
+
+extractors.ts
+
+tests/
+
+express/
+
+index.ts
+
+parser.ts
+
+visitor.ts
+
+extractors.ts
+
+tests/
+
+...
+```
+
+Every parser follows the same organization.
+
+This improves readability.
+
+---
+
+### 17. Parser Design Principles
+
+Every parser should be:
+
+Deterministic.
+
+Stateless.
+
+Independent.
+
+Fast.
+
+Easy to test.
+
+Easy to replace.
+
+Avoid storing global state.
+
+Everything required for parsing should come from the repository being analyzed.
+
+---
+
+### 18. Engineering Decisions
+
+#### ED-010
+
+Parser plugins emit normalized data rather than graph nodes.
+
+Reason:
+
+Keeps graph creation centralized.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-011
+
+Plugins never communicate directly.
+
+Reason:
+
+Prevents tight coupling and simplifies maintenance.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-012
+
+Every parser is independently testable.
+
+Reason:
+
+Parser correctness directly affects every downstream feature.
+
+Status:
+
+Accepted.
+
+---
+
+### 19. Future Opportunities
+
+The plugin system enables future support for:
+
+NestJS
+
+Fastify
+
+Python
+
+Flask
+
+Django
+
+Spring Boot
+
+Laravel
+
+Ruby on Rails
+
+Go
+
+Rust
+
+Docker
+
+Terraform
+
+GitHub Actions
+
+Kubernetes
+
+GraphQL
+
+Additional support should require writing new plugins rather than modifying existing architecture.
+
+---
+
+### 20. Engineering Principles
+
+The plugin system exists to protect the architecture from growth.
+
+As Project Sarthi evolves, the number of supported technologies will increase dramatically.
+
+The complexity of the parser engine should not.
+
+The success of the architecture will be measured by how easy it is to support a completely new framework five years from now without modifying the core application.
 
