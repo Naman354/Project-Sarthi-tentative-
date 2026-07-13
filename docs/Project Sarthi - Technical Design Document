@@ -4859,4 +4859,483 @@ When a user leaves the graph, they should understand the software better than wh
 
 ----------------------------------------------------------------------------------
 
+# Project Sarthi - Technical Design Document
+
+## Chapter 10 – Authentication & User Management
+
+---
+
+### 1. Introduction
+
+Project Sarthi is designed as a personal software understanding platform.
+
+Every project belongs to a user.
+
+Every Project Graph belongs to a project.
+
+Every analysis belongs to a specific graph version.
+
+This ownership model requires authentication from the beginning.
+
+Version 1 supports individual users only.
+
+Team collaboration and shared workspaces are intentionally postponed to future versions.
+
+---
+
+### 2. Design Philosophy
+
+Authentication should be:
+
+* Secure.
+* Simple.
+* Stateless where appropriate.
+* Easy to extend.
+* Independent of business logic.
+
+Authentication exists to identify users.
+
+Authorization exists to determine what those users can access.
+
+These responsibilities should remain separate.
+
+---
+
+### 3. Authentication Flow
+
+The authentication lifecycle is as follows:
+
+```text
+User Registers
+        │
+        ▼
+Password Hashed
+        │
+        ▼
+User Stored
+        │
+        ▼
+Login
+        │
+        ▼
+Access Token
++
+Refresh Token
+        │
+        ▼
+Authenticated Session
+        │
+        ▼
+Logout
+```
+
+---
+
+### 4. Registration
+
+Users register using:
+
+* Name
+* Email
+* Password
+
+Validation Rules:
+
+Name
+
+* Required
+* 3–50 characters
+
+Email
+
+* Valid email format
+* Unique
+
+Password
+
+* Minimum 8 characters
+
+Future versions may include stronger password policies.
+
+---
+
+### 5. Login
+
+Successful login returns:
+
+Access Token
+
+* Short-lived
+* Used for authenticated API requests
+
+Refresh Token
+
+* Long-lived
+* Stored as an HTTP-only cookie
+* Used to obtain new access tokens
+
+Passwords are never returned or logged.
+
+---
+
+### 6. JWT Strategy
+
+Version 1 uses two-token authentication.
+
+#### Access Token
+
+Purpose:
+
+Authenticate requests.
+
+Characteristics:
+
+* Short lifetime.
+* Stored by the frontend.
+* Sent in Authorization headers.
+
+---
+
+#### Refresh Token
+
+Purpose:
+
+Generate new access tokens.
+
+Characteristics:
+
+* Long lifetime.
+* HTTP-only.
+* Secure.
+* SameSite configured appropriately.
+* Never accessible through JavaScript.
+
+This approach balances usability and security.
+
+---
+
+### 7. Password Security
+
+Passwords are never stored directly.
+
+Workflow:
+
+```text
+User Password
+
+↓
+
+bcrypt Hash
+
+↓
+
+Database
+```
+
+Login compares the entered password with the stored hash.
+
+At no point is the original password recoverable.
+
+---
+
+### 8. Route Protection
+
+Protected routes require authentication middleware.
+
+Examples:
+
+```text
+GET /projects
+
+POST /projects
+
+POST /projects/:id/analyze
+
+GET /projects/:id/graph
+```
+
+Public routes include:
+
+Register
+
+Login
+
+Refresh Token
+
+Health Check (optional)
+
+---
+
+### 9. Authorization
+
+Authentication identifies the user.
+
+Authorization verifies ownership.
+
+Example:
+
+User requests:
+
+```text
+GET /projects/123
+```
+
+Backend verifies:
+
+* Does Project 123 exist?
+* Does it belong to the authenticated user?
+
+If either check fails:
+
+Return HTTP 404 or 403 depending on the scenario.
+
+Users should never access another user's projects.
+
+---
+
+### 10. Session Management
+
+Version 1 assumes one active user session per browser.
+
+Future enhancements may include:
+
+* Multiple devices.
+* Active session list.
+* Session revocation.
+* Device names.
+* Login history.
+
+These features are outside the MVP.
+
+---
+
+### 11. Logout
+
+Logout should invalidate the refresh token.
+
+Workflow:
+
+```text
+Logout
+
+↓
+
+Clear Refresh Cookie
+
+↓
+
+Frontend Deletes Access Token
+
+↓
+
+Session Ends
+```
+
+The backend should not rely solely on frontend behavior.
+
+---
+
+### 12. Password Reset (Future)
+
+Password reset is intentionally postponed.
+
+Reason:
+
+It introduces:
+
+* Email services.
+* Token generation.
+* Email templates.
+* Expiration logic.
+
+These are valuable features but unrelated to Project Sarthi's core mission.
+
+They can be added after the MVP.
+
+---
+
+### 13. User Profile
+
+Version 1 profile information remains minimal.
+
+Fields:
+
+* Name
+* Email
+* Account Creation Date
+
+Future versions may include:
+
+Preferred theme.
+
+Notification settings.
+
+GitHub username.
+
+Preferred parser settings.
+
+Saved graph preferences.
+
+---
+
+### 14. Security Considerations
+
+Version 1 should implement the following protections.
+
+Passwords hashed using bcrypt.
+
+HTTP-only refresh cookies.
+
+Helmet middleware.
+
+CORS configuration.
+
+Rate limiting on authentication routes.
+
+Input validation using Zod.
+
+Parameterized database queries through Prisma.
+
+Repository URL validation.
+
+Secure environment variables.
+
+Sensitive data never returned in API responses.
+
+---
+
+### 15. Authentication Middleware
+
+Every protected request follows this pipeline.
+
+```text
+Incoming Request
+
+↓
+
+JWT Middleware
+
+↓
+
+Verify Access Token
+
+↓
+
+Extract User
+
+↓
+
+Attach User to Request
+
+↓
+
+Continue Request
+```
+
+Controllers should never manually verify JWTs.
+
+Authentication should be centralized.
+
+---
+
+### 16. Error Handling
+
+Authentication errors should be predictable.
+
+Examples:
+
+Invalid credentials.
+
+Expired access token.
+
+Missing refresh token.
+
+Malformed JWT.
+
+Unauthorized project access.
+
+Responses should be consistent and should not reveal unnecessary implementation details.
+
+---
+
+### 17. Future Expansion
+
+The architecture should support future additions without redesign.
+
+Examples:
+
+GitHub OAuth.
+
+Google Sign-In.
+
+Role-based permissions.
+
+Organizations.
+
+Shared projects.
+
+Project invitations.
+
+API Keys.
+
+Because authentication is isolated, these features can be introduced without affecting parser or graph logic.
+
+---
+
+### 18. Engineering Decisions
+
+#### ED-004
+
+Authentication is required for all project operations.
+
+Reason:
+
+Every project belongs to a user and future collaboration depends on ownership.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-005
+
+Use JWT access tokens with HTTP-only refresh tokens.
+
+Reason:
+
+Balances security, scalability and developer experience.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-006
+
+Password reset is excluded from Version 1.
+
+Reason:
+
+Adds significant implementation effort while contributing little to the core product value.
+
+Status:
+
+Accepted.
+
+---
+
+### 19. Engineering Principles
+
+Authentication should remain invisible during normal usage.
+
+The ideal authentication system is one the user rarely thinks about.
+
+Once logged in, developers should focus entirely on understanding and building software.
+
+Security should protect the platform without becoming an obstacle to productivity.
+
+----------------------------------------------------------------------------------
+
 
