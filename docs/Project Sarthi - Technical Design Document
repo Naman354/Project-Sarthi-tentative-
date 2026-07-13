@@ -303,5 +303,1015 @@ However, every future feature must continue serving the same core mission:
 
 Help developers understand their software instead of merely storing it.
 
+--------------------------------------------------------------------------------
 
+# Chapter 2 – Product Requirements Document (PRD)
+
+---
+
+# 1. Product Overview
+
+Project Sarthi is a software understanding platform designed to help developers maintain context throughout the lifecycle of a software project.
+
+Instead of storing code, it stores an understanding of the project by continuously analyzing repositories, extracting relationships, and constructing an internal Project Graph.
+
+This graph becomes the foundation for every visualization, summary, dependency map, health check, and navigation feature within the application.
+
+Project Sarthi is not intended to replace development tools. It complements them by providing a unified understanding layer.
+
+---
+
+# 2. Core User Journey
+
+The primary user journey should be simple enough that a new user understands the product within minutes.
+
+### Step 1 — Create a Project
+
+The user creates a new project inside Sarthi.
+
+Required information:
+
+* Project Name
+* GitHub Repository URL
+
+Optional information:
+
+* OpenAPI Specification
+* Markdown Documentation
+* Additional Notes
+* Project Description
+
+---
+
+### Step 2 — Repository Analysis
+
+Once the repository is connected, Sarthi automatically:
+
+* Clones the repository.
+* Detects the project structure.
+* Detects supported technologies.
+* Parses every supported source file.
+* Extracts routes.
+* Extracts middleware.
+* Extracts services.
+* Extracts database models.
+* Extracts frontend API consumers.
+* Parses Markdown documentation.
+* Builds the Project Graph.
+
+The user should never need to manually classify files or organize the project.
+
+---
+
+### Step 3 — Project Overview
+
+After analysis completes, the user lands on the Project Overview.
+
+This page immediately answers:
+
+* What technologies does this project use?
+* How many modules exist?
+* Which module was modified most recently?
+* Which documentation is outdated?
+* Which APIs are available?
+* Which areas require attention?
+
+This page should feel like opening the cover page of a book rather than opening a folder.
+
+---
+
+### Step 4 — Explore
+
+From this point forward, every interaction begins with exploration.
+
+Users should never be forced to browse folders.
+
+Instead they navigate through meaningful concepts such as:
+
+* Authentication
+* Users
+* Payments
+* Inventory
+* Dashboard
+* Analytics
+
+These modules become the primary navigation units.
+
+---
+
+# 3. Primary Features
+
+## Feature 1 – Project Overview
+
+Purpose:
+
+Provide an immediate understanding of the entire project.
+
+Displays:
+
+* Project summary
+* Supported technologies
+* Module count
+* API count
+* Database model count
+* Documentation status
+* Project health
+* Last analysis timestamp
+* Last GitHub synchronization
+* Recent activity
+
+This becomes the homepage of every project.
+
+---
+
+## Feature 2 – Module Explorer
+
+Purpose:
+
+Allow developers to explore software through logical modules instead of files.
+
+Each module should display:
+
+Overview
+
+Responsibilities
+
+Connected modules
+
+Routes
+
+Controllers
+
+Services
+
+Database models
+
+Frontend consumers
+
+Documentation
+
+Dependencies
+
+Potential issues
+
+Every item should be clickable.
+
+---
+
+## Feature 3 – Dependency Graph
+
+Purpose:
+
+Visually explain relationships.
+
+Relationships include:
+
+Module → Module
+
+Route → Controller
+
+Controller → Service
+
+Service → Database
+
+Frontend → API
+
+API → Middleware
+
+Middleware → Service
+
+Documentation → Module
+
+Future versions may introduce additional relationship types without changing the underlying graph.
+
+---
+
+## Feature 4 – Request Flow Explorer
+
+Purpose:
+
+Allow developers to follow the lifecycle of any request.
+
+Example:
+
+POST /login
+
+↓
+
+Validation
+
+↓
+
+Authentication Middleware
+
+↓
+
+Controller
+
+↓
+
+Business Logic
+
+↓
+
+Database
+
+↓
+
+Response
+
+↓
+
+Frontend Consumers
+
+Each stage should be interactive.
+
+Selecting any node should reveal detailed information.
+
+---
+
+## Feature 5 – Project Timeline
+
+Purpose:
+
+Summarize meaningful project evolution.
+
+Unlike Git commits, the timeline focuses on important engineering events.
+
+Examples:
+
+Authentication introduced
+
+Payment module added
+
+Database migrated
+
+Documentation updated
+
+New external API integrated
+
+Timeline entries should be generated from repository analysis whenever possible.
+
+---
+
+## Feature 6 – Resume Session
+
+Purpose:
+
+Allow developers to resume work after long breaks.
+
+When opening a project, Sarthi generates a contextual briefing containing:
+
+Last analyzed state
+
+Recent repository changes
+
+Recently modified modules
+
+Potential inconsistencies
+
+Suggested next exploration points
+
+This feature is one of the primary value propositions of the platform.
+
+---
+
+## Feature 7 – Project Health
+
+Purpose:
+
+Highlight areas that deserve attention.
+
+Initial health indicators include:
+
+Undocumented APIs
+
+Broken documentation references
+
+Unused routes
+
+Circular dependencies
+
+Large modules
+
+Highly coupled services
+
+Future versions may expand these metrics.
+
+---
+
+## Feature 8 – Search
+
+Purpose:
+
+Search should operate on concepts instead of files.
+
+Searching for "Authentication" should display:
+
+Module
+
+Routes
+
+Middleware
+
+Controllers
+
+Database models
+
+Documentation
+
+Related dependencies
+
+The goal is to reduce navigation time.
+
+---
+
+# 4. Out of Scope (Version 1)
+
+The following features are intentionally excluded.
+
+Task Management
+
+Kanban Boards
+
+Sprint Planning
+
+Team Collaboration
+
+Real-time Synchronization
+
+Built-in Code Editor
+
+Terminal
+
+CI/CD Management
+
+Deployment Pipelines
+
+Bug Tracking
+
+AI Chat
+
+Code Generation
+
+Supporting these features would dilute the product's identity.
+
+---
+
+# 5. User Experience Principles
+
+The interface should feel calm and informative.
+
+Avoid information overload.
+
+Every screen should answer a single question.
+
+Visualizations should explain relationships rather than decorate the interface.
+
+Animations should communicate changes, not exist for visual appeal.
+
+Navigation should always begin with concepts rather than files.
+
+---
+
+# 6. MVP Success Scenario
+
+A developer discovers an unfamiliar GitHub repository.
+
+After importing it into Project Sarthi they should be able to:
+
+Understand the project structure.
+
+Explore any module.
+
+Trace any API request.
+
+Understand major dependencies.
+
+Identify project health issues.
+
+Locate relevant documentation.
+
+Resume development after long breaks.
+
+All without manually reading dozens of source files.
+
+If this experience consistently reduces onboarding and context recovery from hours to minutes, the MVP has fulfilled its purpose.
+
+---
+
+# 7. Engineering Principles
+
+Throughout development, every new feature must satisfy at least one of the following goals:
+
+Improve understanding.
+
+Improve navigation.
+
+Improve context recovery.
+
+Improve software visualization.
+
+If it does not satisfy one of these goals, it should not be included in the MVP.
+
+These principles act as the project's long-term decision filter and should remain valid even as the platform grows.
+
+----------------------------------------------------------------------------------
+
+# Chapter 3 – Core Architecture: The Project Graph
+
+---
+
+# 1. Introduction
+
+The most important architectural decision in Project Sarthi is that the application does **not** think in terms of files.
+
+Instead, it thinks in terms of relationships.
+
+Traditional development tools primarily expose a file system.
+
+Project Sarthi exposes a **Project Graph**.
+
+The Project Graph is the internal representation of everything the platform understands about a software project.
+
+Every parser contributes information to this graph.
+
+Every visualization reads from this graph.
+
+Every future analysis engine operates on this graph.
+
+The graph becomes the single source of truth for the entire application.
+
+---
+
+# 2. What is the Project Graph?
+
+The Project Graph is a directed graph containing:
+
+* Nodes (entities inside the project)
+* Edges (relationships between those entities)
+
+Example:
+
+Authentication Module
+
+↓
+
+POST /login
+
+↓
+
+Login Controller
+
+↓
+
+Auth Service
+
+↓
+
+User Model
+
+↓
+
+Database
+
+↓
+
+Frontend Login Page
+
+↓
+
+Documentation
+
+Notice that this is not a folder hierarchy.
+
+It is a representation of how the software actually behaves.
+
+---
+
+# 3. Design Goals
+
+The Project Graph must satisfy the following requirements.
+
+## Single Source of Truth
+
+Every entity exists exactly once.
+
+If the same route appears in multiple visualizations, those visualizations reference the same underlying node.
+
+---
+
+## Framework Independent
+
+The graph must not depend on Express, Next.js or Prisma.
+
+Instead, parsers translate framework-specific information into a common graph model.
+
+This allows future plugins to emit identical graph structures regardless of language or framework.
+
+---
+
+## Extensible
+
+New parsers should only need to create nodes and edges.
+
+They should never modify existing graph logic.
+
+---
+
+## Queryable
+
+The graph should answer questions efficiently.
+
+Examples:
+
+* Which frontend pages use this API?
+* Which modules depend on Redis?
+* Which documentation references this service?
+* Which routes use JWT middleware?
+
+The graph exists primarily to answer questions.
+
+---
+
+# 4. Node Types
+
+Version 1 of Project Sarthi supports the following node categories.
+
+## Project
+
+Represents the entire software project.
+
+Contains metadata such as:
+
+* Name
+* Repository URL
+* Framework
+* Language
+* Last Analysis
+* Parser Version
+
+There will only be one Project node.
+
+---
+
+## Module
+
+The highest logical grouping.
+
+Examples:
+
+Authentication
+
+Payments
+
+Inventory
+
+Orders
+
+Users
+
+Analytics
+
+Modules become the primary navigation units.
+
+Modules are detected using route-based grouping.
+
+---
+
+## Route
+
+Represents an API endpoint.
+
+Example:
+
+POST /login
+
+GET /users
+
+PATCH /orders/:id
+
+Stores:
+
+HTTP Method
+
+Path
+
+Controller
+
+Validation
+
+Middleware
+
+Response Type
+
+---
+
+## Controller
+
+Represents request handlers.
+
+Controllers connect incoming requests with business logic.
+
+---
+
+## Service
+
+Contains business logic.
+
+Services usually communicate with:
+
+* Database
+* External APIs
+* Other services
+
+---
+
+## Database Model
+
+Represents:
+
+Prisma models
+
+Mongoose schemas
+
+Stores:
+
+Fields
+
+Relationships
+
+Indexes (future)
+
+---
+
+## Frontend Component
+
+Represents React or Next.js components that consume APIs.
+
+Initially only API-consuming pages/components will be included.
+
+---
+
+## Documentation
+
+Represents Markdown documents.
+
+Examples:
+
+README
+
+API Documentation
+
+Architecture Notes
+
+Feature Documentation
+
+---
+
+## External Service
+
+Represents third-party systems.
+
+Examples:
+
+Stripe
+
+Cloudinary
+
+Firebase
+
+OpenAI (future)
+
+Redis
+
+SMTP
+
+---
+
+## Environment Variable
+
+Represents required configuration values.
+
+Examples:
+
+DATABASE_URL
+
+JWT_SECRET
+
+SENDGRID_API_KEY
+
+---
+
+# 5. Edge Types
+
+Nodes become valuable because of their relationships.
+
+Version 1 supports the following edge types.
+
+Module
+
+contains
+
+Route
+
+Route
+
+handled_by
+
+Controller
+
+Controller
+
+uses
+
+Service
+
+Service
+
+queries
+
+Database Model
+
+Service
+
+calls
+
+External Service
+
+Frontend Component
+
+calls
+
+Route
+
+Documentation
+
+describes
+
+Module
+
+Documentation
+
+describes
+
+Route
+
+Environment Variable
+
+required_by
+
+Service
+
+Module
+
+depends_on
+
+Module
+
+Future edge types can be added without changing the graph architecture.
+
+---
+
+# 6. Why Route-Based Module Detection?
+
+This decision deserves explanation.
+
+Software projects can be grouped in many ways.
+
+Folder structure.
+
+Database models.
+
+Imports.
+
+Dependency clustering.
+
+Project Sarthi intentionally chooses **route-based module detection**.
+
+Reason:
+
+Routes are usually the clearest representation of software features.
+
+Example:
+
+/auth/login
+
+/auth/register
+
+/auth/refresh
+
+These naturally belong to the Authentication module.
+
+Likewise:
+
+/orders
+
+/orders/:id
+
+/orders/history
+
+belong to the Orders module.
+
+This grouping closely matches how developers mentally organize applications.
+
+If multiple folders contribute to one route group, they are still considered part of the same logical module.
+
+Future versions may allow additional grouping strategies through plugins.
+
+---
+
+# 7. Graph Construction Pipeline
+
+The graph is built incrementally.
+
+Step 1
+
+Clone repository.
+
+↓
+
+Step 2
+
+Detect technologies.
+
+↓
+
+Step 3
+
+Select compatible parsers.
+
+↓
+
+Step 4
+
+Parse project files.
+
+↓
+
+Step 5
+
+Extract entities.
+
+↓
+
+Step 6
+
+Create graph nodes.
+
+↓
+
+Step 7
+
+Create graph edges.
+
+↓
+
+Step 8
+
+Run graph validation.
+
+↓
+
+Step 9
+
+Run analysis engine.
+
+↓
+
+Step 10
+
+Persist graph to database.
+
+No visualization begins until the graph has been successfully constructed.
+
+---
+
+# 8. Graph Validation
+
+Before storing the Project Graph, Sarthi performs validation.
+
+Validation ensures:
+
+No duplicate nodes.
+
+No invalid references.
+
+No orphan edges.
+
+All relationships reference existing entities.
+
+Every route belongs to exactly one module.
+
+Every controller references valid services.
+
+Validation failures are logged for debugging.
+
+---
+
+# 9. Graph Persistence
+
+The graph should be stored separately from the original repository.
+
+Reason:
+
+The graph represents understanding.
+
+The repository represents source code.
+
+Keeping them separate allows future graph versions without modifying repository data.
+
+The database stores:
+
+Nodes
+
+Edges
+
+Metadata
+
+Analysis Results
+
+Project Statistics
+
+Future AI Embeddings (Version 2)
+
+---
+
+# 10. Graph Versioning
+
+Every analysis produces a graph version.
+
+Reasons:
+
+Track architectural evolution.
+
+Compare analyses.
+
+Support future diff visualizations.
+
+Recover previous project states.
+
+Version 1 will store graph versions but will not expose comparison tools.
+
+This keeps future expansion possible without increasing MVP complexity.
+
+---
+
+# 11. What the Graph Enables
+
+The Project Graph is the foundation for every major feature.
+
+Project Overview
+
+Reads project metadata.
+
+Module Explorer
+
+Reads Module nodes.
+
+Dependency Graph
+
+Visualizes graph edges.
+
+Request Flow Explorer
+
+Traverses Route → Controller → Service chains.
+
+Project Health
+
+Runs graph analysis.
+
+Search
+
+Queries graph nodes.
+
+Resume Session
+
+Compares current graph against previous analysis.
+
+Future AI
+
+Receives graph context instead of raw source code.
+
+Every feature becomes another way of interacting with the same underlying data.
+
+---
+
+# 12. Engineering Principles
+
+The Project Graph should never contain presentation logic.
+
+It should describe software only.
+
+Visualizations are responsible for deciding how information is displayed.
+
+Parsers are responsible for extracting information.
+
+Analysis engines are responsible for generating insights.
+
+The graph itself remains a clean, framework-independent representation of the software.
+
+Maintaining this separation of responsibilities is essential for long-term scalability.
+
+-------------------------------------------------------------------------------
 
