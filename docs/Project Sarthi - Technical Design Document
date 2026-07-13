@@ -2338,3 +2338,615 @@ Trust is more important than feature count.
 Project Sarthi should occasionally report fewer insights if that means every reported insight is accurate, understandable and genuinely useful.
 
 ----------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 6 – Database Design & Data Model
+
+---
+
+### 1. Introduction
+
+The database is responsible for storing **understanding**, not source code.
+
+The GitHub repository remains the source of truth for the software itself.
+
+Project Sarthi stores:
+
+* Information extracted from the repository.
+* The generated Project Graph.
+* Analysis results.
+* Historical graph versions.
+* User accounts.
+* Project metadata.
+
+This separation is intentional.
+
+If a repository is deleted from the database and imported again, Sarthi should be capable of reconstructing the same understanding from the repository.
+
+---
+
+### 2. Why PostgreSQL?
+
+Project Sarthi requires a database capable of handling:
+
+* Highly relational data.
+* Complex queries.
+* Version history.
+* Fast filtering.
+* Reliable transactions.
+
+PostgreSQL satisfies all these requirements while remaining one of the most widely used production databases.
+
+Advantages:
+
+* Excellent relational capabilities.
+* Mature ecosystem.
+* Strong Prisma support.
+* Free and open source.
+* Resume value.
+* Easy deployment later.
+
+Version 1 intentionally avoids graph databases such as Neo4j.
+
+Although the Project Graph is conceptually a graph, PostgreSQL can represent it efficiently for our current scale.
+
+If future requirements justify a dedicated graph database, only the persistence layer should change—not the architecture.
+
+---
+
+### 3. Why Prisma?
+
+Prisma is selected as the ORM because it provides:
+
+* Type-safe database access.
+* Automatic TypeScript types.
+* Database migrations.
+* Schema-first development.
+* Excellent developer experience.
+* Strong PostgreSQL integration.
+
+Since the frontend and backend are written in TypeScript, Prisma integrates naturally with the project.
+
+---
+
+### 4. First-Time Setup
+
+Since this project is also intended to expand technical skills, PostgreSQL and Prisma are considered learning objectives.
+
+Version 1 development assumes no previous experience.
+
+Before backend implementation begins, complete the following setup.
+
+#### Install PostgreSQL
+
+Install the latest stable PostgreSQL release.
+
+During installation:
+
+* Remember the password for the `postgres` user.
+* Keep the default port (5432).
+* Install pgAdmin.
+
+After installation verify:
+
+* PostgreSQL service is running.
+* pgAdmin opens successfully.
+* You can create a new database.
+
+---
+
+#### Install Prisma
+
+Inside the backend project:
+
+```bash
+npm install prisma --save-dev
+npm install @prisma/client
+```
+
+Initialize Prisma:
+
+```bash
+npx prisma init
+```
+
+This generates:
+
+```text
+backend/
+
+├── prisma/
+│   └── schema.prisma
+│
+├── .env
+```
+
+The `.env` file stores the PostgreSQL connection string.
+
+---
+
+#### Verify Connection
+
+Create a database named:
+
+```text
+project_sarthi
+```
+
+Update:
+
+```env
+DATABASE_URL="postgresql://..."
+```
+
+Run:
+
+```bash
+npx prisma migrate dev
+```
+
+Successful migration confirms the setup.
+
+---
+
+### 5. Data Ownership
+
+Every piece of stored information belongs to one of four categories.
+
+#### User Data
+
+Authentication.
+
+Preferences.
+
+Owned projects.
+
+---
+
+#### Project Data
+
+Repository.
+
+Metadata.
+
+Framework information.
+
+Repository settings.
+
+---
+
+#### Graph Data
+
+Nodes.
+
+Edges.
+
+Relationships.
+
+Versions.
+
+---
+
+#### Analysis Data
+
+Insights.
+
+Warnings.
+
+Health metrics.
+
+Generated summaries.
+
+Keeping these concerns separate simplifies future development.
+
+---
+
+### 6. High-Level Database Structure
+
+```text
+Users
+│
+├── Projects
+│     │
+│     ├── Graph Versions
+│     │      │
+│     │      ├── Nodes
+│     │      └── Edges
+│     │
+│     ├── Analyses
+│     ├── Insights
+│     └── Health Reports
+```
+
+Everything ultimately belongs to a Project.
+
+---
+
+### 7. Core Tables
+
+Version 1 requires the following tables.
+
+---
+
+#### User
+
+Purpose:
+
+Authentication.
+
+Stores:
+
+* ID
+* Name
+* Email
+* Password Hash
+* Created At
+* Updated At
+
+Future:
+
+Profile settings.
+
+Theme.
+
+Notification preferences.
+
+---
+
+#### Project
+
+Represents one software repository.
+
+Stores:
+
+* ID
+* Owner
+* Name
+* Description
+* GitHub URL
+* Default Branch
+* Framework
+* Language
+* Last Analysis
+* Current Graph Version
+* Created At
+
+One user may own many projects.
+
+---
+
+#### GraphVersion
+
+Every successful repository analysis creates one Graph Version.
+
+Stores:
+
+* Version Number
+* Analysis Timestamp
+* Git Commit Hash
+* Repository Branch
+* Parser Version
+
+Purpose:
+
+Allow comparison between analyses.
+
+Support Resume Session.
+
+Support future graph history.
+
+---
+
+#### Node
+
+Stores every Project Graph node.
+
+Fields include:
+
+* ID
+* Graph Version
+* Node Type
+* Name
+* Metadata (JSON)
+* Created At
+
+Examples:
+
+Authentication Module.
+
+POST /login.
+
+User Model.
+
+Auth Service.
+
+README.
+
+The metadata field stores type-specific information.
+
+Example:
+
+Route metadata:
+
+* HTTP Method
+* Path
+
+Model metadata:
+
+* Collection Name
+* Fields
+
+Documentation metadata:
+
+* File Path
+
+---
+
+#### Edge
+
+Stores relationships between nodes.
+
+Fields:
+
+* Source Node
+* Destination Node
+* Relationship Type
+
+Examples:
+
+Authentication
+
+contains
+
+POST /login
+
+Route
+
+handled_by
+
+Controller
+
+Controller
+
+uses
+
+Service
+
+Service
+
+queries
+
+Database Model
+
+The Edge table forms the backbone of the Project Graph.
+
+---
+
+#### Analysis
+
+Represents one completed analysis.
+
+Stores:
+
+* Analysis Duration
+* Parser Version
+* Status
+* Graph Version
+* Summary
+
+This table exists independently from GraphVersion because future analyses may include additional processing stages.
+
+---
+
+#### Insight
+
+Stores every generated insight.
+
+Fields:
+
+* Title
+* Description
+* Severity
+* Related Node
+* Related Module
+* Analysis
+* Created At
+
+Examples:
+
+Authentication documentation is outdated.
+
+Orders module has high coupling.
+
+Unused middleware detected.
+
+---
+
+#### HealthMetric
+
+Stores health indicators.
+
+Each metric is independent.
+
+Examples:
+
+Documentation Coverage
+
+Circular Dependencies
+
+Unused Routes
+
+Dependency Complexity
+
+Future versions can introduce new metrics without modifying existing data.
+
+---
+
+### 8. Why Separate Nodes and Metadata?
+
+Different node types require different information.
+
+Example:
+
+A Route stores:
+
+* HTTP Method
+* URL
+* Response Type
+
+A Database Model stores:
+
+* Fields
+* Relationships
+
+A Markdown document stores:
+
+* File Path
+* Heading Structure
+
+Instead of creating separate tables for every node type, Version 1 stores common information in the Node table and node-specific information inside a JSON metadata column.
+
+Advantages:
+
+* Flexible.
+* Easy plugin support.
+* Easier migrations.
+* Simpler graph construction.
+
+---
+
+### 9. Graph Versioning Strategy
+
+Every repository analysis creates a completely new graph version.
+
+Old versions remain unchanged.
+
+Advantages:
+
+Reliable history.
+
+Future comparisons.
+
+Rollback support.
+
+Cleaner implementation.
+
+Version 1 stores graph history but only exposes the latest graph in the interface.
+
+---
+
+### 10. Indexing Strategy
+
+To maintain performance, PostgreSQL indexes should be added for:
+
+* Project ID
+* Graph Version
+* Node Type
+* Relationship Type
+* Analysis Timestamp
+* User ID
+
+These indexes will significantly improve graph traversal and search performance.
+
+---
+
+### 11. Why Not Store Source Code?
+
+Project Sarthi is not a backup service.
+
+The repository already stores source code.
+
+Duplicating source files inside PostgreSQL would:
+
+Increase storage.
+
+Complicate synchronization.
+
+Create unnecessary inconsistencies.
+
+Instead, only derived knowledge is stored.
+
+---
+
+### 12. Data Flow
+
+```text
+GitHub Repository
+        │
+        ▼
+Clone Repository
+        │
+        ▼
+Parser Engine
+        │
+        ▼
+Graph Builder
+        │
+        ▼
+Project Graph
+        │
+        ▼
+Analysis Engine
+        │
+        ▼
+PostgreSQL
+        │
+        ├── Projects
+        ├── Nodes
+        ├── Edges
+        ├── Analyses
+        ├── Insights
+        └── Health Metrics
+```
+
+The database becomes the persistent memory of Project Sarthi.
+
+---
+
+### 13. Backup & Recovery
+
+Version 1 assumes GitHub is the authoritative source.
+
+If database information is lost:
+
+* Repository is cloned again.
+* Parsers rebuild the Project Graph.
+* Analysis Engine regenerates insights.
+
+This design intentionally minimizes irreversible data loss.
+
+---
+
+### 14. Future Expansion
+
+The current schema allows future additions without redesign.
+
+Potential additions include:
+
+* AI embeddings.
+* Team collaboration.
+* Comments.
+* Saved graph layouts.
+* User annotations.
+* Runtime logs.
+* Deployment history.
+
+These features can be attached to existing tables rather than replacing them.
+
+---
+
+### 15. Engineering Principles
+
+The database should persist knowledge rather than implementation.
+
+Every stored entity should answer one question:
+
+"Will storing this make the project easier to understand later?"
+
+If the answer is no, it likely does not belong in the database.
+
+The schema should remain stable even as parser plugins, frontend technologies, and supported frameworks continue to evolve.
+
+---------------------------------------------------------------------------------
+
