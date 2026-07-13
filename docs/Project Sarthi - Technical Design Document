@@ -2950,3 +2950,752 @@ The schema should remain stable even as parser plugins, frontend technologies, a
 
 ---------------------------------------------------------------------------------
 
+# Project Sarthi - Technical Design Document
+
+## Chapter 7 – Backend Architecture & API Design
+
+---
+
+### 1. Introduction
+
+The backend is the central coordinator of Project Sarthi.
+
+It is responsible for authentication, repository management, parser execution, graph construction, analysis generation and data persistence.
+
+The backend **does not** contain visualization logic.
+
+It also **does not** contain framework-specific parser implementations inside its business logic.
+
+Instead, it orchestrates specialized components while exposing a clean REST API to the frontend.
+
+The backend should be designed so that additional parsers, analyses and frontend applications can be added without major architectural changes.
+
+---
+
+### 2. Technology Stack
+
+Version 1 will use the following backend technologies.
+
+**Runtime**
+
+* Node.js
+
+**Framework**
+
+* Express.js
+
+**Language**
+
+* TypeScript
+
+**Database**
+
+* PostgreSQL
+
+**ORM**
+
+* Prisma
+
+**Authentication**
+
+* JWT
+* Refresh Tokens
+* HTTP-only Cookies
+* bcrypt
+
+**Repository Operations**
+
+* simple-git
+
+**Validation**
+
+* Zod
+
+**Logging**
+
+* Pino
+
+**Environment Variables**
+
+* dotenv
+
+---
+
+### 3. High-Level Architecture
+
+The backend follows a layered architecture.
+
+```text
+HTTP Request
+      │
+      ▼
+Routes
+      │
+      ▼
+Controllers
+      │
+      ▼
+Services
+      │
+      ▼
+Repositories
+      │
+      ▼
+Prisma
+      │
+      ▼
+PostgreSQL
+```
+
+Some services communicate with independent engines.
+
+```text
+Repository Service
+        │
+        ▼
+Parser Engine
+        │
+        ▼
+Graph Builder
+        │
+        ▼
+Analysis Engine
+```
+
+Each layer has one responsibility.
+
+---
+
+### 4. Folder Structure
+
+The backend should maintain a clean modular structure.
+
+```text
+backend/
+
+src/
+
+├── app.ts
+
+├── server.ts
+
+├── config/
+
+├── routes/
+
+├── controllers/
+
+├── services/
+
+├── repositories/
+
+├── middleware/
+
+├── parsers/
+
+│     ├── react/
+
+│     ├── express/
+
+│     ├── prisma/
+
+│     ├── mongoose/
+
+│     ├── markdown/
+
+│     └── openapi/
+
+├── graph/
+
+│     ├── builder/
+
+│     ├── analysis/
+
+│     ├── models/
+
+│     └── validators/
+
+├── github/
+
+├── auth/
+
+├── utils/
+
+├── types/
+
+└── prisma/
+```
+
+Every major subsystem remains isolated.
+
+---
+
+### 5. Layer Responsibilities
+
+#### Routes
+
+Routes only define endpoints.
+
+They should never contain business logic.
+
+Example:
+
+```text
+POST /projects
+
+GET /projects/:id
+
+POST /projects/:id/analyze
+```
+
+---
+
+#### Controllers
+
+Controllers receive requests.
+
+Responsibilities:
+
+* Validate input.
+* Call services.
+* Return responses.
+* Handle expected errors.
+
+Controllers should remain thin.
+
+---
+
+#### Services
+
+Services contain business logic.
+
+Examples:
+
+Authentication Service
+
+Project Service
+
+Repository Service
+
+Analysis Service
+
+Graph Service
+
+Search Service
+
+Most application logic belongs here.
+
+---
+
+#### Repositories
+
+Repositories communicate with Prisma.
+
+Responsibilities:
+
+* Database reads.
+* Database writes.
+* Query optimization.
+
+Business logic must never be implemented here.
+
+---
+
+### 6. Authentication Flow
+
+Project Sarthi supports authenticated users only.
+
+Flow:
+
+```text
+Register
+
+↓
+
+Login
+
+↓
+
+Access Token
+
++
+
+Refresh Token
+
+↓
+
+Frontend
+
+↓
+
+Authenticated Requests
+```
+
+Implementation:
+
+* Password hashed using bcrypt.
+* Access token stored in memory.
+* Refresh token stored in HTTP-only cookie.
+* Refresh endpoint issues new access token.
+
+This architecture supports future SaaS deployment.
+
+---
+
+### 7. Creating a Project
+
+The workflow begins with project creation.
+
+User submits:
+
+* Project Name
+* GitHub Repository URL
+* Description (optional)
+
+Backend performs:
+
+* Validate repository URL.
+* Verify user ownership.
+* Store project metadata.
+* Queue repository analysis.
+
+No source code is stored.
+
+---
+
+### 8. Repository Service
+
+The Repository Service is responsible for interacting with Git repositories.
+
+Responsibilities:
+
+Clone repository.
+
+Pull updates.
+
+Detect default branch.
+
+Read commit hash.
+
+Read repository structure.
+
+Temporary repositories should be stored outside the main application directory.
+
+Suggested structure:
+
+```text
+temp/
+
+repositories/
+
+project-id/
+```
+
+Repositories may be safely deleted after analysis if storage becomes an issue.
+
+---
+
+### 9. Manual Analysis
+
+Version 1 intentionally avoids automatic synchronization.
+
+Instead, every project contains an
+
+**Analyze Project**
+
+button.
+
+Backend workflow:
+
+```text
+User clicks Analyze
+
+↓
+
+Repository Pull
+
+↓
+
+Parser Engine
+
+↓
+
+Graph Builder
+
+↓
+
+Analysis Engine
+
+↓
+
+Database Update
+
+↓
+
+Return Success
+```
+
+This keeps Version 1 significantly simpler.
+
+---
+
+### 10. Parser Orchestration
+
+The backend never directly parses files.
+
+Instead:
+
+Repository Service
+
+↓
+
+Parser Manager
+
+↓
+
+Compatible Plugins
+
+↓
+
+Graph Builder
+
+↓
+
+Analysis Engine
+
+This separation allows parser plugins to remain completely independent.
+
+---
+
+### 11. Graph Builder Integration
+
+The Graph Builder receives normalized parser output.
+
+Responsibilities:
+
+Create nodes.
+
+Create edges.
+
+Assign identifiers.
+
+Remove duplicates.
+
+Validate graph.
+
+Return complete Project Graph.
+
+No parser should directly manipulate graph storage.
+
+---
+
+### 12. Analysis Engine Integration
+
+After graph construction:
+
+Graph
+
+↓
+
+Analysis Engine
+
+↓
+
+Insights
+
+Health Metrics
+
+Warnings
+
+Recommendations
+
+↓
+
+Database
+
+This process is completely deterministic.
+
+---
+
+### 13. Search API
+
+Search operates on Project Graph entities.
+
+Example request:
+
+```text
+GET /projects/:id/search?q=authentication
+```
+
+Possible response:
+
+Module
+
+Routes
+
+Controllers
+
+Services
+
+Documentation
+
+Dependencies
+
+Search never returns raw file matches unless specifically requested.
+
+---
+
+### 14. Project APIs
+
+Initial endpoints.
+
+Authentication
+
+```text
+POST /auth/register
+
+POST /auth/login
+
+POST /auth/logout
+
+POST /auth/refresh
+```
+
+Projects
+
+```text
+GET /projects
+
+POST /projects
+
+GET /projects/:id
+
+DELETE /projects/:id
+```
+
+Repository
+
+```text
+POST /projects/:id/analyze
+
+GET /projects/:id/status
+```
+
+Graph
+
+```text
+GET /projects/:id/graph
+
+GET /projects/:id/modules
+
+GET /projects/:id/module/:moduleId
+```
+
+Analysis
+
+```text
+GET /projects/:id/overview
+
+GET /projects/:id/insights
+
+GET /projects/:id/health
+
+GET /projects/:id/resume
+```
+
+Search
+
+```text
+GET /projects/:id/search
+```
+
+---
+
+### 15. API Response Format
+
+Every response should follow a consistent structure.
+
+Successful response:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+Failed response:
+
+```json
+{
+  "success": false,
+  "message": "Project not found"
+}
+```
+
+Unexpected server errors should never expose internal details.
+
+---
+
+### 16. Validation
+
+Every incoming request should be validated.
+
+Recommended library:
+
+Zod
+
+Validation should occur before reaching controllers.
+
+Examples:
+
+Repository URL.
+
+Project name.
+
+Authentication fields.
+
+Search query.
+
+Invalid requests should never reach the service layer.
+
+---
+
+### 17. Logging
+
+Logging should be structured.
+
+Recommended library:
+
+Pino
+
+Important events:
+
+User login.
+
+Project creation.
+
+Repository clone.
+
+Analysis started.
+
+Analysis completed.
+
+Parser failure.
+
+Unexpected errors.
+
+Logs should assist debugging rather than overwhelm developers.
+
+---
+
+### 18. Error Handling
+
+Errors fall into four categories.
+
+Validation Errors
+
+Repository Errors
+
+Parser Errors
+
+Unexpected Server Errors
+
+Parser failures should not crash the server.
+
+Whenever possible:
+
+Continue analysis.
+
+Log warnings.
+
+Report partial success.
+
+---
+
+### 19. Security Considerations
+
+Repositories should never execute.
+
+Only static analysis is performed.
+
+Additional precautions:
+
+Validate repository URLs.
+
+Limit repository size.
+
+Ignore binary files.
+
+Ignore node_modules.
+
+Sanitize Markdown rendering.
+
+Protect endpoints with authentication.
+
+Rate-limit authentication routes.
+
+Never expose repository paths.
+
+Never expose internal parser errors directly to clients.
+
+---
+
+### 20. Scalability
+
+The architecture should support future growth.
+
+Possible future improvements:
+
+Background job queue.
+
+Incremental graph updates.
+
+Parallel parser execution.
+
+Distributed analysis workers.
+
+Repository caching.
+
+These enhancements should not require rewriting the existing service layer.
+
+---
+
+### 21. Engineering Principles
+
+Every backend component should answer one question.
+
+Routes
+
+"What endpoint exists?"
+
+Controllers
+
+"How should requests be handled?"
+
+Services
+
+"What should happen?"
+
+Repositories
+
+"How is data stored?"
+
+Parsers
+
+"What does the repository contain?"
+
+Graph Builder
+
+"How are entities connected?"
+
+Analysis Engine
+
+"What does the graph mean?"
+
+Maintaining these responsibilities is more important than minimizing the number of files.
+
+A developer unfamiliar with Project Sarthi should be able to locate any piece of logic within minutes because each layer has a single, clearly defined purpose.
+
+---------------------------------------------------------------------------------
+
