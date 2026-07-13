@@ -1,0 +1,307 @@
+# Project Sarthi
+
+### Technical Design Document
+
+### Version 1.0 (Working Draft)
+
+---
+
+# 1. Vision
+
+Software projects rarely fail because developers forget how to write code.
+
+They fail because developers lose understanding.
+
+As projects grow, knowledge becomes fragmented across multiple places:
+
+* Source code
+* Git history
+* API documentation
+* Database schemas
+* Architecture diagrams
+* README files
+* Markdown notes
+* External documentation
+* Memory
+
+When a developer returns to a project after several weeks or months, the code still exists, but the understanding does not.
+
+Developers spend a significant amount of time answering questions such as:
+
+* Where was I working?
+* How does this module work?
+* Why was this architecture chosen?
+* Which files are connected?
+* What depends on this service?
+* Is the documentation still accurate?
+* What changed since I last worked on this?
+
+Project Sarthi exists to answer these questions.
+
+Instead of acting as another project management tool or documentation platform, Sarthi continuously constructs an understanding of a software project and presents that understanding through interactive visualizations and contextual summaries.
+
+Its purpose is not to replace GitHub, VS Code, Postman or Notion.
+
+Its purpose is to become the layer that understands how they all relate to one another.
+
+---
+
+# 2. Product Identity
+
+Project Sarthi is a Software Understanding Platform.
+
+It continuously analyzes a software project, constructs an internal representation of it, and helps developers understand, navigate and continue development without losing context.
+
+The project focuses on understanding software rather than producing software.
+
+---
+
+# 3. Core Promise
+
+> Understand, navigate and continue any supported software project without losing context.
+
+Every feature implemented in Sarthi must strengthen this promise.
+
+If a feature does not help the user understand their project or continue working on it more efficiently, it does not belong in the product.
+
+---
+
+# 4. Elevator Pitch
+
+Project Sarthi is a personal engineering companion that continuously builds an understanding of your software project.
+
+Connect your GitHub repository and Sarthi automatically analyzes your codebase, APIs, database models, documentation and project structure to create an interactive project graph.
+
+Instead of searching through hundreds of files, developers can explore their project visually, understand dependencies, identify affected components and resume work after long breaks within minutes.
+
+Git remembers what changed.
+
+Project Sarthi remembers what the software means.
+
+---
+
+# 5. Target Audience
+
+The initial version is designed for:
+
+* Individual software developers
+* College students building projects
+* Freelancers
+* Open source contributors
+* Indie hackers
+
+Future versions may support collaborative teams, but collaboration is explicitly outside the scope of Version 1.
+
+---
+
+# 6. The Problem
+
+Modern software development is fragmented.
+
+A single project often involves:
+
+* GitHub
+* VS Code
+* Browser tabs
+* API documentation
+* Database schema
+* Architecture diagrams
+* README files
+* Markdown notes
+
+Each tool understands one small part of the project.
+
+No tool understands the project as a whole.
+
+As development progresses:
+
+* documentation becomes outdated
+* architecture evolves
+* dependencies increase
+* modules become interconnected
+* developers forget implementation details
+* onboarding becomes slower
+* returning to old projects becomes frustrating
+
+Existing tools store information.
+
+They rarely explain relationships.
+
+Project Sarthi solves this problem by continuously maintaining a live understanding of the project.
+
+---
+
+# 7. Non-Goals
+
+Project Sarthi is intentionally **not** the following:
+
+* A replacement for GitHub
+* A replacement for VS Code
+* A replacement for Notion
+* A replacement for Postman
+* A project management tool
+* A Kanban board
+* A sprint planner
+* A task management application
+* A note-taking application
+* A code editor
+* A CI/CD platform
+
+These responsibilities already have mature solutions.
+
+Project Sarthi complements them instead of replacing them.
+
+---
+
+# 8. Design Philosophy
+
+The following principles guide every engineering decision.
+
+## Principle 1 — Passive Before Active
+
+The user should never spend unnecessary time maintaining Project Sarthi.
+
+Information should be imported, parsed, inferred and generated automatically whenever possible.
+
+Manual data entry should always be considered a last resort.
+
+---
+
+## Principle 2 — Everything Answers a Question
+
+Every screen should answer a meaningful question.
+
+Examples include:
+
+* How does authentication work?
+* Which modules depend on Redis?
+* Which frontend pages consume this API?
+* Which documentation is outdated?
+* Where did I stop working?
+* What changed since my last session?
+
+The product should avoid displaying information without purpose.
+
+---
+
+## Principle 3 — Everything Is Connected
+
+Information should never exist in isolation.
+
+Routes connect to controllers.
+
+Controllers connect to services.
+
+Services connect to database models.
+
+Database models connect to documentation.
+
+Documentation connects to architecture.
+
+Everything ultimately becomes part of a single Project Graph.
+
+---
+
+## Principle 4 — One Source of Truth
+
+Every entity inside the software project should exist exactly once inside the internal Project Graph.
+
+All visualizations, summaries, timelines and dependency views are generated from this single source of truth.
+
+---
+
+## Principle 5 — Opinionated Simplicity
+
+Project Sarthi intentionally limits customization.
+
+Developers should not need to design their own workspace before becoming productive.
+
+The product should provide one clear and intuitive workflow that minimizes cognitive load.
+
+---
+
+# 9. MVP Scope
+
+Version 1 focuses exclusively on modern TypeScript web applications.
+
+Supported technologies:
+
+Frontend
+
+* React
+* Next.js
+
+Backend
+
+* Express.js
+
+Languages
+
+* TypeScript
+* JavaScript
+
+Database
+
+* Prisma
+* Mongoose
+
+Documentation
+
+* Markdown
+
+API Specifications
+
+* OpenAPI
+
+Additional frameworks will be added later through the plugin architecture.
+
+---
+
+# 10. Success Criteria
+
+The MVP will be considered successful if it can achieve the following scenario.
+
+A developer connects an unfamiliar repository.
+
+Within approximately five minutes they should be able to answer:
+
+* What does this project do?
+* How is it organized?
+* What modules exist?
+* How are those modules connected?
+* How does a request travel through the system?
+* Which frontend pages consume each API?
+* Which database models support each feature?
+* What changed since the last working session?
+* Where should development continue?
+
+without manually exploring the source code.
+
+If Project Sarthi can consistently reduce project understanding from hours to minutes, it has achieved its primary objective.
+
+---
+
+# 11. Future Vision
+
+The long-term vision is to make Project Sarthi the software understanding layer that sits above existing development tools.
+
+Rather than replacing established tools, Sarthi continuously builds and maintains an evolving understanding of the project, making complex software easier to navigate, maintain and extend.
+
+Future versions may introduce:
+
+* AI-assisted explanations
+* Team collaboration
+* Live synchronization
+* Additional language plugins
+* Code quality insights
+* Architecture recommendations
+* Debugging assistance
+* Performance analysis
+* Deployment visualization
+
+However, every future feature must continue serving the same core mission:
+
+Help developers understand their software instead of merely storing it.
+
+
+
