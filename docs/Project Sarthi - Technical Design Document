@@ -5338,4 +5338,682 @@ Security should protect the platform without becoming an obstacle to productivit
 
 ----------------------------------------------------------------------------------
 
+# Project Sarthi - Technical Design Document
+
+## Chapter 11 – GitHub Integration & Repository Analysis Workflow
+
+---
+
+### 1. Introduction
+
+Repository analysis is the primary workflow of Project Sarthi.
+
+Everything else in the application depends upon it.
+
+Whenever a user imports a project, Sarthi transforms a GitHub repository into an interactive understanding of the software.
+
+This transformation follows a deterministic pipeline.
+
+Every repository is processed using the same sequence of stages.
+
+This guarantees predictable behaviour and simplifies debugging.
+
+---
+
+### 2. Design Philosophy
+
+Repository analysis should satisfy the following principles.
+
+* The repository remains the source of truth.
+* Analysis is repeatable.
+* Analysis is deterministic.
+* No source code is modified.
+* Source code is never executed.
+* Partial analysis is preferred over failed analysis.
+
+The user should be able to trust that repeated analyses of the same commit produce identical Project Graphs.
+
+---
+
+### 3. High-Level Workflow
+
+The complete workflow is shown below.
+
+```text
+User clicks "Analyze Project"
+
+        │
+
+        ▼
+
+Validate Request
+
+        │
+
+        ▼
+
+Clone / Update Repository
+
+        │
+
+        ▼
+
+Detect Technologies
+
+        │
+
+        ▼
+
+Load Compatible Plugins
+
+        │
+
+        ▼
+
+Parse Repository
+
+        │
+
+        ▼
+
+Generate Normalized Output
+
+        │
+
+        ▼
+
+Build Project Graph
+
+        │
+
+        ▼
+
+Validate Graph
+
+        │
+
+        ▼
+
+Run Analysis Engine
+
+        │
+
+        ▼
+
+Persist Results
+
+        │
+
+        ▼
+
+Mark Analysis Complete
+
+        │
+
+        ▼
+
+Frontend Fetches Latest Results
+```
+
+Every stage is independent.
+
+Failures should remain isolated whenever possible.
+
+---
+
+### 4. Step 1 – Request Validation
+
+Before analysis begins, the backend verifies:
+
+* User is authenticated.
+* Project exists.
+* User owns the project.
+* Repository URL is valid.
+
+If validation fails, analysis does not begin.
+
+---
+
+### 5. Step 2 – Repository Synchronization
+
+The Repository Service determines whether the repository already exists locally.
+
+If the repository has not been cloned:
+
+Clone repository.
+
+Otherwise:
+
+Pull latest changes from the default branch.
+
+This minimizes unnecessary downloads.
+
+Temporary repository location:
+
+```text
+temp/
+
+repositories/
+
+<project-id>/
+```
+
+Version 1 stores repositories temporarily.
+
+Future versions may introduce configurable caching.
+
+---
+
+### 6. Step 3 – Technology Detection
+
+The Technology Detector scans the repository.
+
+Detection relies on project files rather than executing code.
+
+Examples include:
+
+Package dependencies.
+
+Configuration files.
+
+Directory structure.
+
+Recognized technologies:
+
+* React
+* Next.js
+* Express
+* Prisma
+* Mongoose
+* Markdown
+* OpenAPI
+
+The detector returns a Technology Report.
+
+Example:
+
+```text
+React
+
+✓
+
+Express
+
+✓
+
+Prisma
+
+✓
+
+Markdown
+
+✓
+
+OpenAPI
+
+✗
+```
+
+This report determines which parser plugins will be loaded.
+
+---
+
+### 7. Step 4 – Plugin Initialization
+
+The Parser Manager receives the Technology Report.
+
+It loads only compatible plugins.
+
+Example:
+
+```text
+Repository
+
+↓
+
+Technology Report
+
+↓
+
+Express Parser
+
+↓
+
+React Parser
+
+↓
+
+Prisma Parser
+
+↓
+
+Markdown Parser
+```
+
+Unused plugins are never initialized.
+
+This keeps analysis efficient.
+
+---
+
+### 8. Step 5 – File Collection
+
+Each parser identifies the files it needs.
+
+Examples:
+
+React Parser
+
+* .tsx
+* .jsx
+
+Express Parser
+
+* routes
+* controllers
+* services
+
+Prisma Parser
+
+* schema.prisma
+
+Markdown Parser
+
+* README.md
+* *.md
+
+The Parser Manager merges these file lists while preventing duplicate work.
+
+---
+
+### 9. Step 6 – Static Parsing
+
+Each parser converts its files into an Abstract Syntax Tree (AST).
+
+From these trees it extracts:
+
+Entities.
+
+Relationships.
+
+Metadata.
+
+No parser communicates directly with another parser.
+
+Every parser works independently.
+
+---
+
+### 10. Step 7 – Normalized Parser Output
+
+Parser results are converted into a shared intermediate format.
+
+Example:
+
+```text
+Route
+
+POST /login
+
+Controller
+
+LoginController
+
+Service
+
+AuthService
+
+Database Model
+
+User
+```
+
+This normalized format is intentionally framework-independent.
+
+It becomes the input to the Graph Builder.
+
+---
+
+### 11. Step 8 – Graph Construction
+
+The Graph Builder performs several responsibilities.
+
+Create nodes.
+
+Create edges.
+
+Assign identifiers.
+
+Merge duplicates.
+
+Validate references.
+
+Generate Project Graph.
+
+At this point the application has an internal understanding of the software.
+
+No insights have been generated yet.
+
+---
+
+### 12. Step 9 – Graph Validation
+
+Before continuing, the graph is validated.
+
+Validation checks include:
+
+Duplicate nodes.
+
+Duplicate edges.
+
+Invalid relationships.
+
+Orphan entities.
+
+Missing modules.
+
+Invalid references.
+
+Validation failures are logged.
+
+Recoverable issues should not terminate analysis.
+
+---
+
+### 13. Step 10 – Analysis
+
+The Analysis Engine receives the validated Project Graph.
+
+It produces:
+
+Project Overview.
+
+Module summaries.
+
+Dependency statistics.
+
+Project Health.
+
+Insights.
+
+Warnings.
+
+Resume Session data.
+
+Everything generated here is deterministic.
+
+---
+
+### 14. Step 11 – Database Persistence
+
+The following information is stored.
+
+Project metadata.
+
+Graph Version.
+
+Nodes.
+
+Edges.
+
+Analysis.
+
+Insights.
+
+Health Metrics.
+
+Only after persistence succeeds should the analysis be considered complete.
+
+---
+
+### 15. Step 12 – Cleanup
+
+Temporary resources should be cleaned.
+
+Version 1 strategy:
+
+Keep cloned repository for future analyses.
+
+Remove temporary parsing artefacts.
+
+Release memory.
+
+Future versions may introduce configurable repository retention policies.
+
+---
+
+### 16. Frontend Progress Tracking
+
+The frontend should continuously display analysis progress.
+
+Backend stages include:
+
+```text
+Queued
+
+↓
+
+Cloning Repository
+
+↓
+
+Detecting Technologies
+
+↓
+
+Loading Plugins
+
+↓
+
+Parsing Files
+
+↓
+
+Building Project Graph
+
+↓
+
+Analyzing Graph
+
+↓
+
+Saving Results
+
+↓
+
+Completed
+```
+
+The frontend polls the analysis status endpoint every few seconds.
+
+This provides transparency without requiring WebSockets.
+
+---
+
+### 17. Failure Recovery
+
+Failures should stop only the affected stage whenever possible.
+
+Examples:
+
+Repository cannot be cloned.
+
+Analysis terminates immediately.
+
+Markdown parser fails.
+
+Continue with remaining parsers.
+
+OpenAPI specification missing.
+
+Skip OpenAPI parser.
+
+Graph validation warning.
+
+Continue analysis while recording warnings.
+
+The objective is graceful degradation.
+
+---
+
+### 18. Performance Considerations
+
+Initial optimization strategies:
+
+Ignore:
+
+* node_modules
+* dist
+* build
+* coverage
+* generated files
+
+Process parser plugins independently.
+
+Avoid reparsing identical graph versions in future releases.
+
+Store graph versions separately.
+
+Future versions may introduce incremental parsing.
+
+---
+
+### 19. Security Considerations
+
+Repository analysis must never execute user code.
+
+Additional precautions:
+
+Clone into isolated directories.
+
+Validate repository URLs.
+
+Reject repositories exceeding configured limits.
+
+Reject unsupported archive formats.
+
+Sanitize Markdown before rendering.
+
+Never expose local filesystem paths.
+
+Only static analysis is permitted.
+
+---
+
+### 20. Sequence Diagram
+
+The complete interaction is summarized below.
+
+```text
+Frontend
+
+↓
+
+POST /analyze
+
+↓
+
+Backend
+
+↓
+
+Repository Service
+
+↓
+
+Technology Detector
+
+↓
+
+Parser Manager
+
+↓
+
+Parser Plugins
+
+↓
+
+Graph Builder
+
+↓
+
+Analysis Engine
+
+↓
+
+Database
+
+↓
+
+Status = Completed
+
+↓
+
+Frontend fetches Overview
+
+↓
+
+User begins exploration
+```
+
+This sequence forms the backbone of Project Sarthi.
+
+---
+
+### 21. Engineering Decisions
+
+#### ED-007
+
+Repository analysis is entirely deterministic.
+
+Reason:
+
+Repeatable analyses improve reliability, debugging and user trust.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-008
+
+Repositories are analyzed through static analysis only.
+
+Reason:
+
+Executing arbitrary repositories introduces unacceptable security risks.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-009
+
+Only compatible parser plugins are loaded.
+
+Reason:
+
+Reduces memory usage, improves performance and simplifies parser maintenance.
+
+Status:
+
+Accepted.
+
+---
+
+### 22. Engineering Principles
+
+The repository analysis workflow should feel invisible.
+
+From the user's perspective, they provide a GitHub repository and receive an understandable software project.
+
+All complexity—cloning, parsing, graph construction and analysis—remains hidden behind a single action.
+
+The success of Project Sarthi depends on making this transformation reliable, predictable and fast enough that developers trust it as part of their normal workflow.
+
+--------------------------------------------------------------------------------
+
 
