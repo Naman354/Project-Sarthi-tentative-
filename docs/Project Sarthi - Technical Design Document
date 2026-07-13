@@ -4216,3 +4216,647 @@ The backend understands data.
 Maintaining this separation keeps the application predictable, testable and scalable.
 
 Whenever frontend logic begins making engineering decisions about the project, that logic likely belongs in the Analysis Engine instead.
+
+---------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 9 – Graph Visualization & User Interaction
+
+---
+
+### 1. Introduction
+
+The Project Graph is the defining visual feature of Project Sarthi.
+
+However, its purpose is not to display every relationship inside a software project.
+
+Its purpose is to improve understanding.
+
+Every design decision in the graph visualization should answer one question:
+
+**"Will this help the developer understand the project faster?"**
+
+If the answer is no, the information probably does not belong in the graph.
+
+---
+
+### 2. Visualization Philosophy
+
+Software projects naturally contain hundreds or even thousands of relationships.
+
+Displaying everything simultaneously creates visual noise rather than understanding.
+
+Project Sarthi intentionally reveals information progressively.
+
+Users begin with a simplified view.
+
+Additional information appears only when requested.
+
+Understanding should increase as the user explores.
+
+---
+
+### 3. Why React Flow?
+
+React Flow provides the capabilities required without forcing us to build a graph engine ourselves.
+
+It gives us:
+
+* Interactive nodes
+* Custom node components
+* Zoom and pan
+* Minimap
+* Edge rendering
+* Keyboard shortcuts
+* Smooth animations
+* Node selection
+* Layout flexibility
+
+Project Sarthi focuses on understanding software, not reinventing graph rendering.
+
+---
+
+### 4. Graph Modes
+
+The same Project Graph should support multiple perspectives.
+
+The underlying data never changes.
+
+Only the visualization changes.
+
+---
+
+#### Mode 1 – Module View (Default)
+
+This is the first graph every user sees.
+
+Each node represents a logical module.
+
+Example:
+
+```text
+Authentication
+
+Orders
+
+Inventory
+
+Payments
+
+Analytics
+
+Notifications
+```
+
+Edges represent dependencies between modules.
+
+Purpose:
+
+Provide a high-level understanding of the project architecture.
+
+This mode intentionally hides implementation details.
+
+---
+
+#### Mode 2 – Request Flow View
+
+Focused on one endpoint.
+
+Example:
+
+```text
+POST /login
+
+↓
+
+Validation
+
+↓
+
+JWT Middleware
+
+↓
+
+Login Controller
+
+↓
+
+Auth Service
+
+↓
+
+User Model
+
+↓
+
+Database
+```
+
+Purpose:
+
+Understand how requests travel through the application.
+
+---
+
+#### Mode 3 – Dependency View
+
+Displays relationships between technical components.
+
+Examples:
+
+Services
+
+Database Models
+
+External APIs
+
+Middleware
+
+Controllers
+
+Purpose:
+
+Understand coupling and dependencies.
+
+---
+
+#### Mode 4 – Documentation View
+
+Shows how documentation relates to implementation.
+
+Examples:
+
+README
+
+Architecture Notes
+
+API Documentation
+
+Module Documentation
+
+Purpose:
+
+Identify undocumented or outdated areas.
+
+---
+
+### 5. Node Types
+
+Every node should communicate its purpose immediately.
+
+Version 1 includes:
+
+Module
+
+Route
+
+Controller
+
+Service
+
+Database Model
+
+Frontend Component
+
+Documentation
+
+External Service
+
+Environment Variable
+
+Every node type should have a consistent visual identity.
+
+---
+
+### 6. Node Design
+
+Every node should contain only essential information.
+
+Example:
+
+Route Node
+
+```
+POST
+
+/login
+```
+
+Module Node
+
+```
+Authentication
+
+12 Routes
+
+4 Services
+```
+
+Service Node
+
+```
+AuthService
+```
+
+The graph should remain readable even at medium zoom levels.
+
+---
+
+### 7. Edge Design
+
+Edges represent relationships.
+
+Examples:
+
+contains
+
+handled_by
+
+uses
+
+queries
+
+calls
+
+depends_on
+
+describes
+
+Edges should remain subtle.
+
+Nodes communicate primary information.
+
+Edges communicate relationships.
+
+---
+
+### 8. Layout Strategy
+
+Automatic layout is required.
+
+Users should never manually arrange graphs.
+
+Version 1 should use a layered layout algorithm.
+
+High-level structure:
+
+```text
+Modules
+
+↓
+
+Routes
+
+↓
+
+Controllers
+
+↓
+
+Services
+
+↓
+
+Database
+```
+
+This immediately communicates architectural flow.
+
+Future versions may allow users to switch layouts.
+
+---
+
+### 9. Progressive Disclosure
+
+The graph should never display everything initially.
+
+Instead:
+
+Overview
+
+↓
+
+Expand Module
+
+↓
+
+Expand Route
+
+↓
+
+Expand Controller
+
+↓
+
+Expand Service
+
+Every expansion reveals one additional level of detail.
+
+This dramatically reduces visual clutter.
+
+---
+
+### 10. Interaction Model
+
+Every interaction should answer a question.
+
+Selecting a node should never simply highlight it.
+
+Instead it should update the Context Panel.
+
+Possible interactions:
+
+Single Click
+
+Select node.
+
+Double Click
+
+Expand node.
+
+Mouse Hover
+
+Quick preview.
+
+Right Click (future)
+
+Additional actions.
+
+Keyboard Shortcuts
+
+Navigation.
+
+---
+
+### 11. Context Panel
+
+The Context Panel appears on the right side of the interface.
+
+It changes depending on the selected node.
+
+Example:
+
+Authentication Module
+
+Displays:
+
+Overview
+
+Routes
+
+Dependencies
+
+Documentation
+
+Related Insights
+
+Recent Changes
+
+Health Indicators
+
+Navigation Links
+
+The graph and panel together create the complete exploration experience.
+
+---
+
+### 12. Graph Filtering
+
+Users should be able to reduce complexity.
+
+Available filters:
+
+Hide Documentation
+
+Hide Environment Variables
+
+Hide External Services
+
+Show Only API Flow
+
+Show Only Database
+
+Show Only Frontend
+
+Filtering changes visibility only.
+
+The Project Graph itself never changes.
+
+---
+
+### 13. Highlighting
+
+Highlighting should communicate relationships.
+
+Example:
+
+Selecting
+
+AuthService
+
+automatically highlights:
+
+Connected Routes
+
+Connected Controllers
+
+Connected Models
+
+Dependent Modules
+
+Everything else becomes visually subdued.
+
+This guides attention naturally.
+
+---
+
+### 14. Navigation
+
+The graph should never trap users.
+
+Breadcrumbs should always indicate their current position.
+
+Example:
+
+```
+Project
+
+>
+
+Authentication
+
+>
+
+POST /login
+
+>
+
+AuthService
+```
+
+Users should always know where they are.
+
+---
+
+### 15. Search Integration
+
+Searching for an entity should automatically:
+
+Locate the node.
+
+Center the graph.
+
+Highlight relationships.
+
+Open the Context Panel.
+
+Search and graph exploration should feel like one continuous experience.
+
+---
+
+### 16. Health Visualization
+
+Health indicators should integrate naturally into the graph.
+
+Examples:
+
+Documentation Issue
+
+Small warning badge.
+
+Circular Dependency
+
+Highlighted relationship.
+
+Unused Route
+
+Subtle indicator.
+
+Large Module
+
+Additional information in Context Panel.
+
+The graph should never become a wall of warning icons.
+
+---
+
+### 17. Analysis Progress Visualization
+
+While analysis runs, users should see progress.
+
+Example:
+
+```
+Repository
+
+✓
+
+Technology Detection
+
+✓
+
+Parser Execution
+
+✓
+
+Graph Construction
+
+...
+
+Analysis
+
+Waiting
+
+Saving
+
+Waiting
+```
+
+This provides confidence that the system is actively working.
+
+---
+
+### 18. Animations
+
+Animations should communicate change.
+
+Examples:
+
+Node expansion.
+
+Graph transitions.
+
+Selection.
+
+Filtering.
+
+Analysis completion.
+
+Animations should remain subtle.
+
+Avoid decorative effects.
+
+---
+
+### 19. Accessibility
+
+Version 1 should consider accessibility from the beginning.
+
+Requirements:
+
+Keyboard navigation.
+
+Screen reader labels.
+
+High contrast compatibility.
+
+Color should never be the only method of conveying information.
+
+Icons and labels should reinforce meaning.
+
+---
+
+### 20. Design Decisions
+
+#### DD-005
+
+The graph should visualize understanding rather than source code.
+
+---
+
+#### DD-006
+
+Every interaction should reduce cognitive load.
+
+---
+
+#### DD-007
+
+Progressive disclosure is preferred over displaying every relationship simultaneously.
+
+---
+
+#### DD-008
+
+Context Panels are preferred over opening new pages because they preserve exploration context.
+
+---
+
+### 21. Engineering Principles
+
+The Project Graph should feel like exploring a city rather than reading a spreadsheet.
+
+Users begin with neighborhoods (modules).
+
+They gradually explore streets (routes).
+
+Eventually they inspect individual buildings (services, controllers and models).
+
+At every level, the interface should communicate structure, relationships and purpose.
+
+When a user leaves the graph, they should understand the software better than when they entered—not because they saw more information, but because they saw the right information in the right order.
+
+----------------------------------------------------------------------------------
+
+
