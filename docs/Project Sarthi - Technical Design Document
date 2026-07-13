@@ -7711,3 +7711,446 @@ It should also be judged by the quality of its architecture, code organization, 
 A developer opening the repository for the first time should recognize thoughtful engineering decisions before reading a single implementation file.
 
 ----------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 15 – Future Roadmap, Long-Term Vision & Guiding Principles
+
+---
+
+### 1. Introduction
+
+Version 1 of Project Sarthi focuses on solving one problem exceptionally well:
+
+Helping developers understand and continue software projects without losing context.
+
+This chapter outlines how the platform may evolve after the successful completion of the MVP.
+
+The purpose of this roadmap is not to commit to future features.
+
+Instead, it provides a direction for future development while protecting the identity of the product.
+
+---
+
+# Part I — Version 2 Roadmap
+
+---
+
+### 2. AI-Assisted Understanding
+
+Artificial Intelligence should enhance Project Sarthi, not define it.
+
+The Project Graph remains the primary source of understanding.
+
+Future AI features should consume:
+
+* Project Graph
+* Analysis Results
+* Documentation
+* Historical Graph Versions
+
+Possible capabilities include:
+
+Explain Module
+
+Summarize Recent Changes
+
+Trace Feature Flow
+
+Suggest Documentation Updates
+
+Compare Graph Versions
+
+Generate Onboarding Summaries
+
+AI should never replace deterministic analysis.
+
+It should explain existing knowledge rather than invent new knowledge.
+
+---
+
+### 3. Live Repository Synchronization
+
+Version 1 performs analysis manually.
+
+Version 2 may support:
+
+Automatic repository synchronization.
+
+Incremental graph updates.
+
+Background analysis.
+
+Scheduled repository refreshes.
+
+Users should never lose understanding simply because the repository changed.
+
+---
+
+### 4. Runtime Awareness
+
+Static analysis answers many questions.
+
+Runtime analysis answers different ones.
+
+Future integration may include:
+
+Application logs.
+
+Performance metrics.
+
+Error hotspots.
+
+Frequently failing APIs.
+
+Request latency.
+
+When combined with the Project Graph, runtime information provides a more complete understanding of the software.
+
+---
+
+### 5. Team Collaboration
+
+Future versions may support collaborative workspaces.
+
+Potential features:
+
+Shared projects.
+
+Project invitations.
+
+Team roles.
+
+Annotations.
+
+Engineering discussions.
+
+Review comments.
+
+The Project Graph becomes shared knowledge rather than individual knowledge.
+
+---
+
+### 6. Additional Framework Support
+
+The plugin architecture allows support for additional technologies.
+
+Potential additions include:
+
+NestJS
+
+Fastify
+
+Django
+
+Flask
+
+Spring Boot
+
+Laravel
+
+Ruby on Rails
+
+Go
+
+Rust
+
+Docker Compose
+
+Kubernetes
+
+GraphQL
+
+Terraform
+
+Support for new technologies should require new plugins rather than architectural redesign.
+
+---
+
+### 7. Project Comparison
+
+Future graph versions enable meaningful comparison.
+
+Possible features:
+
+Architecture evolution.
+
+Dependency growth.
+
+Module complexity over time.
+
+Documentation improvements.
+
+Project health trends.
+
+This transforms Project Sarthi from a snapshot into a historical engineering record.
+
+---
+
+### 8. Desktop Companion
+
+Some organizations work with private repositories that cannot be uploaded.
+
+A future desktop companion application could:
+
+Analyze local repositories.
+
+Generate Project Graphs locally.
+
+Synchronize only graph data.
+
+Preserve privacy while retaining the same user experience.
+
+---
+
+# Part II — Long-Term Product Vision
+
+---
+
+### 9. Vision
+
+Project Sarthi should become the understanding layer for software engineering.
+
+Current development tools excel at writing code.
+
+Git stores history.
+
+VS Code edits files.
+
+GitHub stores repositories.
+
+Postman tests APIs.
+
+Database clients manage data.
+
+Each tool understands one aspect of software.
+
+Project Sarthi understands the relationships between them.
+
+Its purpose is not to replace existing tools.
+
+Its purpose is to connect them through understanding.
+
+---
+
+### 10. The Long-Term Goal
+
+Imagine a developer opening a large unfamiliar repository.
+
+Instead of spending several days exploring folders, they connect it to Project Sarthi.
+
+Within minutes they understand:
+
+Project architecture.
+
+Major modules.
+
+Dependencies.
+
+Request flow.
+
+Database relationships.
+
+Documentation quality.
+
+Potential risks.
+
+Current project health.
+
+Recent evolution.
+
+Project Sarthi should reduce software understanding from hours to minutes.
+
+That is the long-term objective.
+
+---
+
+### 11. Measuring Success
+
+Project Sarthi succeeds if developers begin asking questions such as:
+
+"Let's open Sarthi."
+
+instead of
+
+"Let's search the repository."
+
+The product should become the natural starting point for understanding software.
+
+---
+
+# Part III — Guiding Principles
+
+---
+
+### 12. Product Principles
+
+As Project Sarthi evolves, every new feature should reinforce these principles.
+
+---
+
+#### GP-001
+
+Project Sarthi understands software.
+
+It does not merely display software.
+
+---
+
+#### GP-002
+
+Understanding is more valuable than organization.
+
+The platform should explain relationships rather than collect information.
+
+---
+
+#### GP-003
+
+Automation is preferred over manual input.
+
+Developers should spend time building software, not maintaining Project Sarthi.
+
+---
+
+#### GP-004
+
+Every visualization must answer a meaningful engineering question.
+
+Visualizations are tools for understanding.
+
+They are never decorative.
+
+---
+
+#### GP-005
+
+Every major feature must reduce cognitive load.
+
+If a feature makes the project harder to understand, it does not belong.
+
+---
+
+#### GP-006
+
+The Project Graph remains the single source of truth.
+
+Every visualization, insight and future AI capability builds upon it.
+
+---
+
+#### GP-007
+
+Frameworks change.
+
+Architecture should not.
+
+The plugin system protects the platform from technological change.
+
+---
+
+#### GP-008
+
+Trust is earned through correctness.
+
+Project Sarthi should occasionally provide fewer insights if that ensures every insight is accurate.
+
+---
+
+#### GP-009
+
+The repository remains the source of truth.
+
+Project Sarthi stores understanding—not source code.
+
+---
+
+#### GP-010
+
+Version 1 should solve one problem exceptionally well rather than many problems adequately.
+
+---
+
+### 13. Lessons Learned During Design
+
+Several architectural lessons shaped the design of Project Sarthi.
+
+The most important were:
+
+Software is better represented as relationships than files.
+
+Developers think in modules rather than directories.
+
+Understanding should be generated automatically whenever possible.
+
+Static analysis provides significant value without executing code.
+
+Every feature becomes simpler when built upon a single Project Graph.
+
+These observations influenced nearly every engineering decision in this document.
+
+---
+
+### 14. Closing Statement
+
+Project Sarthi began as an exploration of a simple question:
+
+**Why does returning to an old software project feel so difficult?**
+
+The answer was not that developers forget syntax or lose technical skill.
+
+They lose context.
+
+The architecture, workflows and visualizations described throughout this document exist to solve that problem.
+
+Project Sarthi is not intended to become another project management application or another development environment.
+
+It is intended to become a trusted engineering companion that continuously builds and preserves an understanding of software.
+
+If Version 1 consistently helps developers answer:
+
+* What does this project do?
+* How is it organized?
+* What depends on this?
+* Where should I continue?
+* What changed?
+
+without manually exploring hundreds of files, then the project has achieved its primary objective.
+
+The success of Project Sarthi will not be measured by the number of features it contains.
+
+It will be measured by how much easier it makes understanding software.
+
+---
+
+### 15. Final Engineering Decision
+
+#### ED-019
+
+Every future feature must strengthen the core promise of the platform.
+
+Reason:
+
+Products lose their identity through uncontrolled feature growth rather than technical limitations.
+
+Status:
+
+Accepted.
+
+---
+
+### 16. End of Design Phase
+
+This document concludes the design phase of Project Sarthi.
+
+The product vision, architecture, engineering principles and implementation roadmap have been defined.
+
+From this point onward, development decisions should reference this document before introducing architectural changes.
+
+Implementation should prioritize correctness, maintainability and clarity over speed.
+
+The objective is not merely to build a functioning application.
+
+The objective is to build a software product whose architecture demonstrates thoughtful engineering and whose user experience genuinely improves the way developers understand software.
+
+---------------------------------------------------------------------------------
