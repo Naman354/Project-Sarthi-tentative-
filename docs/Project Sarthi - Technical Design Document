@@ -6657,3 +6657,548 @@ The complexity of the parser engine should not.
 
 The success of the architecture will be measured by how easy it is to support a completely new framework five years from now without modifying the core application.
 
+---------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 13 – Development Roadmap & Milestones
+
+---
+
+### 1. Introduction
+
+The objective of this roadmap is not to maximize development speed.
+
+Its objective is to maximize learning while ensuring that every completed milestone leaves Project Sarthi in a working state.
+
+Each milestone builds directly upon the previous one.
+
+Large unfinished systems should be avoided.
+
+Version 1 should always remain deployable.
+
+---
+
+### 2. Development Philosophy
+
+Project Sarthi should be built vertically rather than horizontally.
+
+Instead of implementing every backend component first and the frontend later, each milestone should produce a complete feature.
+
+For example:
+
+```text
+Authentication
+
+↓
+
+Backend
+
+↓
+
+Frontend
+
+↓
+
+Database
+
+↓
+
+Testing
+
+↓
+
+Working Feature
+```
+
+rather than
+
+```text
+Backend
+
+↓
+
+Frontend
+
+↓
+
+Database
+
+↓
+
+Authentication
+```
+
+This approach provides continuous feedback and reduces integration issues.
+
+---
+
+### 3. Milestone Overview
+
+Version 1 consists of ten implementation milestones.
+
+1. Project Foundation
+
+2. Authentication
+
+3. Project Management
+
+4. Repository Integration
+
+5. Parser Engine
+
+6. Graph Builder
+
+7. Analysis Engine
+
+8. Frontend & Visualization
+
+9. Search & Polish
+
+10. Testing & Deployment
+
+Each milestone should conclude with a stable Git commit.
+
+---
+
+### 4. Milestone 1 – Project Foundation
+
+Objective:
+
+Prepare the development environment.
+
+Tasks:
+
+* Create GitHub repository.
+* Initialize Next.js frontend.
+* Initialize Express backend.
+* Configure TypeScript.
+* Install PostgreSQL.
+* Install Prisma.
+* Configure ESLint.
+* Configure Prettier.
+* Configure Husky.
+* Configure environment variables.
+* Create basic folder structure.
+* Verify frontend-backend communication.
+
+Deliverable:
+
+A running frontend communicating with a running backend connected to PostgreSQL.
+
+---
+
+### 5. Milestone 2 – Authentication
+
+Objective:
+
+Implement user authentication.
+
+Tasks:
+
+* User model.
+* Registration.
+* Login.
+* JWT generation.
+* Refresh tokens.
+* Protected routes.
+* Logout.
+* Authentication middleware.
+
+Deliverable:
+
+Users can securely register, log in and access protected endpoints.
+
+---
+
+### 6. Milestone 3 – Project Management
+
+Objective:
+
+Users can manage projects.
+
+Tasks:
+
+* Create project.
+* List projects.
+* Delete project.
+* View project.
+* Project ownership.
+* Dashboard.
+
+Deliverable:
+
+Authenticated users can manage multiple software projects.
+
+---
+
+### 7. Milestone 4 – Repository Integration
+
+Objective:
+
+Connect GitHub repositories.
+
+Tasks:
+
+* Validate GitHub URLs.
+* Clone repositories.
+* Pull updates.
+* Repository storage.
+* Repository metadata.
+* Analysis status.
+
+Deliverable:
+
+Projects can be connected to real GitHub repositories.
+
+No parsing yet.
+
+---
+
+### 8. Milestone 5 – Parser Engine
+
+Objective:
+
+Understand repositories.
+
+Tasks:
+
+Technology detection.
+
+Parser Manager.
+
+React parser.
+
+Express parser.
+
+Prisma parser.
+
+Markdown parser.
+
+Normalized parser output.
+
+Visitor architecture.
+
+Deliverable:
+
+Repository analysis produces normalized entities.
+
+---
+
+### 9. Milestone 6 – Graph Builder
+
+Objective:
+
+Generate the Project Graph.
+
+Tasks:
+
+Node creation.
+
+Edge creation.
+
+Relationship validation.
+
+Duplicate removal.
+
+Graph persistence.
+
+Graph versioning.
+
+Deliverable:
+
+Repository becomes a complete Project Graph.
+
+---
+
+### 10. Milestone 7 – Analysis Engine
+
+Objective:
+
+Generate understanding.
+
+Tasks:
+
+Module summaries.
+
+Dependency analysis.
+
+Documentation analysis.
+
+Health metrics.
+
+Insights.
+
+Resume Session.
+
+Deliverable:
+
+The graph becomes meaningful engineering information.
+
+---
+
+### 11. Milestone 8 – Frontend & Visualization
+
+Objective:
+
+Build the user experience.
+
+Tasks:
+
+Overview page.
+
+Module Explorer.
+
+React Flow integration.
+
+Context Panel.
+
+Search interface.
+
+Progress screen.
+
+Graph interactions.
+
+Deliverable:
+
+Users can visually explore their software.
+
+---
+
+### 12. Milestone 9 – Search & Polish
+
+Objective:
+
+Improve usability.
+
+Tasks:
+
+Project search.
+
+Graph filtering.
+
+Focus Mode.
+
+Loading states.
+
+Animations.
+
+Error handling.
+
+Responsive improvements.
+
+Performance optimization.
+
+Deliverable:
+
+Project Sarthi feels polished rather than functional.
+
+---
+
+### 13. Milestone 10 – Testing & Deployment
+
+Objective:
+
+Prepare Version 1 for public use.
+
+Tasks:
+
+Unit tests.
+
+Parser tests.
+
+Integration tests.
+
+Bug fixing.
+
+Performance improvements.
+
+Deployment.
+
+Documentation.
+
+Deliverable:
+
+Version 1 released.
+
+---
+
+### 14. Git Strategy
+
+Use feature branches.
+
+Example:
+
+```text
+main
+
+feature/auth
+
+feature/projects
+
+feature/parser
+
+feature/graph
+
+feature/analysis
+
+feature/frontend
+
+feature/search
+```
+
+Merge only after completing each milestone.
+
+The `main` branch should always remain deployable.
+
+---
+
+### 15. Commit Strategy
+
+Commits should represent meaningful progress.
+
+Good examples:
+
+```text
+feat(auth): implement JWT authentication
+
+feat(projects): add project CRUD
+
+feat(parser): implement Express parser
+
+feat(graph): build graph generation engine
+
+feat(analysis): generate dependency insights
+
+feat(frontend): add module explorer
+
+fix(parser): resolve duplicate route detection
+```
+
+Avoid commits like:
+
+```text
+final changes
+
+update
+
+misc fixes
+
+working version
+```
+
+A clean Git history is part of the project.
+
+---
+
+### 16. Learning Roadmap
+
+This project intentionally introduces new technologies gradually.
+
+Milestone 1
+
+* PostgreSQL
+* Prisma
+
+Milestone 2
+
+* JWT Authentication
+
+Milestone 4
+
+* GitHub repository operations
+
+Milestone 5
+
+* AST parsing
+* Visitor Pattern
+
+Milestone 6
+
+* Graph modeling
+
+Milestone 8
+
+* React Flow
+* TanStack Query
+* Zustand
+
+Learning should always support the current milestone rather than getting too far ahead.
+
+---
+
+### 17. Success Criteria
+
+Each milestone should satisfy three conditions.
+
+1. The application builds successfully.
+
+2. Existing features continue working.
+
+3. The codebase remains understandable.
+
+Version 1 should never become "temporarily broken" while waiting for future milestones.
+
+---
+
+### 18. Engineering Decisions
+
+#### ED-013
+
+Build vertically instead of layer-by-layer.
+
+Reason:
+
+Continuous integration and easier debugging.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-014
+
+Every milestone ends in a deployable application.
+
+Reason:
+
+Stable progress is preferable to large unfinished systems.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-015
+
+Treat Git history as part of the project.
+
+Reason:
+
+The commit history should demonstrate engineering discipline and project evolution.
+
+Status:
+
+Accepted.
+
+---
+
+### 19. Final Goal
+
+By the completion of Version 1, Project Sarthi should be capable of:
+
+* Authenticating users.
+* Managing software projects.
+* Connecting GitHub repositories.
+* Parsing supported technologies.
+* Constructing a Project Graph.
+* Generating engineering insights.
+* Visualizing project architecture.
+* Helping developers understand unfamiliar software.
+* Restoring context after long development breaks.
+
+Achieving these objectives represents a successful MVP and establishes a strong foundation for future expansion.
+
+---------------------------------------------------------------------------------
