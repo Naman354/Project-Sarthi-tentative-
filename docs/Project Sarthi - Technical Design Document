@@ -7202,3 +7202,512 @@ By the completion of Version 1, Project Sarthi should be capable of:
 Achieving these objectives represents a successful MVP and establishes a strong foundation for future expansion.
 
 ---------------------------------------------------------------------------------
+
+# Project Sarthi - Technical Design Document
+
+## Chapter 14 – Engineering Standards, Testing Strategy & Project Conventions
+
+---
+
+### 1. Introduction
+
+Project Sarthi is intended to be developed as a production-quality software project.
+
+Although it is initially built by a single developer, the architecture, coding standards and development practices should assume that multiple engineers may contribute in the future.
+
+The objective of these standards is not to increase development speed.
+
+The objective is to improve maintainability, readability, reliability and long-term scalability.
+
+Every engineering decision should prioritize clarity over cleverness.
+
+---
+
+### 2. Engineering Philosophy
+
+The following principles guide implementation.
+
+* Readability is preferred over brevity.
+* Simplicity is preferred over unnecessary abstraction.
+* Explicit code is preferred over hidden behaviour.
+* Modular architecture is preferred over large utility files.
+* Every component should have a single responsibility.
+
+When multiple implementations are possible, prefer the one that a new contributor can understand most quickly.
+
+---
+
+### 3. Folder Organization
+
+Every folder should represent a responsibility rather than a technology.
+
+Example:
+
+Good
+
+```text
+services/
+repositories/
+controllers/
+parsers/
+middleware/
+graph/
+```
+
+Poor
+
+```text
+helpers/
+common/
+misc/
+utilities/
+```
+
+Folders with ambiguous responsibilities should be avoided.
+
+---
+
+### 4. File Size Guidelines
+
+Approximate limits:
+
+Components
+
+* 200–300 lines
+
+Services
+
+* 300–400 lines
+
+Controllers
+
+* Under 150 lines
+
+Parser Visitors
+
+* Under 250 lines
+
+Graph Builder
+
+Split into multiple files rather than one large implementation.
+
+Large files are indicators for refactoring rather than targets.
+
+---
+
+### 5. Naming Conventions
+
+Variables
+
+camelCase
+
+Functions
+
+camelCase
+
+Classes
+
+PascalCase
+
+Interfaces
+
+PascalCase
+
+Files
+
+kebab-case
+
+Folders
+
+lowercase
+
+Constants
+
+UPPER_SNAKE_CASE
+
+Consistency is more important than personal preference.
+
+---
+
+### 6. Code Comments
+
+Comments should explain **why**, not **what**.
+
+Good
+
+```ts
+// Route-based grouping is used because it reflects
+// how developers mentally organize features.
+```
+
+Poor
+
+```ts
+// Increment i
+i++
+```
+
+Self-explanatory code should not require comments.
+
+---
+
+### 7. Error Handling Philosophy
+
+Errors should be expected.
+
+Unexpected crashes should be rare.
+
+Guidelines:
+
+Never swallow exceptions silently.
+
+Log useful context.
+
+Return meaningful error responses.
+
+Never expose stack traces to clients.
+
+Parser failures should degrade gracefully whenever possible.
+
+---
+
+### 8. Logging Standards
+
+Use structured logging.
+
+Every log should answer:
+
+* What happened?
+* When?
+* Why?
+* Which project?
+* Which component?
+
+Important events:
+
+Authentication.
+
+Repository cloning.
+
+Parser execution.
+
+Graph construction.
+
+Analysis completion.
+
+Errors.
+
+Avoid excessive logging inside frequently executed loops.
+
+---
+
+### 9. Configuration Management
+
+Never hardcode configuration.
+
+Use environment variables for:
+
+Database URL.
+
+JWT Secret.
+
+GitHub Tokens (future).
+
+Cookie settings.
+
+Application Port.
+
+Feature flags.
+
+Configuration should remain centralized.
+
+---
+
+### 10. API Standards
+
+Every endpoint should return consistent responses.
+
+Success
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+Failure
+
+```json
+{
+  "success": false,
+  "message": "...",
+  "errorCode": "..."
+}
+```
+
+Consistency simplifies frontend development.
+
+---
+
+### 11. Testing Philosophy
+
+Testing should focus on confidence rather than coverage percentages.
+
+Priority order:
+
+Critical business logic.
+
+Parser correctness.
+
+Graph generation.
+
+Authentication.
+
+API behaviour.
+
+User interface.
+
+Version 1 does not require exhaustive test coverage.
+
+It requires confidence that major features work reliably.
+
+---
+
+### 12. Unit Testing
+
+Examples:
+
+Authentication Service.
+
+Graph Builder.
+
+Technology Detector.
+
+Parser Visitors.
+
+Dependency Analysis.
+
+Health Metrics.
+
+Every unit test should isolate one behaviour.
+
+---
+
+### 13. Integration Testing
+
+Integration tests verify communication between components.
+
+Examples:
+
+Parser Engine → Graph Builder.
+
+Graph Builder → Database.
+
+Analysis Engine → Database.
+
+Authentication → Protected Routes.
+
+These tests ensure architectural components work together correctly.
+
+---
+
+### 14. End-to-End Testing
+
+End-to-end tests verify complete workflows.
+
+Examples:
+
+User Registration.
+
+Project Creation.
+
+Repository Import.
+
+Analysis Completion.
+
+Graph Exploration.
+
+Search.
+
+The objective is to verify that the product behaves correctly from the user's perspective.
+
+---
+
+### 15. Parser Testing
+
+Parser correctness directly affects every downstream feature.
+
+Every parser should maintain dedicated sample repositories.
+
+Tests should verify:
+
+Routes.
+
+Controllers.
+
+Services.
+
+Relationships.
+
+Edge cases.
+
+Unsupported syntax.
+
+Regression tests should be added whenever parser bugs are fixed.
+
+---
+
+### 16. Performance Guidelines
+
+Performance should be considered from the beginning.
+
+Avoid:
+
+Repeated database queries.
+
+Unnecessary graph reconstruction.
+
+Blocking operations.
+
+Loading entire repositories into memory when unnecessary.
+
+Optimize only after measuring bottlenecks.
+
+---
+
+### 17. Security Checklist
+
+Before every release verify:
+
+Passwords hashed.
+
+JWT validated.
+
+Input validated.
+
+Repository URLs sanitized.
+
+Markdown sanitized.
+
+Protected routes authenticated.
+
+Secrets stored securely.
+
+Dependencies updated.
+
+No sensitive information exposed.
+
+---
+
+### 18. Documentation Standards
+
+Every major module should contain:
+
+Purpose.
+
+Responsibilities.
+
+Dependencies.
+
+Public API.
+
+Future developers should understand a module before reading its implementation.
+
+---
+
+### 19. Pull Request Checklist
+
+Although Version 1 is developed individually, every feature should satisfy:
+
+Build passes.
+
+Lint passes.
+
+Tests pass.
+
+Documentation updated.
+
+No unnecessary console logs.
+
+Meaningful commit history.
+
+Feature manually verified.
+
+This discipline prepares the project for future collaboration.
+
+---
+
+### 20. Definition of Done
+
+A feature is complete only if:
+
+Implementation finished.
+
+Works correctly.
+
+Tested.
+
+Documented.
+
+Integrated.
+
+Reviewed.
+
+If one of these conditions is missing, the feature is still considered incomplete.
+
+---
+
+### 21. Engineering Decisions
+
+#### ED-016
+
+Engineering discipline is treated as a product feature.
+
+Reason:
+
+Maintainability directly affects the long-term success of the project.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-017
+
+Parser correctness receives higher testing priority than UI components.
+
+Reason:
+
+Every visualization depends on parser accuracy.
+
+Status:
+
+Accepted.
+
+---
+
+#### ED-018
+
+Code should be optimized for future readability rather than minimum line count.
+
+Reason:
+
+Maintainability is more valuable than compact code.
+
+Status:
+
+Accepted.
+
+---
+
+### 22. Engineering Principles
+
+The quality of Project Sarthi should not be judged only by what users see.
+
+It should also be judged by the quality of its architecture, code organization, documentation and testing.
+
+A developer opening the repository for the first time should recognize thoughtful engineering decisions before reading a single implementation file.
+
+----------------------------------------------------------------------------------
