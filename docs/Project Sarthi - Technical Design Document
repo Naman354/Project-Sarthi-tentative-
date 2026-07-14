@@ -1,12 +1,52 @@
-# Project Sarthi
+# Project Sarthi - Technical Design Document
 
-### Technical Design Document
+# Table of Contents
+
+| Chapter | Topic |
+|---------|-------|
+| 1 | Vision & Product Definition |
+| 2 | Product Requirements Document (PRD) |
+| 3 | Core Architecture: The Project Graph |
+| 4 | Parser Engine & Plugin Architecture |
+| 5 | Analysis Engine & Insight Generation |
+| 6 | Database Design & Data Model |
+| 7 | Backend Architecture & API Design |
+| 8 | Frontend Architecture & Navigation |
+| 9 | Graph Visualization & User Interaction |
+| 10 | Authentication & User Management |
+| 11 | GitHub Integration & Repository Analysis Workflow |
+| 12 | Plugin Development Guide & Extensibility |
+| 13 | Development Roadmap & Milestones |
+| 14 | Engineering Standards, Testing Strategy & Project Conventions |
+| 15 | Future Roadmap, Long-Term Vision & Guiding Principles |
+
+## Quick Reference
+
+| Looking for... | Go to |
+|---------------|--------|
+| Product vision & identity | Chapter 1 |
+| Features & MVP scope | Chapter 2 |
+| Project Graph architecture | Chapter 3 |
+| Parser implementation | Chapter 4 |
+| Analysis & insights | Chapter 5 |
+| PostgreSQL & Prisma schema | Chapter 6 |
+| Express backend | Chapter 7 |
+| Next.js frontend | Chapter 8 |
+| React Flow & graph UI | Chapter 9 |
+| Authentication | Chapter 10 |
+| GitHub integration | Chapter 11 |
+| Writing new parser plugins | Chapter 12 |
+| Development order | Chapter 13 |
+| Testing & engineering standards | Chapter 14 |
+| Future roadmap | Chapter 15 |
+
+## Chapter 1 – Vision & Product Definition
 
 ### Version 1.0 (Working Draft)
 
 ---
 
-# 1. Vision
+### 1. Vision
 
 Software projects rarely fail because developers forget how to write code.
 
@@ -46,7 +86,7 @@ Its purpose is to become the layer that understands how they all relate to one a
 
 ---
 
-# 2. Product Identity
+### 2. Product Identity
 
 Project Sarthi is a Software Understanding Platform.
 
@@ -56,7 +96,7 @@ The project focuses on understanding software rather than producing software.
 
 ---
 
-# 3. Core Promise
+### 3. Core Promise
 
 > Understand, navigate and continue any supported software project without losing context.
 
@@ -66,7 +106,7 @@ If a feature does not help the user understand their project or continue working
 
 ---
 
-# 4. Elevator Pitch
+### 4. Elevator Pitch
 
 Project Sarthi is a personal engineering companion that continuously builds an understanding of your software project.
 
@@ -80,7 +120,7 @@ Project Sarthi remembers what the software means.
 
 ---
 
-# 5. Target Audience
+### 5. Target Audience
 
 The initial version is designed for:
 
@@ -94,7 +134,7 @@ Future versions may support collaborative teams, but collaboration is explicitly
 
 ---
 
-# 6. The Problem
+### 6. The Problem
 
 Modern software development is fragmented.
 
@@ -131,7 +171,7 @@ Project Sarthi solves this problem by continuously maintaining a live understand
 
 ---
 
-# 7. Non-Goals
+### 7. Non-Goals
 
 Project Sarthi is intentionally **not** the following:
 
@@ -153,7 +193,7 @@ Project Sarthi complements them instead of replacing them.
 
 ---
 
-# 8. Design Philosophy
+### 8. Design Philosophy
 
 The following principles guide every engineering decision.
 
@@ -220,7 +260,7 @@ The product should provide one clear and intuitive workflow that minimizes cogni
 
 ---
 
-# 9. MVP Scope
+### 9. MVP Scope
 
 Version 1 focuses exclusively on modern TypeScript web applications.
 
@@ -257,7 +297,7 @@ Additional frameworks will be added later through the plugin architecture.
 
 ---
 
-# 10. Success Criteria
+### 10. Success Criteria
 
 The MVP will be considered successful if it can achieve the following scenario.
 
@@ -281,7 +321,7 @@ If Project Sarthi can consistently reduce project understanding from hours to mi
 
 ---
 
-# 11. Future Vision
+### 11. Future Vision
 
 The long-term vision is to make Project Sarthi the software understanding layer that sits above existing development tools.
 
@@ -305,11 +345,13 @@ Help developers understand their software instead of merely storing it.
 
 --------------------------------------------------------------------------------
 
-# Chapter 2 – Product Requirements Document (PRD)
+# Project Sarthi - Technical Design Document
+
+## Chapter 2 – Product Requirements Document (PRD)
 
 ---
 
-# 1. Product Overview
+### 1. Product Overview
 
 Project Sarthi is a software understanding platform designed to help developers maintain context throughout the lifecycle of a software project.
 
@@ -321,7 +363,7 @@ Project Sarthi is not intended to replace development tools. It complements them
 
 ---
 
-# 2. Core User Journey
+### 2. Core User Journey
 
 The primary user journey should be simple enough that a new user understands the product within minutes.
 
@@ -399,7 +441,7 @@ These modules become the primary navigation units.
 
 ---
 
-# 3. Primary Features
+### 3. Primary Features
 
 ## Feature 1 – Project Overview
 
@@ -626,7 +668,7 @@ The goal is to reduce navigation time.
 
 ---
 
-# 4. Out of Scope (Version 1)
+### 4. Out of Scope (Version 1)
 
 The following features are intentionally excluded.
 
@@ -658,7 +700,7 @@ Supporting these features would dilute the product's identity.
 
 ---
 
-# 5. User Experience Principles
+### 5. User Experience Principles
 
 The interface should feel calm and informative.
 
@@ -674,7 +716,7 @@ Navigation should always begin with concepts rather than files.
 
 ---
 
-# 6. MVP Success Scenario
+### 6. MVP Success Scenario
 
 A developer discovers an unfamiliar GitHub repository.
 
@@ -700,7 +742,7 @@ If this experience consistently reduces onboarding and context recovery from hou
 
 ---
 
-# 7. Engineering Principles
+### 7. Engineering Principles
 
 Throughout development, every new feature must satisfy at least one of the following goals:
 
@@ -718,11 +760,13 @@ These principles act as the project's long-term decision filter and should remai
 
 ----------------------------------------------------------------------------------
 
-# Chapter 3 – Core Architecture: The Project Graph
+# Project Sarthi - Technical Design Document
+
+## Chapter 3 – Core Architecture: The Project Graph
 
 ---
 
-# 1. Introduction
+### 1. Introduction
 
 The most important architectural decision in Project Sarthi is that the application does **not** think in terms of files.
 
@@ -744,7 +788,7 @@ The graph becomes the single source of truth for the entire application.
 
 ---
 
-# 2. What is the Project Graph?
+### 2. What is the Project Graph?
 
 The Project Graph is a directed graph containing:
 
@@ -789,7 +833,7 @@ It is a representation of how the software actually behaves.
 
 ---
 
-# 3. Design Goals
+### 3. Design Goals
 
 The Project Graph must satisfy the following requirements.
 
@@ -834,7 +878,7 @@ The graph exists primarily to answer questions.
 
 ---
 
-# 4. Node Types
+### 4. Node Types
 
 Version 1 of Project Sarthi supports the following node categories.
 
@@ -1003,7 +1047,7 @@ SENDGRID_API_KEY
 
 ---
 
-# 5. Edge Types
+### 5. Edge Types
 
 Nodes become valuable because of their relationships.
 
@@ -1073,7 +1117,7 @@ Future edge types can be added without changing the graph architecture.
 
 ---
 
-# 6. Why Route-Based Module Detection?
+### 6. Why Route-Based Module Detection?
 
 This decision deserves explanation.
 
@@ -1121,7 +1165,7 @@ Future versions may allow additional grouping strategies through plugins.
 
 ---
 
-# 7. Graph Construction Pipeline
+### 7. Graph Construction Pipeline
 
 The graph is built incrementally.
 
@@ -1187,7 +1231,7 @@ No visualization begins until the graph has been successfully constructed.
 
 ---
 
-# 8. Graph Validation
+### 8. Graph Validation
 
 Before storing the Project Graph, Sarthi performs validation.
 
@@ -1209,7 +1253,7 @@ Validation failures are logged for debugging.
 
 ---
 
-# 9. Graph Persistence
+### 9. Graph Persistence
 
 The graph should be stored separately from the original repository.
 
@@ -1237,7 +1281,7 @@ Future AI Embeddings (Version 2)
 
 ---
 
-# 10. Graph Versioning
+### 10. Graph Versioning
 
 Every analysis produces a graph version.
 
@@ -1257,7 +1301,7 @@ This keeps future expansion possible without increasing MVP complexity.
 
 ---
 
-# 11. What the Graph Enables
+### 11. What the Graph Enables
 
 The Project Graph is the foundation for every major feature.
 
@@ -1297,7 +1341,7 @@ Every feature becomes another way of interacting with the same underlying data.
 
 ---
 
-# 12. Engineering Principles
+### 12. Engineering Principles
 
 The Project Graph should never contain presentation logic.
 
