@@ -6807,30 +6807,45 @@ Each milestone should conclude with a stable Git commit.
 
 ### 4. Milestone 1 – Project Foundation
 
-Objective:
+**Objective:**
 
-Prepare the development environment.
+Prepare the complete development environment and establish a stable foundation for future development.
 
-Tasks:
+#### Phase 1 – Workspace Setup
 
 * Create GitHub repository.
+* Initialize npm workspace.
 * Initialize Next.js frontend.
 * Initialize Express backend.
+* Configure root workspace.
+
+#### Phase 2 – Backend Foundation
+
 * Configure TypeScript.
+* Configure environment variables.
+* Create basic backend folder structure.
+* Verify the backend runs successfully.
+
+#### Phase 3 – Database Foundation
+
 * Install PostgreSQL.
 * Install Prisma.
+* Configure Prisma.
+* Verify database connection.
+
+#### Phase 4 – Development Tooling
+
 * Configure ESLint.
 * Configure Prettier.
 * Configure Husky.
-* Configure environment variables.
-* Create basic folder structure.
+
+#### Phase 5 – Frontend Integration
+
 * Verify frontend-backend communication.
 
-Deliverable:
+**Deliverable:**
 
-A running frontend communicating with a running backend connected to PostgreSQL.
-
----
+A running frontend communicating with a running backend connected to PostgreSQL, with the development environment fully configured and ready for feature development.
 
 ### 5. Milestone 2 – Authentication
 

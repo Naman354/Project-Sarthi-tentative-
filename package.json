@@ -1,0 +1,23 @@
+{
+  "name": "project-sarthi",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=web",
+    "dev:api": "npm run dev --workspace=api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Naman354/Project-Sarthi-tentative-.git"
+  },
+  "keywords": [],
+  "author": "Naman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Naman354/Project-Sarthi-tentative-/issues"
+  },
+  "homepage": "https://github.com/Naman354/Project-Sarthi-tentative-#readme"
+}
