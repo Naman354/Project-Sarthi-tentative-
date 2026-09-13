@@ -26,7 +26,7 @@ async function verifyModels() {
       insightsCount: insights.length,
       healthMetricsCount: healthMetrics.length,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Verification failed:", error);
     process.exit(1);
   } finally {
