@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  projects     Project[]
+
+  @@map("users")
+}
+
+model Project {
+  id                    String         @id @default(uuid())
+  ownerId               String
+  name                  String
+  description           String?
+  githubUrl             String
+  defaultBranch         String         @default("main")
+  framework             String?
+  language              String?
+  lastAnalysis          DateTime?
+  currentGraphVersionId String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  owner                 User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  graphVersions         GraphVersion[]
+  analyses              Analysis[]
+  insights              Insight[]
+  healthMetrics         HealthMetric[]
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+model GraphVersion {
+  id                String     @id @default(uuid())
+  projectId         String
+  versionNumber     Int
+  analysisTimestamp DateTime   @default(now())
+  gitCommitHash     String?
+  repositoryBranch  String?
+  parserVersion     String?
+  createdAt         DateTime   @default(now())
+
+  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  nodes             Node[]
+  edges             Edge[]
+  analyses          Analysis[]
+
+  @@index([projectId])
+  @@index([analysisTimestamp])
+  @@map("graph_versions")
+}
+
+model Node {
+  id             String       @id @default(uuid())
+  graphVersionId String
+  nodeType       String       // e.g. "module", "route", "model", "service", "doc"
+  name           String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+
+  graphVersion   GraphVersion @relation(fields: [graphVersionId], references: [id], onDelete: Cascade)
+  sourceEdges    Edge[]       @relation("SourceNode")
+  targetEdges    Edge[]       @relation("TargetNode")
+  insights       Insight[]
+
+  @@index([graphVersionId])
+  @@index([nodeType])
+  @@map("nodes")
+}
+
+model Edge {
+  id               String       @id @default(uuid())
+  graphVersionId   String
+  sourceNodeId     String
+  targetNodeId     String
+  relationshipType String       // e.g. "contains", "handled_by", "uses", "queries"
+  createdAt        DateTime     @default(now())
+
+  graphVersion     GraphVersion @relation(fields: [graphVersionId], references: [id], onDelete: Cascade)
+  sourceNode       Node         @relation("SourceNode", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode       Node         @relation("TargetNode", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@index([graphVersionId])
+  @@index([sourceNodeId])
+  @@index([targetNodeId])
+  @@index([relationshipType])
+  @@map("edges")
+}
+
+model Analysis {
+  id               String        @id @default(uuid())
+  projectId        String
+  graphVersionId   String?
+  analysisDuration Float?        // duration in seconds
+  parserVersion    String?
+  status           String        // e.g. "pending", "in_progress", "completed", "failed"
+  summary          String?
+  createdAt        DateTime      @default(now())
+
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  graphVersion     GraphVersion? @relation(fields: [graphVersionId], references: [id], onDelete: SetNull)
+  insights         Insight[]
+
+  @@index([projectId])
+  @@index([graphVersionId])
+  @@index([createdAt])
+  @@map("analyses")
+}
+
+model Insight {
+  id            String    @id @default(uuid())
+  projectId     String
+  analysisId    String?
+  relatedNodeId String?
+  title         String
+  description   String
+  severity      String    // e.g. "low", "medium", "high", "critical"
+  relatedModule String?
+  createdAt     DateTime  @default(now())
+
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  analysis      Analysis? @relation(fields: [analysisId], references: [id], onDelete: SetNull)
+  relatedNode   Node?     @relation(fields: [relatedNodeId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([analysisId])
+  @@index([relatedNodeId])
+  @@map("insights")
+}
+
+model HealthMetric {
+  id        String   @id @default(uuid())
+  projectId String
+  name      String   // e.g. "Documentation Coverage", "Circular Dependencies", "Unused Routes"
+  value     Float?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("health_metrics")
+}
