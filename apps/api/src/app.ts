@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import prisma from "./config/prisma.js";
 import authRoutes from "./routes/auth.routes.js";
+import projectRoutes from "./routes/project.routes.js";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -42,6 +43,7 @@ app.get("/health", async (_req, res) => {
 
 // API Routes
 app.use("/auth", authRoutes);
+app.use("/projects", projectRoutes);
 
 // 404 Handler & Centralized Error Handler
 app.use(notFoundHandler);

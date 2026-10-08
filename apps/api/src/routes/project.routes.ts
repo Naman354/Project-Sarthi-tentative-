@@ -1,0 +1,18 @@
+import { Router } from "express";
+import { projectController } from "../controllers/project.controller.js";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { validateBody } from "../middleware/validate.middleware.js";
+import { createProjectSchema, updateProjectSchema } from "../utils/validators/project.validator.js";
+
+const router = Router();
+
+// All project routes require authentication
+router.use(authenticate);
+
+router.post("/", validateBody(createProjectSchema), projectController.create);
+router.get("/", projectController.list);
+router.get("/:id", projectController.getById);
+router.patch("/:id", validateBody(updateProjectSchema), projectController.update);
+router.delete("/:id", projectController.delete);
+
+export default router;
