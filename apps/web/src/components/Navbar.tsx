@@ -46,6 +46,13 @@ export default function Navbar() {
           >
             Overview
           </Link>
+          <Link
+            href="/projects"
+            id="nav-link-projects"
+            className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
+          >
+            Projects
+          </Link>
 
           {/* Dynamic Auth Section */}
           {isLoading ? (

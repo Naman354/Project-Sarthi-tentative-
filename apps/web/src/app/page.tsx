@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import SystemStatus from "./SystemStatus";
 import AuthStatus from "./AuthStatus";
 import { SparklesIcon, NetworkGraphIcon, ArrowRightIcon } from "../components/Icons";
@@ -59,27 +60,31 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-200 dark:border-emerald-900/60">
-                Milestone 2 Complete
+                Milestones 1, 2 & 3 Live
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
-            <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/30 dark:bg-indigo-950/20 relative">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                Next Up
+            <Link
+              href="/projects"
+              id="roadmap-card-milestone-3"
+              className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/30 hover:border-indigo-500/60 transition-all group block relative"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Live Now
               </span>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
-                Milestone 3 – Projects
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                Milestone 3 – Projects Dashboard
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
                 Project creation, user ownership, project dashboard, and metadata management.
               </p>
               <div className="mt-3 flex items-center text-xs text-indigo-600 dark:text-indigo-400 font-medium gap-1">
-                <span>Ready to build</span>
-                <ArrowRightIcon className="w-3.5 h-3.5" />
+                <span>Open Dashboard</span>
+                <ArrowRightIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
-            </div>
+            </Link>
 
             <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
