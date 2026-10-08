@@ -13,6 +13,10 @@ export interface UpdateProjectData {
   name?: string | undefined;
   description?: string | undefined;
   defaultBranch?: string | undefined;
+  lastAnalysis?: Date | null | undefined;
+  framework?: string | null | undefined;
+  language?: string | null | undefined;
+  currentGraphVersionId?: string | null | undefined;
 }
 
 export class ProjectRepository {
@@ -56,6 +60,12 @@ export class ProjectRepository {
         ...(data.name !== undefined ? { name: data.name } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.defaultBranch !== undefined ? { defaultBranch: data.defaultBranch } : {}),
+        ...(data.lastAnalysis !== undefined ? { lastAnalysis: data.lastAnalysis } : {}),
+        ...(data.framework !== undefined ? { framework: data.framework } : {}),
+        ...(data.language !== undefined ? { language: data.language } : {}),
+        ...(data.currentGraphVersionId !== undefined
+          ? { currentGraphVersionId: data.currentGraphVersionId }
+          : {}),
       },
     });
   }

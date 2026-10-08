@@ -60,7 +60,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-200 dark:border-emerald-900/60">
-                Milestones 1, 2 & 3 Live
+                Milestones 1 – 5 Live
               </span>
             </div>
           </div>
@@ -68,20 +68,21 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
             <Link
               href="/projects"
-              id="roadmap-card-milestone-3"
+              id="roadmap-card-milestone-5"
               className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/30 hover:border-indigo-500/60 transition-all group block relative"
             >
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 Live Now
               </span>
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                Milestone 3 – Projects Dashboard
+                Milestone 5 – Parser Engine
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                Project creation, user ownership, project dashboard, and metadata management.
+                AST Visitors for Express routes, React components, Prisma schemas &amp; Markdown
+                docs.
               </p>
               <div className="mt-3 flex items-center text-xs text-indigo-600 dark:text-indigo-400 font-medium gap-1">
-                <span>Open Dashboard</span>
+                <span>View Entity Explorer</span>
                 <ArrowRightIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
@@ -91,10 +92,10 @@ export default function Home() {
                 Upcoming
               </span>
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
-                Milestone 4 – GitHub
+                Milestone 6 – Graph Builder
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                Repository cloning with simple-git, branch tracking, and commit metadata.
+                Constructing entities, nodes, edges, relationships, and graph version persistence.
               </p>
             </div>
 
@@ -103,10 +104,11 @@ export default function Home() {
                 Upcoming
               </span>
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
-                Milestone 5 – Parsers
+                Milestone 7 – Analysis Engine
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                AST Visitors for React, Express, Prisma & Markdown normalization.
+                Module summaries, health metrics, circular dependency detection &amp; engineering
+                insights.
               </p>
             </div>
           </div>

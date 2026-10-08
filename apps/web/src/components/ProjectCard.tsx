@@ -119,9 +119,24 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
 
       {/* Footer Controls */}
       <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between gap-2">
-        <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-          {project.lastAnalysis ? "Analyzed" : "Ready for Milestone 4"}
-        </span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {project.lastAnalysis ? (
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="w-1 h-1 rounded-full bg-emerald-500" />
+              Synchronized
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              Pending Sync
+            </span>
+          )}
+
+          {project.language && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+              {project.language}
+            </span>
+          )}
+        </div>
 
         <Link
           href={`/projects/${project.id}`}

@@ -10,3 +10,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
+
+# Cloned repositories for analysis
+temp/repositories/
+apps/api/temp/repositories/
+**/temp/repositories/**
