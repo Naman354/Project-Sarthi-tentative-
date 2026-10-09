@@ -45,6 +45,8 @@ import { ProjectGraphViewer } from "../../../components/graph/ProjectGraphViewer
 import { ModuleExplorerTab } from "../../../components/modules/ModuleExplorerTab";
 import { InsightsTab } from "../../../components/insights/InsightsTab";
 import { AnalysisProgressModal } from "../../../components/common/AnalysisProgressModal";
+import { CommandPalette } from "../../../components/common/CommandPalette";
+import { ProjectDetailSkeleton } from "../../../components/common/Skeletons";
 
 type ActiveTab = "overview" | "graph" | "modules" | "insights" | "entities";
 
@@ -71,6 +73,9 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
   const [graphFocusNodeId, setGraphFocusNodeId] = useState<string | null>(null);
 
+  // Milestone 9 Command Palette state
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
   // Loading & Action states
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -82,6 +87,18 @@ export default function ProjectDetailPage() {
   // Filter state for Normalized Entities Explorer (Tab 5)
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>("all");
   const [entitySearchQuery, setEntitySearchQuery] = useState<string>("");
+
+  // Milestone 9: Global Omnibar hotkey (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const loadAllData = useCallback(async () => {
     if (!projectId) return;
@@ -249,14 +266,7 @@ export default function ProjectDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-12 min-h-[60vh]">
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
-          <span className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          Loading project context &amp; architectural graph...
-        </div>
-      </div>
-    );
+    return <ProjectDetailSkeleton />;
   }
 
   if (!project) {
@@ -366,6 +376,19 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="flex items-center gap-3 self-start flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200 transition-all cursor-pointer shadow-xs"
+              title="Global Omnibar Search (Ctrl+K)"
+            >
+              <SearchIcon className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Omnibar</span>
+              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-600">
+                Ctrl+K
+              </kbd>
+            </button>
+
             <button
               type="button"
               onClick={handleAnalyze}
@@ -668,6 +691,21 @@ export default function ProjectDetailPage() {
         isOpen={analysisModalOpen}
         isComplete={analysisComplete}
         error={actionError}
+      />
+
+      {/* Global Command Palette Omnibar (Milestone 9) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        graph={graph}
+        modules={modules}
+        insights={insights}
+        onSelectNode={handleFocusNodeInGraph}
+        onSelectModule={() => {
+          setActiveTab("modules");
+        }}
+        onSelectTab={setActiveTab}
+        onTriggerAnalysis={handleAnalyze}
       />
     </div>
   );

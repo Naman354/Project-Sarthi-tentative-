@@ -12,6 +12,7 @@ import {
   FileTextIcon,
   AlertCircleIcon,
   ArrowRightIcon,
+  TargetIcon,
 } from "../Icons";
 
 interface ContextPanelProps {
@@ -19,6 +20,8 @@ interface ContextPanelProps {
   edges: GraphEdge[];
   allNodes: GraphNode[];
   insights: InsightItem[];
+  isFocused?: boolean;
+  onToggleFocus?: (nodeId: string) => void;
   onClose: () => void;
   onSelectNode: (node: GraphNode) => void;
 }
@@ -28,6 +31,8 @@ export function ContextPanel({
   edges,
   allNodes,
   insights,
+  isFocused,
+  onToggleFocus,
   onClose,
   onSelectNode,
 }: ContextPanelProps) {
@@ -166,6 +171,22 @@ export function ContextPanel({
             </span>
           </div>
         </div>
+
+        {/* Focus Mode Action Button */}
+        {onToggleFocus && (
+          <button
+            type="button"
+            onClick={() => onToggleFocus(node.id)}
+            className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+              isFocused
+                ? "bg-purple-600 hover:bg-purple-500 text-white border-purple-500 shadow-md shadow-purple-600/30"
+                : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20"
+            }`}
+          >
+            <TargetIcon className="w-4 h-4" />
+            <span>{isFocused ? "Exit Focus Mode" : "Focus on this Node & Neighbors"}</span>
+          </button>
+        )}
 
         {/* Associated Architectural Insights */}
         {nodeInsights.length > 0 && (

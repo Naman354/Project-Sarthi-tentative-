@@ -3,7 +3,13 @@
 import React, { useState, useMemo, useRef } from "react";
 import type { ProjectGraph, GraphNode, InsightItem, ModuleSummaryItem } from "../../types/project";
 import { ContextPanel } from "./ContextPanel";
-import { ZoomInIcon, ZoomOutIcon, ResetIcon, SearchIcon } from "../Icons";
+import {
+  ZoomInIcon,
+  ZoomOutIcon,
+  ResetIcon,
+  SearchIcon,
+  TargetIcon,
+} from "../Icons";
 
 interface ProjectGraphViewerProps {
   graph: ProjectGraph;
@@ -13,6 +19,7 @@ interface ProjectGraphViewerProps {
 }
 
 type GraphMode = "module" | "flow" | "dependency" | "health";
+type FilterPreset = "all" | "api" | "database" | "frontend" | "risks";
 
 interface LayoutNode extends GraphNode {
   x: number;
@@ -37,6 +44,13 @@ export function ProjectGraphViewer({
     initialSelectedNodeId || null
   );
 
+  // Focus Mode state (Milestone 9)
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
+
+  // Preset Filters (Milestone 9)
+  const [filterPreset, setFilterPreset] = useState<FilterPreset>("all");
+
   // Sync selectedNodeId if initialSelectedNodeId changes via props
   const [prevInitialId, setPrevInitialId] = useState(initialSelectedNodeId);
   if (initialSelectedNodeId !== prevInitialId) {
@@ -56,21 +70,63 @@ export function ProjectGraphViewer({
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
 
-  // Nodes to display based on mode and filters
+  // Calculate 1-hop neighborhood for Focus Mode
+  const neighborhoodIds = useMemo(() => {
+    if (!isFocusMode || !focusedNodeId) return null;
+    const set = new Set<string>([focusedNodeId]);
+    graph.edges.forEach((e) => {
+      if (e.sourceNodeId === focusedNodeId) set.add(e.targetNodeId);
+      if (e.targetNodeId === focusedNodeId) set.add(e.sourceNodeId);
+    });
+    return set;
+  }, [isFocusMode, focusedNodeId, graph.edges]);
+
+  // Nodes to display based on mode, focus mode, and filters
   const visibleNodes = useMemo(() => {
-    if (mode === "module") {
-      // In module view, nodes are modules
-      return graph.nodes.filter((n) => n.nodeType === "module");
+    let baseNodes = graph.nodes;
+
+    // Isolate neighborhood when in Focus Mode
+    if (neighborhoodIds) {
+      baseNodes = baseNodes.filter((n) => neighborhoodIds.has(n.id));
     }
 
-    return graph.nodes.filter((n) => {
+    // Apply Filter Preset
+    if (filterPreset === "api") {
+      baseNodes = baseNodes.filter((n) => ["route", "controller", "service"].includes(n.nodeType));
+    } else if (filterPreset === "database") {
+      baseNodes = baseNodes.filter((n) => ["model", "service"].includes(n.nodeType));
+    } else if (filterPreset === "frontend") {
+      baseNodes = baseNodes.filter((n) => ["component", "page"].includes(n.nodeType));
+    } else if (filterPreset === "risks") {
+      const riskNodeIds = new Set(
+        insights.filter((i) => i.relatedNodeId).map((i) => i.relatedNodeId as string)
+      );
+      baseNodes = baseNodes.filter((n) => riskNodeIds.has(n.id));
+    }
+
+    if (mode === "module") {
+      // In module view, nodes are modules
+      return baseNodes.filter((n) => n.nodeType === "module");
+    }
+
+    return baseNodes.filter((n) => {
       if (n.nodeType === "route" && !showRoutes) return false;
       if (n.nodeType === "model" && !showModels) return false;
       if ((n.nodeType === "service" || n.nodeType === "controller") && !showServices) return false;
       if (n.nodeType === "doc" && !showDocs) return false;
       return true;
     });
-  }, [graph.nodes, mode, showRoutes, showModels, showServices, showDocs]);
+  }, [
+    graph.nodes,
+    neighborhoodIds,
+    filterPreset,
+    mode,
+    showRoutes,
+    showModels,
+    showServices,
+    showDocs,
+    insights,
+  ]);
 
   const visibleNodeIds = useMemo(() => new Set(visibleNodes.map((n) => n.id)), [visibleNodes]);
 
@@ -227,6 +283,36 @@ export function ProjectGraphViewer({
   const handleZoomIn = () => setZoom((z) => Math.min(2.5, z + 0.15));
   const handleZoomOut = () => setZoom((z) => Math.max(0.3, z - 0.15));
 
+  // Focus Mode handlers (Milestone 9)
+  const handleToggleFocus = (nodeId: string) => {
+    if (isFocusMode && focusedNodeId === nodeId) {
+      setIsFocusMode(false);
+      setFocusedNodeId(null);
+    } else {
+      setIsFocusMode(true);
+      setFocusedNodeId(nodeId);
+      setSelectedNodeId(nodeId);
+      const target = layoutMap.get(nodeId);
+      if (target && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setPan({
+          x: rect.width / 2 - target.x * zoom - (target.width * zoom) / 2,
+          y: rect.height / 2 - target.y * zoom - (target.height * zoom) / 2,
+        });
+      }
+    }
+  };
+
+  const handleExitFocus = () => {
+    setIsFocusMode(false);
+    setFocusedNodeId(null);
+  };
+
+  const focusedNode = useMemo(
+    () => graph.nodes.find((n) => n.id === focusedNodeId) || null,
+    [graph.nodes, focusedNodeId]
+  );
+
   // Search node & focus
   const handleSearchSelect = (nodeId: string) => {
     setSelectedNodeId(nodeId);
@@ -256,8 +342,11 @@ export function ProjectGraphViewer({
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-xs">
           <button
             type="button"
-            onClick={() => setMode("module")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+            onClick={() => {
+              setMode("module");
+              setFilterPreset("all");
+            }}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               mode === "module"
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -268,7 +357,7 @@ export function ProjectGraphViewer({
           <button
             type="button"
             onClick={() => setMode("flow")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               mode === "flow"
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -279,7 +368,7 @@ export function ProjectGraphViewer({
           <button
             type="button"
             onClick={() => setMode("dependency")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               mode === "dependency"
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -290,7 +379,7 @@ export function ProjectGraphViewer({
           <button
             type="button"
             onClick={() => setMode("health")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
               mode === "health"
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -300,8 +389,69 @@ export function ProjectGraphViewer({
           </button>
         </div>
 
-        {/* Search & Filters */}
-        <div className="flex items-center gap-3">
+        {/* Search & Presets */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Preset Filters (Milestone 9) */}
+          {mode !== "module" && (
+            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-800/90 border border-zinc-700/70 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setFilterPreset("all")}
+                className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  filterPreset === "all"
+                    ? "bg-zinc-700 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterPreset("api")}
+                className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  filterPreset === "api"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                API Flow
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterPreset("database")}
+                className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  filterPreset === "database"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Database
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterPreset("frontend")}
+                className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  filterPreset === "frontend"
+                    ? "bg-amber-600 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Frontend
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterPreset("risks")}
+                className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  filterPreset === "risks"
+                    ? "bg-rose-600 text-white shadow-xs"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                At Risk
+              </button>
+            </div>
+          )}
+
           {/* Quick Search */}
           <div className="relative">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-xs text-zinc-300">
@@ -311,7 +461,7 @@ export function ProjectGraphViewer({
                 placeholder="Find node..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs text-zinc-200 placeholder:text-zinc-500 w-28 sm:w-36"
+                className="bg-transparent border-none outline-none text-xs text-zinc-200 placeholder:text-zinc-500 w-24 sm:w-32"
               />
             </div>
             {searchResults.length > 0 && (
@@ -336,11 +486,11 @@ export function ProjectGraphViewer({
 
           {/* Type filters (in non-module mode) */}
           {mode !== "module" && (
-            <div className="hidden sm:flex items-center gap-2 text-[11px] text-zinc-400">
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-400">
               <button
                 type="button"
                 onClick={() => setShowRoutes(!showRoutes)}
-                className={`px-2 py-1 rounded-md border transition-colors ${
+                className={`px-2 py-1 rounded-md border transition-colors cursor-pointer ${
                   showRoutes
                     ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
                     : "bg-zinc-800/50 text-zinc-500 border-transparent opacity-60"
@@ -351,7 +501,7 @@ export function ProjectGraphViewer({
               <button
                 type="button"
                 onClick={() => setShowServices(!showServices)}
-                className={`px-2 py-1 rounded-md border transition-colors ${
+                className={`px-2 py-1 rounded-md border transition-colors cursor-pointer ${
                   showServices
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
                     : "bg-zinc-800/50 text-zinc-500 border-transparent opacity-60"
@@ -362,7 +512,7 @@ export function ProjectGraphViewer({
               <button
                 type="button"
                 onClick={() => setShowModels(!showModels)}
-                className={`px-2 py-1 rounded-md border transition-colors ${
+                className={`px-2 py-1 rounded-md border transition-colors cursor-pointer ${
                   showModels
                     ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                     : "bg-zinc-800/50 text-zinc-500 border-transparent opacity-60"
@@ -373,7 +523,7 @@ export function ProjectGraphViewer({
               <button
                 type="button"
                 onClick={() => setShowDocs(!showDocs)}
-                className={`px-2 py-1 rounded-md border transition-colors ${
+                className={`px-2 py-1 rounded-md border transition-colors cursor-pointer ${
                   showDocs
                     ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
                     : "bg-zinc-800/50 text-zinc-500 border-transparent opacity-60"
@@ -385,6 +535,38 @@ export function ProjectGraphViewer({
           )}
         </div>
       </div>
+
+      {/* Breadcrumb / Location Bar (Milestone 9) */}
+      {selectedNode && (
+        <div className="z-10 flex items-center justify-between px-4 py-2 bg-zinc-900/60 border-b border-zinc-800/80 text-xs text-zinc-400">
+          <div className="flex items-center gap-1.5 truncate">
+            <span className="text-zinc-500">Project</span>
+            <span className="text-zinc-600">/</span>
+            <span className="text-zinc-400 font-medium uppercase text-[10px] tracking-wider">
+              {selectedNode.nodeType}
+            </span>
+            <span className="text-zinc-600">/</span>
+            <span className="text-indigo-400 font-bold truncate">{selectedNode.name}</span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => handleToggleFocus(selectedNode.id)}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
+                isFocusMode && focusedNodeId === selectedNode.id
+                  ? "bg-purple-600 text-white border-purple-500 shadow-sm shadow-purple-600/30"
+                  : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-purple-500/30"
+              }`}
+            >
+              <TargetIcon className="w-3.5 h-3.5" />
+              <span>
+                {isFocusMode && focusedNodeId === selectedNode.id ? "Exit Focus" : "Focus Subgraph"}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Canvas & SVG Area */}
       <div
@@ -399,6 +581,24 @@ export function ProjectGraphViewer({
           backgroundSize: "24px 24px",
         }}
       >
+        {/* Floating Focus Mode Banner (Milestone 9) */}
+        {isFocusMode && focusedNode && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-950/90 border border-purple-500/60 shadow-2xl backdrop-blur-md animate-fade-in text-white text-xs">
+            <TargetIcon className="w-4 h-4 text-purple-400 animate-pulse" />
+            <span>
+              Focus Mode: <strong className="text-purple-200">{focusedNode.name}</strong> • Showing{" "}
+              {visibleNodes.length} related entities
+            </span>
+            <button
+              type="button"
+              onClick={handleExitFocus}
+              className="ml-2 px-2.5 py-0.5 rounded-full bg-purple-800 hover:bg-purple-700 text-[11px] font-semibold border border-purple-400/40 text-purple-100 transition-colors cursor-pointer"
+            >
+              Exit Focus
+            </button>
+          </div>
+        )}
+
         <div
           className="absolute inset-0 origin-top-left transition-transform duration-75"
           style={{
@@ -594,12 +794,14 @@ export function ProjectGraphViewer({
 
       {/* Floating Context Panel (Slide in from right) */}
       {selectedNode && (
-        <div className="absolute top-0 right-0 bottom-0 z-30 animate-slide-in">
+        <div className="absolute top-0 right-0 bottom-0 z-30 animate-slide-in-right">
           <ContextPanel
             node={selectedNode}
             edges={graph.edges}
             allNodes={graph.nodes}
             insights={insights}
+            isFocused={isFocusMode && focusedNodeId === selectedNode.id}
+            onToggleFocus={handleToggleFocus}
             onClose={() => setSelectedNodeId(null)}
             onSelectNode={(n) => handleSearchSelect(n.id)}
           />

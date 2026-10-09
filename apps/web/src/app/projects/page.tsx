@@ -8,6 +8,7 @@ import type { Project } from "../../types/project";
 import ProjectCard from "../../components/ProjectCard";
 import CreateProjectModal from "../../components/CreateProjectModal";
 import { FolderIcon, PlusIcon, SearchIcon, SparklesIcon, UserIcon } from "../../components/Icons";
+import { ProjectCardsSkeleton } from "../../components/common/Skeletons";
 
 export default function ProjectsPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -125,13 +126,14 @@ export default function ProjectsPage() {
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-medium border border-indigo-200 dark:border-indigo-900 mb-2">
             <SparklesIcon className="w-3.5 h-3.5" />
-            <span>Milestone 3 • Project Management Live</span>
+            <span>Software Understanding • Milestones 1–9 Live</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
             Your Software Projects
           </h1>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Connect repositories to generate interactive graphs and architecture summaries.
+            Connect repositories to generate interactive graphs, architectural insights &amp;
+            session briefings.
           </p>
         </div>
 
@@ -176,14 +178,7 @@ export default function ProjectsPage() {
 
       {/* Main Grid Content */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-56 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 animate-pulse"
-            />
-          ))}
-        </div>
+        <ProjectCardsSkeleton count={6} />
       ) : fetchError ? (
         <div className="p-8 rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/20 text-center">
           <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">{fetchError}</p>
