@@ -742,19 +742,6 @@ export function TargetIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-export function FilterIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h18m-15 5h12m-9 5h6m-4 5h2" />
-    </svg>
-  );
-}
 
 export function CommandIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
