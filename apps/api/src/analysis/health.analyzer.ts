@@ -143,9 +143,7 @@ export class HealthAnalyzer {
 
     // Compute Weighted Overall Score
     const metrics = [docMetric, complexityMetric, sizeMetric, cycleMetric, connectivityMetric];
-    const overallScore = Math.round(
-      metrics.reduce((acc, m) => acc + m.value, 0) / metrics.length
-    );
+    const overallScore = Math.round(metrics.reduce((acc, m) => acc + m.value, 0) / metrics.length);
 
     const overallStatus: HealthStatus =
       overallScore >= 80 ? "healthy" : overallScore >= 55 ? "warning" : "critical";

@@ -1,5 +1,10 @@
 import type { ProjectGraphResponse, ModuleSummaryItem } from "../graph/types.js";
-import type { ProjectHealthReport, AnalysisInsight, ResumeSessionBriefing, NavigationRecommendation } from "./types.js";
+import type {
+  ProjectHealthReport,
+  AnalysisInsight,
+  ResumeSessionBriefing,
+  NavigationRecommendation,
+} from "./types.js";
 
 export class ResumeGenerator {
   generate(
@@ -57,9 +62,7 @@ export class ResumeGenerator {
 
       // Track modules with changing route counts
       const prevModuleMap = new Map(
-        previousGraph.nodes
-          .filter((n) => n.nodeType === "module")
-          .map((m) => [m.name, m])
+        previousGraph.nodes.filter((n) => n.nodeType === "module").map((m) => [m.name, m])
       );
 
       for (const mod of modules) {

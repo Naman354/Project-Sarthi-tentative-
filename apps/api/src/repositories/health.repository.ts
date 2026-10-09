@@ -3,10 +3,7 @@ import type { Prisma, HealthMetric } from "@prisma/client";
 import type { AnalysisHealthMetric } from "../analysis/types.js";
 
 export class HealthMetricRepository {
-  async replaceMetrics(
-    projectId: string,
-    metrics: AnalysisHealthMetric[]
-  ): Promise<number> {
+  async replaceMetrics(projectId: string, metrics: AnalysisHealthMetric[]): Promise<number> {
     return prisma.$transaction(async (tx) => {
       // Clear previous metrics for this project
       await tx.healthMetric.deleteMany({

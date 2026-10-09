@@ -83,9 +83,7 @@ export async function fetchGraphVersions(
   );
 }
 
-export async function fetchProjectOverview(
-  id: string
-): Promise<ApiResponse<ProjectOverviewData>> {
+export async function fetchProjectOverview(id: string): Promise<ApiResponse<ProjectOverviewData>> {
   return api.get<ProjectOverviewData>(`/projects/${id}/overview`);
 }
 
@@ -95,15 +93,10 @@ export async function fetchProjectInsights(
   return api.get<{ insights: InsightItem[]; total: number }>(`/projects/${id}/insights`);
 }
 
-export async function fetchProjectHealth(
-  id: string
-): Promise<ApiResponse<ProjectHealthReport>> {
+export async function fetchProjectHealth(id: string): Promise<ApiResponse<ProjectHealthReport>> {
   return api.get<ProjectHealthReport>(`/projects/${id}/health`);
 }
 
-export async function fetchResumeSession(
-  id: string
-): Promise<ApiResponse<ResumeSessionBriefing>> {
+export async function fetchResumeSession(id: string): Promise<ApiResponse<ResumeSessionBriefing>> {
   return api.get<ResumeSessionBriefing>(`/projects/${id}/resume`);
 }
-

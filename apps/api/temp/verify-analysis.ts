@@ -195,7 +195,10 @@ async function main() {
       resumeInitial.suggestedStartingPoint.moduleName === "Auth",
       "Suggests Auth as starting point"
     );
-    assert(resumeInitial.navigationRecommendations.length > 0, "Produced navigation recommendations");
+    assert(
+      resumeInitial.navigationRecommendations.length > 0,
+      "Produced navigation recommendations"
+    );
 
     // Second run with previous graph diff
     const mockGraph2: ProjectGraphResponse = {
@@ -378,7 +381,10 @@ async function main() {
     assert(resumeRes.status === 200, "GET /projects/:id/resume returned HTTP 200");
     const resumeData = await resumeRes.json();
     assert(resumeData.success === true, "Resume API reports success: true");
-    assert(Boolean(resumeData.data.timeSinceLastAnalysis), "Resume API includes timeSinceLastAnalysis");
+    assert(
+      Boolean(resumeData.data.timeSinceLastAnalysis),
+      "Resume API includes timeSinceLastAnalysis"
+    );
     assert(
       Boolean(resumeData.data.suggestedStartingPoint),
       "Resume API includes suggestedStartingPoint"

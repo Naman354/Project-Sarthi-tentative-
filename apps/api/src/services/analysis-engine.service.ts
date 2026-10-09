@@ -1,9 +1,19 @@
 import { projectRepository } from "../repositories/project.repository.js";
 import { graphRepository, type GraphRepository } from "../repositories/graph.repository.js";
-import { analysisRepository, type AnalysisRepository } from "../repositories/analysis.repository.js";
+import {
+  analysisRepository,
+  type AnalysisRepository,
+} from "../repositories/analysis.repository.js";
 import { insightRepository, type InsightRepository } from "../repositories/insight.repository.js";
-import { healthMetricRepository, type HealthMetricRepository } from "../repositories/health.repository.js";
-import { analysisEngine, type AnalysisEngine, type EngineAnalysisResult } from "../analysis/engine.js";
+import {
+  healthMetricRepository,
+  type HealthMetricRepository,
+} from "../repositories/health.repository.js";
+import {
+  analysisEngine,
+  type AnalysisEngine,
+  type EngineAnalysisResult,
+} from "../analysis/engine.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
 import type {
   ProjectOverviewData,
@@ -53,12 +63,7 @@ export class AnalysisEngineService {
     }
 
     // Run Analysis Engine algorithms
-    const result = this.engine.analyze(
-      currentGraph,
-      modules,
-      previousGraph,
-      project.lastAnalysis
-    );
+    const result = this.engine.analyze(currentGraph, modules, previousGraph, project.lastAnalysis);
 
     // Persist Insights and Health Metrics in PostgreSQL
     await this.insightRepo.createMany(projectId, analysisId, result.insights);

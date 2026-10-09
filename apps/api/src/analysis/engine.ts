@@ -2,11 +2,7 @@ import type { ProjectGraphResponse, ModuleSummaryItem } from "../graph/types.js"
 import { healthAnalyzer, type HealthAnalyzer } from "./health.analyzer.js";
 import { insightGenerator, type InsightGenerator } from "./insight.generator.js";
 import { resumeGenerator, type ResumeGenerator } from "./resume.generator.js";
-import type {
-  ProjectHealthReport,
-  AnalysisInsight,
-  ResumeSessionBriefing,
-} from "./types.js";
+import type { ProjectHealthReport, AnalysisInsight, ResumeSessionBriefing } from "./types.js";
 
 export interface EngineAnalysisResult {
   health: ProjectHealthReport;

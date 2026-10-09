@@ -10,10 +10,7 @@ import {
 } from "./repository.service.js";
 import { parserManager, type ParserManager } from "../parsers/manager.js";
 import { graphService, type GraphService, type PersistResult } from "./graph.service.js";
-import {
-  analysisEngineService,
-  type AnalysisEngineService,
-} from "./analysis-engine.service.js";
+import { analysisEngineService, type AnalysisEngineService } from "./analysis-engine.service.js";
 import type { ParserManagerResult } from "../parsers/types.js";
 import type { AnalysisInsight, ProjectHealthReport } from "../analysis/types.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
