@@ -2,6 +2,7 @@ import { Router } from "express";
 import { projectController } from "../controllers/project.controller.js";
 import { analysisController } from "../controllers/analysis.controller.js";
 import { graphController } from "../controllers/graph.controller.js";
+import { analysisEngineController } from "../controllers/analysis-engine.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { createProjectSchema, updateProjectSchema } from "../utils/validators/project.validator.js";
@@ -27,5 +28,11 @@ router.get("/:id/graph", graphController.getGraph);
 router.get("/:id/graph/versions", graphController.getVersions);
 router.get("/:id/modules", graphController.getModules);
 router.get("/:id/module/:moduleId", graphController.getModuleById);
+
+// Milestone 7: Analysis Engine & Insight Generation Endpoints
+router.get("/:id/overview", analysisEngineController.getOverview);
+router.get("/:id/insights", analysisEngineController.getInsights);
+router.get("/:id/health", analysisEngineController.getHealth);
+router.get("/:id/resume", analysisEngineController.getResume);
 
 export default router;

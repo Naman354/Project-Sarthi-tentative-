@@ -10,7 +10,12 @@ import {
 } from "./repository.service.js";
 import { parserManager, type ParserManager } from "../parsers/manager.js";
 import { graphService, type GraphService, type PersistResult } from "./graph.service.js";
+import {
+  analysisEngineService,
+  type AnalysisEngineService,
+} from "./analysis-engine.service.js";
 import type { ParserManagerResult } from "../parsers/types.js";
+import type { AnalysisInsight, ProjectHealthReport } from "../analysis/types.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
 import type { Analysis, Project } from "@prisma/client";
 
@@ -27,8 +32,10 @@ export interface AnalyzeProjectResponse {
   analysis: Analysis;
   metadata: RepositoryMetadata;
   parseResult: ParserManagerResult;
-  graphVersion?: PersistResult["graphVersion"];
-  graphStats?: PersistResult["stats"];
+  graphVersion?: PersistResult["graphVersion"] | undefined;
+  graphStats?: PersistResult["stats"] | undefined;
+  insights?: AnalysisInsight[] | undefined;
+  health?: ProjectHealthReport | undefined;
 }
 
 export class AnalysisService {
@@ -36,7 +43,8 @@ export class AnalysisService {
     private readonly repoService: RepositoryService = repositoryService,
     private readonly analysisRepo: AnalysisRepository = analysisRepository,
     private readonly parserMgr: ParserManager = parserManager,
-    private readonly graphSvc: GraphService = graphService
+    private readonly graphSvc: GraphService = graphService,
+    private readonly analysisEngineSvc: AnalysisEngineService = analysisEngineService
   ) {}
 
   async analyzeProject(projectId: string, userId: string): Promise<AnalyzeProjectResponse> {
@@ -74,6 +82,13 @@ export class AnalysisService {
         metadata
       );
 
+      // Step 11: Run Analysis Engine & Generate Insights / Health Metrics
+      const engineResult = await this.analysisEngineSvc.runAnalysis(
+        projectId,
+        analysis.id,
+        graphResult.graphVersion.id
+      );
+
       const durationSeconds = Math.round(((performance.now() - startTime) / 1000) * 100) / 100;
 
       // Update project record with latest detected metadata
@@ -98,7 +113,7 @@ export class AnalysisService {
 
       // Update analysis record with completed status and parsed summary
       const shortHash = metadata.commitHash ? metadata.commitHash.slice(0, 7) : "HEAD";
-      const summary = `Repository ${syncResult.action} (${metadata.branch} @ ${shortHash}). Graph v${graphResult.graphVersion.versionNumber} constructed with ${graphResult.stats.totalNodes} nodes (${graphResult.stats.modulesCount} modules, ${graphResult.stats.routesCount} routes, ${graphResult.stats.modelsCount} models) and ${graphResult.stats.totalEdges} edges.`;
+      const summary = `Repository ${syncResult.action} (${metadata.branch} @ ${shortHash}). Graph v${graphResult.graphVersion.versionNumber} constructed with ${graphResult.stats.totalNodes} nodes, ${graphResult.stats.totalEdges} edges. Generated ${engineResult.insights.length} insights (Health Score: ${engineResult.health.overallScore}/100).`;
 
       const completedAnalysis = await this.analysisRepo.update(analysis.id, {
         status: "completed",
@@ -115,6 +130,8 @@ export class AnalysisService {
         parseResult,
         graphVersion: graphResult.graphVersion,
         graphStats: graphResult.stats,
+        insights: engineResult.insights,
+        health: engineResult.health,
       };
     } catch (err: unknown) {
       const durationSeconds = Math.round(((performance.now() - startTime) / 1000) * 100) / 100;

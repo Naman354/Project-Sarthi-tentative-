@@ -9,6 +9,10 @@ import type {
   ModuleSummaryItem,
   ModuleDetailResponse,
   GraphVersionSummary,
+  ProjectOverviewData,
+  InsightItem,
+  ProjectHealthReport,
+  ResumeSessionBriefing,
 } from "../types/project";
 import type { ApiResponse } from "../types/auth";
 
@@ -78,3 +82,28 @@ export async function fetchGraphVersions(
     `/projects/${id}/graph/versions`
   );
 }
+
+export async function fetchProjectOverview(
+  id: string
+): Promise<ApiResponse<ProjectOverviewData>> {
+  return api.get<ProjectOverviewData>(`/projects/${id}/overview`);
+}
+
+export async function fetchProjectInsights(
+  id: string
+): Promise<ApiResponse<{ insights: InsightItem[]; total: number }>> {
+  return api.get<{ insights: InsightItem[]; total: number }>(`/projects/${id}/insights`);
+}
+
+export async function fetchProjectHealth(
+  id: string
+): Promise<ApiResponse<ProjectHealthReport>> {
+  return api.get<ProjectHealthReport>(`/projects/${id}/health`);
+}
+
+export async function fetchResumeSession(
+  id: string
+): Promise<ApiResponse<ResumeSessionBriefing>> {
+  return api.get<ResumeSessionBriefing>(`/projects/${id}/resume`);
+}
+

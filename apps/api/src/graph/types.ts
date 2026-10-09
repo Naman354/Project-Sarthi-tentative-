@@ -70,7 +70,12 @@ export interface ModuleSummaryItem {
   servicesCount: number;
   componentsCount: number;
   docsCount: number;
-  routes: Array<{ id: string; name: string; method?: string | undefined; path?: string | undefined }>;
+  routes: Array<{
+    id: string;
+    name: string;
+    method?: string | undefined;
+    path?: string | undefined;
+  }>;
   models: Array<{ id: string; name: string }>;
   services: Array<{ id: string; name: string }>;
   components: Array<{ id: string; name: string }>;

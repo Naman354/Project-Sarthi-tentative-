@@ -191,3 +191,77 @@ export interface GraphVersionSummary {
   edgesCount: number;
   createdAt: string;
 }
+
+export type InsightSeverity = "low" | "medium" | "high" | "critical";
+
+export interface InsightItem {
+  id: string;
+  projectId: string;
+  analysisId: string | null;
+  relatedNodeId: string | null;
+  title: string;
+  description: string;
+  severity: InsightSeverity;
+  relatedModule: string | null;
+  createdAt: string;
+}
+
+export type HealthStatus = "healthy" | "warning" | "critical";
+
+export interface HealthMetricItem {
+  id?: string;
+  name: string;
+  value: number;
+  status: HealthStatus;
+  details?: Record<string, unknown>;
+}
+
+export interface ProjectHealthReport {
+  overallScore: number;
+  status: HealthStatus;
+  metrics: HealthMetricItem[];
+  evaluatedAt: string;
+}
+
+export interface NavigationRecommendation {
+  title: string;
+  targetModule: string;
+  reason: string;
+  priority: "high" | "medium" | "low";
+}
+
+export interface ResumeSessionBriefing {
+  lastAnalyzed: string | null;
+  timeSinceLastAnalysis: string;
+  hasPreviousVersion: boolean;
+  previousVersionNumber?: number;
+  currentVersionNumber: number;
+  changesSummary: {
+    nodesAdded: number;
+    nodesRemoved: number;
+    edgesAdded: number;
+    edgesRemoved: number;
+    modifiedModules: string[];
+  };
+  suggestedStartingPoint: {
+    moduleName: string;
+    rationale: string;
+  };
+  navigationRecommendations: NavigationRecommendation[];
+  keyRisks: string[];
+}
+
+export interface ProjectOverviewData {
+  project: Project;
+  latestAnalysis: Analysis | null;
+  graphVersion: GraphVersionSummary | null;
+  stats: GraphStats | null;
+  modules: ModuleSummaryItem[];
+  topInsights: Array<{
+    title: string;
+    description: string;
+    severity: InsightSeverity;
+    relatedModule?: string;
+  }>;
+  health: ProjectHealthReport;
+}
