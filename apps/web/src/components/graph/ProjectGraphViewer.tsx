@@ -3,13 +3,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import type { ProjectGraph, GraphNode, InsightItem, ModuleSummaryItem } from "../../types/project";
 import { ContextPanel } from "./ContextPanel";
-import {
-  ZoomInIcon,
-  ZoomOutIcon,
-  ResetIcon,
-  SearchIcon,
-  TargetIcon,
-} from "../Icons";
+import { ZoomInIcon, ZoomOutIcon, ResetIcon, SearchIcon, TargetIcon } from "../Icons";
 
 interface ProjectGraphViewerProps {
   graph: ProjectGraph;
