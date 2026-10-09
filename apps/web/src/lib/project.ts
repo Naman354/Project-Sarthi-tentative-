@@ -5,6 +5,10 @@ import type {
   ProjectStatusData,
   AnalyzeResultData,
   ParserManagerResult,
+  ProjectGraph,
+  ModuleSummaryItem,
+  ModuleDetailResponse,
+  GraphVersionSummary,
 } from "../types/project";
 import type { ApiResponse } from "../types/auth";
 
@@ -36,4 +40,41 @@ export async function fetchProjectStatus(id: string): Promise<ApiResponse<Projec
 
 export async function fetchProjectEntities(id: string): Promise<ApiResponse<ParserManagerResult>> {
   return api.get<ParserManagerResult>(`/projects/${id}/entities`);
+}
+
+export async function fetchProjectGraph(
+  id: string,
+  versionId?: string
+): Promise<ApiResponse<ProjectGraph>> {
+  const query = versionId ? `?version=${encodeURIComponent(versionId)}` : "";
+  return api.get<ProjectGraph>(`/projects/${id}/graph${query}`);
+}
+
+export async function fetchProjectModules(
+  id: string,
+  versionId?: string
+): Promise<ApiResponse<{ modules: ModuleSummaryItem[]; total: number }>> {
+  const query = versionId ? `?version=${encodeURIComponent(versionId)}` : "";
+  return api.get<{ modules: ModuleSummaryItem[]; total: number }>(
+    `/projects/${id}/modules${query}`
+  );
+}
+
+export async function fetchModuleDetails(
+  id: string,
+  moduleId: string,
+  versionId?: string
+): Promise<ApiResponse<ModuleDetailResponse>> {
+  const query = versionId ? `?version=${encodeURIComponent(versionId)}` : "";
+  return api.get<ModuleDetailResponse>(
+    `/projects/${id}/module/${encodeURIComponent(moduleId)}${query}`
+  );
+}
+
+export async function fetchGraphVersions(
+  id: string
+): Promise<ApiResponse<{ versions: GraphVersionSummary[]; total: number }>> {
+  return api.get<{ versions: GraphVersionSummary[]; total: number }>(
+    `/projects/${id}/graph/versions`
+  );
 }

@@ -9,6 +9,7 @@ import {
   type RepositoryMetadata,
 } from "./repository.service.js";
 import { parserManager, type ParserManager } from "../parsers/manager.js";
+import { graphService, type GraphService, type PersistResult } from "./graph.service.js";
 import type { ParserManagerResult } from "../parsers/types.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
 import type { Analysis, Project } from "@prisma/client";
@@ -26,13 +27,16 @@ export interface AnalyzeProjectResponse {
   analysis: Analysis;
   metadata: RepositoryMetadata;
   parseResult: ParserManagerResult;
+  graphVersion?: PersistResult["graphVersion"];
+  graphStats?: PersistResult["stats"];
 }
 
 export class AnalysisService {
   constructor(
     private readonly repoService: RepositoryService = repositoryService,
     private readonly analysisRepo: AnalysisRepository = analysisRepository,
-    private readonly parserMgr: ParserManager = parserManager
+    private readonly parserMgr: ParserManager = parserManager,
+    private readonly graphSvc: GraphService = graphService
   ) {}
 
   async analyzeProject(projectId: string, userId: string): Promise<AnalyzeProjectResponse> {
@@ -48,7 +52,7 @@ export class AnalysisService {
     const analysis = await this.analysisRepo.create({
       projectId,
       status: "in_progress",
-      summary: "Repository synchronization and parser engine started",
+      summary: "Repository synchronization, parsing, and graph construction started",
       parserVersion: "v1.0.0-m5",
     });
 
@@ -62,6 +66,13 @@ export class AnalysisService {
 
       // Step 3-7 in Chapter 11: Run Parser Engine & Plugins
       const parseResult = await this.parserMgr.parseRepository(repoPath);
+
+      // Step 8-10 in Chapter 11: Build and Persist Project Graph
+      const graphResult = await this.graphSvc.buildAndPersistGraph(
+        projectId,
+        parseResult,
+        metadata
+      );
 
       const durationSeconds = Math.round(((performance.now() - startTime) / 1000) * 100) / 100;
 
@@ -82,17 +93,19 @@ export class AnalysisService {
         lastAnalysis: new Date(),
         language: detectedLanguage,
         framework: detectedFramework,
+        currentGraphVersionId: graphResult.graphVersion.id,
       });
 
       // Update analysis record with completed status and parsed summary
       const shortHash = metadata.commitHash ? metadata.commitHash.slice(0, 7) : "HEAD";
-      const summary = `Repository ${syncResult.action} (${metadata.branch} @ ${shortHash}). Parser engine discovered ${parseResult.stats.totalEntities} entities (${parseResult.stats.modulesCount} modules, ${parseResult.stats.routesCount} routes, ${parseResult.stats.modelsCount} models, ${parseResult.stats.componentsCount} components) across ${parseResult.stats.totalRelationships} relationships.`;
+      const summary = `Repository ${syncResult.action} (${metadata.branch} @ ${shortHash}). Graph v${graphResult.graphVersion.versionNumber} constructed with ${graphResult.stats.totalNodes} nodes (${graphResult.stats.modulesCount} modules, ${graphResult.stats.routesCount} routes, ${graphResult.stats.modelsCount} models) and ${graphResult.stats.totalEdges} edges.`;
 
       const completedAnalysis = await this.analysisRepo.update(analysis.id, {
         status: "completed",
         summary,
         analysisDuration: durationSeconds,
         parserVersion: "v1.0.0-m5",
+        graphVersionId: graphResult.graphVersion.id,
       });
 
       return {
@@ -100,10 +113,13 @@ export class AnalysisService {
         analysis: completedAnalysis,
         metadata,
         parseResult,
+        graphVersion: graphResult.graphVersion,
+        graphStats: graphResult.stats,
       };
     } catch (err: unknown) {
       const durationSeconds = Math.round(((performance.now() - startTime) / 1000) * 100) / 100;
-      const errorMsg = err instanceof Error ? err.message : "Repository synchronization failed";
+      const errorMsg =
+        err instanceof Error ? err.message : "Repository analysis and graph generation failed";
 
       await this.analysisRepo.update(analysis.id, {
         status: "failed",

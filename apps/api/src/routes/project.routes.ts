@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { projectController } from "../controllers/project.controller.js";
 import { analysisController } from "../controllers/analysis.controller.js";
+import { graphController } from "../controllers/graph.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { validateBody } from "../middleware/validate.middleware.js";
 import { createProjectSchema, updateProjectSchema } from "../utils/validators/project.validator.js";
@@ -20,5 +21,11 @@ router.delete("/:id", projectController.delete);
 router.post("/:id/analyze", analysisController.analyze);
 router.get("/:id/status", analysisController.getStatus);
 router.get("/:id/entities", analysisController.getEntities);
+
+// Milestone 6: Project Graph Builder & Module Endpoints
+router.get("/:id/graph", graphController.getGraph);
+router.get("/:id/graph/versions", graphController.getVersions);
+router.get("/:id/modules", graphController.getModules);
+router.get("/:id/module/:moduleId", graphController.getModuleById);
 
 export default router;
