@@ -14,38 +14,53 @@ export default function DataMlVisualModel({
   selectedAreaId,
   onSelectArea,
 }: DataMlVisualModelProps) {
+  const hasNotebooks = areas.some((a) => a.associatedFiles.some((f) => f.endsWith(".ipynb")));
+  const hasModelArtifacts = areas.some((a) =>
+    /model|weight|checkpoint|onnx|pt|torch|nn/i.test(a.name)
+  );
+
   const stages = [
     {
+      id: "data-ingestion",
       title: "Data Sources & Ingestion",
       icon: "📊",
-      desc: "Datasets, loaders & raw inputs",
-      items: areas.filter((a) => /data|dataset|loader|source|input/i.test(a.name)),
+      desc: "Datasets, loaders, input formats & raw schemas",
+      badge: "Input Data",
+      items: areas.filter((a) => /data|dataset|loader|source|input|fetch|raw/i.test(a.name)),
     },
     {
-      title: "Preprocessing & Features",
+      id: "data-prep",
+      title: "Feature Engineering & Preprocessing",
       icon: "🧪",
-      desc: "Feature transforms & cleaning",
-      items: areas.filter((a) => /prep|transform|clean|feature|pipeline/i.test(a.name)),
+      desc: "Transforms, cleaning routines, feature extraction & pipelines",
+      badge: "Transforms",
+      items: areas.filter((a) => /prep|transform|clean|feature|pipeline|token/i.test(a.name)),
     },
     {
-      title: "Model & Training",
+      id: "data-model",
+      title: hasModelArtifacts ? "Model Architectures & Training" : "Analytics & Compute Modules",
       icon: "🧠",
-      desc: "Network layers, loss & weights",
+      desc: hasModelArtifacts
+        ? "Network layers, loss functions, optimizer, & checkpointing"
+        : "Statistical models, algorithmic transforms & compute logic",
+      badge: hasModelArtifacts ? "Model Engine" : "Compute Core",
       items: areas.filter(
         (a) =>
-          /model|train|layer|network|weight|torch|nn/i.test(a.name) &&
+          /model|train|layer|network|weight|torch|compute|algorithm|engine/i.test(a.name) &&
           !/eval|metric|test/i.test(a.name)
       ),
     },
     {
-      title: "Inference & Metrics",
+      id: "data-eval",
+      title: "Inference, Evaluation & Artifacts",
       icon: "📈",
-      desc: "Predictions, evaluation & export",
-      items: areas.filter((a) => /infer|predict|eval|metric|test|serve|output/i.test(a.name)),
+      desc: "Predictions, metric evaluation, reports & export artifacts",
+      badge: "Evaluation",
+      items: areas.filter((a) => /infer|predict|eval|metric|test|serve|output|artifact/i.test(a.name)),
     },
   ];
 
-  // Distribute unassigned areas
+  // Distribute unassigned
   const assignedIds = new Set(stages.flatMap((s) => s.items.map((i) => i.id)));
   const unassigned = areas.filter((a) => !assignedIds.has(a.id));
   unassigned.forEach((area, index) => {
@@ -57,28 +72,41 @@ export default function DataMlVisualModel({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 pb-1">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 pb-1 gap-1">
         <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
           <span>🧠</span>
-          <span>Data &amp; Machine Learning Pipeline</span>
+          <span>Data &amp; Machine Learning Workflow</span>
         </span>
-        <span>Data Ingestion ➔ Feature Prep ➔ Modeling ➔ Evaluation</span>
+        <div className="flex items-center gap-2 text-[11px] font-mono">
+          {hasNotebooks && (
+            <span className="px-2 py-0.2 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-semibold">
+              Jupyter Notebooks Verified
+            </span>
+          )}
+          <span>Data Ingestion ➔ Transforms ➔ Modeling ➔ Evaluation</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {activeStages.map((stage, idx) => (
           <div
-            key={idx}
-            className="p-3.5 rounded-2xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/60 flex flex-col justify-between"
+            key={stage.id}
+            className="p-4 rounded-2xl bg-rose-50/30 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/60 shadow-2xs flex flex-col justify-between space-y-3"
           >
             <div>
-              <div className="flex items-center justify-between border-b border-rose-200/60 dark:border-rose-900/40 pb-2 mb-2">
-                <span className="text-xs font-bold text-rose-900 dark:text-rose-200 flex items-center gap-1">
+              <div className="flex items-center justify-between border-b border-rose-200/60 dark:border-rose-900/40 pb-2 mb-2.5">
+                <span className="text-xs font-bold text-rose-950 dark:text-rose-200 flex items-center gap-1.5">
                   <span>{stage.icon}</span>
                   <span>{stage.title}</span>
                 </span>
+                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.2 rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-300">
+                  {stage.badge}
+                </span>
               </div>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-3">{stage.desc}</p>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-3 leading-tight">
+                {stage.desc}
+              </p>
 
               <div className="space-y-2">
                 {stage.items.map((item) => {
@@ -91,18 +119,20 @@ export default function DataMlVisualModel({
                       className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer ${
                         isSelected
                           ? "border-rose-600 bg-white dark:bg-zinc-800 shadow-sm ring-1 ring-rose-500/30"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800/80 hover:border-zinc-300"
+                          : "border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-800/90 hover:border-zinc-300"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold truncate">{item.name}</span>
+                        <span className="text-xs font-bold truncate text-zinc-900 dark:text-zinc-100">
+                          {item.name}
+                        </span>
                         {item.associatedFiles.length > 0 && (
                           <span className="text-[9px] font-mono px-1 rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-500">
                             {item.associatedFiles.length}f
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-zinc-600 dark:text-zinc-400 line-clamp-2">
+                      <p className="text-[10px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                         {item.role}
                       </p>
                     </button>
@@ -112,8 +142,8 @@ export default function DataMlVisualModel({
             </div>
 
             {idx < activeStages.length - 1 && (
-              <div className="hidden md:flex justify-end pt-2 text-rose-300">
-                <span className="text-xs">➔</span>
+              <div className="hidden lg:flex justify-end pt-2 text-rose-400 font-mono text-xs">
+                <span>➔ Next Stage</span>
               </div>
             )}
           </div>

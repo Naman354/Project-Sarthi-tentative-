@@ -102,6 +102,7 @@ export class PublicExploreController {
             totalFiles: bundle.structure.totalFiles,
             totalDirectories: bundle.structure.totalDirectories,
             parserCoverage: bundle.parserCoverage,
+            fileCategories: bundle.fileCategories,
           },
         },
       });

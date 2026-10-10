@@ -29,6 +29,13 @@ export interface LanguageStat {
   percentage: number;
 }
 
+export interface FileCategoryStat {
+  category: "source" | "tests" | "documentation" | "configuration";
+  label: string;
+  count: number;
+  percentage: number;
+}
+
 export interface RepositoryEvidenceBundle {
   schemaVersion: "1.0.0";
   repoUrl: string;
@@ -65,6 +72,7 @@ export interface RepositoryEvidenceBundle {
   testsFound: string[];
   evidenceRecords: EvidenceRecord[];
   parserCoverage: "specialized-ast-graph" | "universal-baseline";
+  fileCategories?: FileCategoryStat[] | undefined;
   classification?:
     | {
         category: ProjectCategory;
@@ -136,10 +144,13 @@ export interface TechnicalOverview {
   primaryLanguage: string;
   ecosystem: string;
   dependencies: string[];
+  devDependencies?: string[] | undefined;
   scripts: string[];
   entryPoints: string[];
   totalFiles: number;
   totalDirectories: number;
+  fileCategories?: FileCategoryStat[] | undefined;
+  treeSummary?: string[] | undefined;
   projectCategory?: ProjectCategory | undefined;
   categoryConfidence?: "high" | "medium" | "inferred" | undefined;
   categoryRationale?: string | undefined;

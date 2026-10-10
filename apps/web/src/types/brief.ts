@@ -48,6 +48,13 @@ export interface ConceptualRelationship {
   evidenceIds: string[];
 }
 
+export interface FileCategoryStat {
+  category: "source" | "tests" | "documentation" | "configuration";
+  label: string;
+  count: number;
+  percentage: number;
+}
+
 export interface GuidedTourStep {
   step: number;
   title: string;
@@ -59,10 +66,13 @@ export interface TechnicalOverview {
   primaryLanguage: string;
   ecosystem: string;
   dependencies: string[];
+  devDependencies?: string[];
   scripts: string[];
   entryPoints: string[];
   totalFiles: number;
   totalDirectories: number;
+  fileCategories?: FileCategoryStat[];
+  treeSummary?: string[];
   projectCategory?: ProjectCategory;
   categoryConfidence?: "high" | "medium" | "inferred";
   categoryRationale?: string;
@@ -100,6 +110,7 @@ export interface EvidenceSummary {
   totalFiles: number;
   totalDirectories: number;
   parserCoverage: "specialized-ast-graph" | "universal-baseline";
+  fileCategories?: FileCategoryStat[];
 }
 
 export interface ExploreResponse {

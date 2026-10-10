@@ -5,6 +5,7 @@ import type {
   EvidenceRecord,
   ManifestSummary,
   LanguageStat,
+  FileCategoryStat,
   ProjectCategory,
   StructuralFact,
 } from "./types.js";
@@ -149,6 +150,91 @@ export class UniversalEvidenceCollector {
         percentage: totalFiles > 0 ? Math.round((count / totalFiles) * 100) : 0,
       }))
       .sort((a, b) => b.fileCount - a.fileCount);
+
+    // Compute file composition breakdown (source code, tests, documentation, configuration)
+    let testFilesCount = 0;
+    let docFilesCount = 0;
+    let configFilesCount = 0;
+    let sourceFilesCount = 0;
+
+    for (const relPath of allFilePaths) {
+      const lower = relPath.toLowerCase();
+      const filename = path.basename(lower);
+
+      const isTest =
+        lower.includes(".test.") ||
+        lower.includes(".spec.") ||
+        lower.includes("test_") ||
+        lower.startsWith("test/") ||
+        lower.startsWith("tests/") ||
+        lower.startsWith("spec/") ||
+        lower.startsWith("__tests__/") ||
+        lower.endsWith("_test.go") ||
+        lower.endsWith("_test.py") ||
+        lower.endsWith("_test.rs");
+
+      const isDoc =
+        lower.endsWith(".md") ||
+        lower.endsWith(".markdown") ||
+        lower.endsWith(".rst") ||
+        lower.endsWith(".txt") ||
+        filename === "license" ||
+        filename === "notice" ||
+        lower.startsWith("docs/") ||
+        lower.startsWith("doc/");
+
+      const isConfig =
+        filename.startsWith(".") ||
+        filename.includes("config") ||
+        filename === "dockerfile" ||
+        filename === "docker-compose.yml" ||
+        filename === "makefile" ||
+        filename.endsWith(".toml") ||
+        filename.endsWith(".yaml") ||
+        filename.endsWith(".yml") ||
+        filename.endsWith(".json") ||
+        filename.endsWith(".lock") ||
+        filename.endsWith(".xml") ||
+        filename.endsWith(".ini") ||
+        filename.endsWith(".cfg");
+
+      if (isTest) {
+        testFilesCount++;
+      } else if (isDoc) {
+        docFilesCount++;
+      } else if (isConfig) {
+        configFilesCount++;
+      } else {
+        sourceFilesCount++;
+      }
+    }
+
+    const fileCategories: FileCategoryStat[] = [
+      {
+        category: "source",
+        label: "Source Code",
+        count: sourceFilesCount,
+        percentage: totalFiles > 0 ? Math.round((sourceFilesCount / totalFiles) * 100) : 0,
+      },
+      {
+        category: "tests",
+        label: "Test Suites",
+        count: testFilesCount,
+        percentage: totalFiles > 0 ? Math.round((testFilesCount / totalFiles) * 100) : 0,
+      },
+      {
+        category: "documentation",
+        label: "Documentation",
+        count: docFilesCount,
+        percentage: totalFiles > 0 ? Math.round((docFilesCount / totalFiles) * 100) : 0,
+      },
+      {
+        category: "configuration",
+        label: "Config & Build",
+        count: configFilesCount,
+        percentage: totalFiles > 0 ? Math.round((configFilesCount / totalFiles) * 100) : 0,
+      },
+    ];
 
     // 2. Documentation Extraction
     const docFiles: string[] = [];
@@ -840,6 +926,7 @@ export class UniversalEvidenceCollector {
       testsFound,
       evidenceRecords,
       parserCoverage,
+      fileCategories,
       classification,
     };
   }

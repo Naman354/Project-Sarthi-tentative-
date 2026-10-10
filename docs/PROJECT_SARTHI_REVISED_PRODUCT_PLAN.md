@@ -40,67 +40,62 @@ The first three steps must already be valuable. Users should not need an account
 
 ## 2. Product experience
 
-### A. Project Fingerprint — the hero experience
+### A. Technical Overview — the dominant hero experience
 
-The first screen after analysis should feel like a visual identity for _this particular repository_, not a generic dashboard populated with different text. Make the existing Technical Overview / Ecosystem Facts content the starting point, but evolve it beyond a row of language percentages and technology badges.
+The primary visual section at the top of the analyzed repository page is the **Technical Overview**. It acts as an interactive, data-rich exploration dashboard that gives developers an immediate, evidence-grounded technical understanding of the repository.
 
-The hero should prioritize useful, high-signal facts such as:
+The hero prioritizes accurate, high-signal facts:
 
-- Detected project type and its likely purpose (for example, application, library, CLI, data/ML project, game, infrastructure, or monorepo).
-- Languages, core frameworks, runtimes, and important tools actually detected.
-- The project's main building blocks, expressed in a visual arrangement appropriate to its type.
-- A small number of meaningful structural facts, such as public packages/commands, major subsystems, routes/API surfaces, data/model pipeline stages, or deployment units—only when the evidence makes them reliable.
-- A concise purpose statement and a route into the fuller project brief.
+- **Language distribution visualization:** Multi-colored proportional bar with percentages and file counts, with the calculation method clearly labelled ("Distribution across N analyzed files").
+- **Repository composition breakdown:** Clear proportional distribution of Source Code, Test Suites, Documentation, and Config & Build files.
+- **Detected technology stack:** Primary language, detected frameworks (e.g., Express, Fastify, Click, Anyhow, React, Tokio), runtimes, and build tools.
+- **Declared dependencies:** Clearly distinguishes declared production/runtime dependencies from development and build dependencies, with interactive filtering.
+- **Entrypoints & build scripts:** Application entrypoints (e.g. `src/index.ts`, `src/lib.rs`, `main.py`) and declared build/execution scripts with commit-pinned links.
+- **Directory and module topology:** Top-level module tree summary showing major architectural units.
+- **Distinctive structural facts:** High-signal architectural facts tailored to this specific repository.
 
-Do not promote arbitrary numbers just to fill the hero. Every displayed metric must be explainable and useful. Language distribution can be supporting metadata; it should not be mistaken for an understanding of architecture.
+Every displayed metric is explainable, verifiable, and grounded in repository evidence without fabricated data.
 
-### B. Project-type-aware visual models
+### B. Project Description — separate, compact context
+
+A separate, compact Project Description section is positioned immediately near the Technical Overview.
+
+It explains:
+- What the project does (concise purpose statement).
+- Who it is intended for, when identifiable.
+- Its most important capabilities in compact summary format.
+
+Keep these explanations concise so they provide clear context to the Technical Overview without competing with it for visual dominance.
+
+### C. Project-type-aware visual models
 
 Different repository types must not collapse into the same set of cards with only their labels changed. First classify the repository using detected manifests, structure, entrypoints, docs, symbols, and other available signals. Then select and populate the most appropriate visual model. Classification is a hint with confidence/uncertainty, not a rigid exclusive label.
 
 Examples of distinct visual models:
 
-- **Web/application:** a system map showing major client, API, service, data, and external-service areas, where actually detected.
-- **Library/framework:** public API or package surface, core modules, and a usage/extension path.
-- **CLI/tool:** command tree and the path from input/arguments through processing to output.
-- **Data/ML:** data sources, preparation steps, model/training or inference stages, and outputs—only where supported by the repository.
-- **Infrastructure/DevOps:** deployment units, environments, configuration, and pipeline stages.
-- **Game/simulation:** runtime loop and major gameplay/simulation systems or asset groups, where identifiable.
-- **Monorepo:** workspace/package topology and important connections between packages.
+- **Web applications & backend systems:** a multi-tier system topology showing client ingress, API routing surface, domain services, and data persistence layers.
+- **Libraries & frameworks:** a public contract and module hierarchy emphasizing the exported interface, internal engine, and testing/specification harness.
+- **CLI tools:** a terminal execution pipeline tracing command invocations, flags, subcommand dispatch, operations engine, and formatted output streams.
+- **Data/ML projects:** data sources, preprocessing steps, actual notebooks and model components, and evaluation—only where supported by the repository.
+- **Universal baseline:** a modular architectural subsystem topology for general or unclassified repositories.
 
-These are design directions, not hard-coded assumptions. Use a distinct visual grammar and hierarchy when it helps comprehension, but do not invent behavior or relationships to make a diagram look complete. If classification is uncertain or deeper analysis is unsupported, use a clear universal project fingerprint rather than forcing an inappropriate specialist layout.
-
-Start with a small set of reusable visual primitives and a handful of strong project-type layouts. Do not build a large plugin/layout framework in this iteration.
-
-### C. Project Brief — important supporting context
-
-Keep the project purpose, intended audience, and a short prioritized set of capabilities easy to find. However, the brief must not consume the visual hero or dominate the page as several large prose cards. Present it as concise, readable context adjacent to or immediately below the Project Fingerprint. Let users expand capability explanations when they want more detail.
+These are design directions, not hard-coded templates. Build visuals from the facts the analysis actually discovers without inventing architecture.
 
 ### D. Guided exploration instead of scattered description cards
 
-Organize the experience around a few meaningful visual and interaction choices rather than a long stack of disconnected cards. Users should be able to select a major system, capability, package, command, or pipeline stage and understand:
-
-- What role it plays in this project.
-- What it connects to or enables, when that connection is supported.
-- Where to go next to understand the workflow.
-
-The next step should change naturally with the selected project type and selected item. Avoid showing the same generic collection of cards on every repository simply because the frontend has those components available.
+Organize the experience around meaningful visual and interaction choices rather than long stacks of redundant text cards. Users can select any component, package, route, or pipeline stage and inspect its role, inbound/outbound architectural connections, and commit-pinned source links via an interactive contextual detail drawer.
 
 ### E. Evidence is supporting infrastructure, not the main event
 
-Evidence quality remains essential to correctness, but the default UI must not feel like an audit report or evidence browser. Keep the first impression focused on understanding the project. Show compact source attribution only where it builds trust, and make file paths, line excerpts, and detailed evidence available on demand through a selected component/capability or a dedicated explorer.
-
-Distinguish among documented, implementation found, test found, test passed (only if actually run), inferred, and unresolved claims. Do not repeat conspicuous status tags on every visual element if a subtler treatment or details panel communicates the same thing. Never remove evidence validation from the analysis pipeline just to reduce its visibility in the UI.
+Evidence quality remains essential to correctness, but the default UI must not feel like an audit report. Keep the first impression focused on understanding the project. Show compact source attribution where it builds trust, and make file paths, line excerpts, and detailed evidence available on demand through contextual drawers and a dedicated evidence explorer tab.
 
 ### F. Progressive disclosure and visual hierarchy
 
-Use this initial hierarchy as the default, adapting order when the project type makes another view more useful:
-
-1. **Project Fingerprint:** project type, ecosystem, distinctive visual model, and a few meaningful facts.
-2. **Purpose and capabilities:** what the project does and what it enables.
-3. **Explore the system:** interact with the relevant map, package surface, command tree, pipeline, or other project-specific model.
-4. **Technical details and source evidence:** expandable/on-demand detail for users who want to go deeper.
-5. **Limitations and uncertainty:** visible and honest, but not needlessly noisy.
+1. **Technical Overview:** dominant visual hero with language charts, file composition, declared dependencies, entrypoints, and structural facts.
+2. **Project Description & Purpose:** concise purpose, audience, and key capability highlights.
+3. **Explore the System:** interactive visual model (web/backend system map, library surface, CLI execution pipeline, data pipeline, or universal modular topology).
+4. **Contextual Detail & Source Evidence:** on-demand detail drawer and secondary audit tab.
+5. **Limitations and Gaps:** honest acknowledgment of unverified items or baseline coverage.
 
 The aim is not to hide technical depth. It is to let users choose depth as they explore rather than forcing every detail into the initial screen.
 
@@ -251,22 +246,23 @@ The initial evidence foundation and Phase 2 Project Brief MVP have now been impl
 
 The immediate task is a focused product/UX iteration, not another backend rebuild.
 
-### Phase 3 — Project Fingerprint and adaptive visual exploration
+### Phase 3 & 3B — Restore the Technical Overview Hero and Adaptive Visual Exploration
 
-**Goal:** Transform the repository overview from a uniform collection of descriptive cards into a visually distinctive, project-adaptive hero experience where different software types look and behave differently.
+**Goal:** Establish the Technical Overview as the dominant, data-rich visual hero at the top of the analyzed repository page, supported by a separate concise Project Description and genuine project-type visual models.
 
-- **Hero Project Fingerprint:** Promote Ecosystem Facts and Technical Overview into the primary hero. Highlights detected category, confidence, framework badges, runtime tools, and 3-4 project-specific structural facts alongside concise purpose and capability quick-routes.
+- **Hero Technical Overview Dashboard:** Dominant visual section at the top of the analyzed page. Highlights proportional language distribution (% of analyzed files), repository composition (source vs test vs doc vs config), declared production vs development dependencies, application entrypoints, build/execution scripts, and distinctive structural facts.
+- **Separate Project Description:** Compact section near the Technical Overview providing project purpose, intended audience, and key capability highlights without competing for visual dominance.
 - **Project-Adaptive Visual Models:**
-  - **Web Application & Backend Systems:** Multi-tier architectural topology (Client/Frontend ➔ Routing/API Layer ➔ Core Service Engine ➔ Data & Storage).
-  - **Libraries & Frameworks:** Public contract hierarchy (Public API surface ➔ Internal Core Implementation ➔ Test & Build Configuration).
-  - **CLI Tools:** Execution pipeline (Input / CLI Flags ➔ Command Dispatch ➔ Execution Engine ➔ Formatted Output).
-  - **Data / ML Projects:** Processing and training flow (Data Ingestion ➔ Preprocessing & Features ➔ Model Training / Inference ➔ Output Artifacts).
+  - **Web Application & Backend Systems:** Multi-tier architectural topology (Client Ingress ➔ API Routing Surface ➔ Domain Service Engine ➔ Data Persistence).
+  - **Libraries & Frameworks:** Public contract & module hierarchy (Public API surface ➔ Internal Engine ➔ Test Harness & Build Specification).
+  - **CLI Tools:** Terminal execution pipeline (Invocations & Flags ➔ Command Dispatcher ➔ Execution Engine ➔ Formatted Output).
+  - **Data / ML Projects:** Grounded processing and training flow (Data Ingestion ➔ Feature Prep ➔ Modeling / Analytics ➔ Evaluation & Artifacts).
   - **Universal Baseline:** Modular subsystem topology for general or unclassified repositories.
-- **Interactive Contextual Detail Panel:** Selecting any component, subsystem, package, command, or pipeline stage displays its role, inbound/outbound connections, next-step exploration recommendations, and commit-pinned source links without triggering full-page context shifts.
-- **De-emphasized Source Evidence:** Evidence tables and verbose file excerpts are removed from the first screen. Source grounding is delivered through contextual component drawers and a secondary audit tab, maintaining 100% auditability and commit-pinned permalinks without clutter.
-- **Preserved Pipeline & Zero-Cost Safeguards:** Retains shallow-cloning, Groq `openai/gpt-oss-120b` zero-cost integration, deterministic fallback, strict schema validation, and commitment to never hallucinate metrics or connections.
+- **Interactive Contextual Detail Panel:** Selecting any component displays its role, inbound/outbound connections, next-step recommendations, and commit-pinned source links.
+- **De-emphasized Source Evidence:** 100% auditable source grounding delivered through contextual drawers and a secondary audit tab.
+- **Preserved Pipeline & Zero-Cost Safeguards:** Retains shallow-cloning, Groq zero-cost integration, deterministic fallback, strict schema validation, and commitment to never hallucinate metrics or connections.
 
-**Exit condition:** Comparing materially different repositories (e.g., Express backend, Click CLI, Anyhow library) produces visibly distinct visual models and information hierarchies with interactive contextual explanations and unobtrusive evidence.
+**Exit condition:** Comparing materially different repositories (`expressjs/express`, `pallets/click`, `dtolnay/anyhow`) produces an informative technical overview dashboard, a separate concise description, and visibly distinct visual models.
 
 ### Phase 4 — Validate usefulness, then deepen analysis
 

@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
-import ProjectFingerprintHero from "./ProjectFingerprintHero";
+import TechnicalOverviewHero from "./TechnicalOverviewHero";
+import ProjectDescriptionSection from "./ProjectDescriptionSection";
 import AdaptiveVisualModel from "./visual-models/AdaptiveVisualModel";
 import CapabilityCard from "./CapabilityCard";
 import EvidenceExplorer from "./EvidenceExplorer";
@@ -176,10 +177,18 @@ export default function ProjectBriefView({
         </div>
       )}
 
-      {/* 2. THE HERO: Project Fingerprint */}
-      <ProjectFingerprintHero
-        brief={brief}
+      {/* 2. THE HERO: Technical Overview Exploration Dashboard */}
+      <TechnicalOverviewHero
+        overview={brief.technicalOverview}
         evidenceSummary={evidenceSummary}
+        repoOwner={brief.owner}
+        repoName={brief.repo}
+        commitSha={brief.commitSha}
+      />
+
+      {/* 3. COMPACT PROJECT DESCRIPTION & PURPOSE */}
+      <ProjectDescriptionSection
+        brief={brief}
         onExploreCapabilities={scrollToCapabilities}
       />
 
