@@ -25,7 +25,8 @@ const CATEGORY_META: Record<
     title: "Web Application",
     badgeBg: "bg-emerald-100 dark:bg-emerald-950/80",
     badgeText: "text-emerald-800 dark:text-emerald-300",
-    gradient: "from-emerald-50/70 via-white to-indigo-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/30",
+    gradient:
+      "from-emerald-50/70 via-white to-indigo-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/30",
     border: "border-emerald-200 dark:border-emerald-900/60",
     icon: "🌐",
     description: "Interactive web frontend and full-stack application architecture",
@@ -34,7 +35,8 @@ const CATEGORY_META: Record<
     title: "Backend API & Service System",
     badgeBg: "bg-blue-100 dark:bg-blue-950/80",
     badgeText: "text-blue-800 dark:text-blue-300",
-    gradient: "from-blue-50/70 via-white to-cyan-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-blue-950/30",
+    gradient:
+      "from-blue-50/70 via-white to-cyan-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-blue-950/30",
     border: "border-blue-200 dark:border-blue-900/60",
     icon: "⚡",
     description: "Server-side API routes, business logic services, and data storage tier",
@@ -43,16 +45,19 @@ const CATEGORY_META: Record<
     title: "Command-Line Tool (CLI)",
     badgeBg: "bg-amber-100 dark:bg-amber-950/80",
     badgeText: "text-amber-800 dark:text-amber-300",
-    gradient: "from-amber-50/70 via-white to-orange-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30",
+    gradient:
+      "from-amber-50/70 via-white to-orange-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30",
     border: "border-amber-200 dark:border-amber-900/60",
     icon: "💻",
-    description: "Terminal executable with argument parsing, command dispatch, and formatted output",
+    description:
+      "Terminal executable with argument parsing, command dispatch, and formatted output",
   },
   "library-framework": {
     title: "Software Library & SDK",
     badgeBg: "bg-purple-100 dark:bg-purple-950/80",
     badgeText: "text-purple-800 dark:text-purple-300",
-    gradient: "from-purple-50/70 via-white to-pink-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-purple-950/30",
+    gradient:
+      "from-purple-50/70 via-white to-pink-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-purple-950/30",
     border: "border-purple-200 dark:border-purple-900/60",
     icon: "📦",
     description: "Exported public APIs, data structures, and reusable components for integration",
@@ -61,7 +66,8 @@ const CATEGORY_META: Record<
     title: "Data & ML Pipeline",
     badgeBg: "bg-rose-100 dark:bg-rose-950/80",
     badgeText: "text-rose-800 dark:text-rose-300",
-    gradient: "from-rose-50/70 via-white to-orange-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-rose-950/30",
+    gradient:
+      "from-rose-50/70 via-white to-orange-50/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-rose-950/30",
     border: "border-rose-200 dark:border-rose-900/60",
     icon: "🧠",
     description: "Datasets, feature preparation, model architectures, and inference workflows",
@@ -70,7 +76,8 @@ const CATEGORY_META: Record<
     title: "Modular Codebase",
     badgeBg: "bg-zinc-100 dark:bg-zinc-800",
     badgeText: "text-zinc-800 dark:text-zinc-200",
-    gradient: "from-zinc-50/80 via-white to-zinc-100/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800/40",
+    gradient:
+      "from-zinc-50/80 via-white to-zinc-100/60 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800/40",
     border: "border-zinc-200 dark:border-zinc-800",
     icon: "🧩",
     description: "Structured multi-module software project with baseline universal inventory",
@@ -135,8 +142,8 @@ export default function ProjectFingerprintHero({
                   confidence === "high"
                     ? "bg-emerald-500"
                     : confidence === "medium"
-                    ? "bg-blue-500"
-                    : "bg-zinc-400"
+                      ? "bg-blue-500"
+                      : "bg-zinc-400"
                 }`}
               />
               <span className="capitalize">{confidence} Confidence</span>
@@ -168,9 +175,7 @@ export default function ProjectFingerprintHero({
 
             <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">•</span>
 
-            <span className="text-zinc-500 dark:text-zinc-400 italic">
-              {meta.description}
-            </span>
+            <span className="text-zinc-500 dark:text-zinc-400 italic">{meta.description}</span>
           </div>
         </div>
 
@@ -243,7 +248,12 @@ export default function ProjectFingerprintHero({
             >
               <span>Explore {brief.capabilities.length} Core Capabilities</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
             <span className="text-zinc-400 dark:text-zinc-500 hidden sm:inline">

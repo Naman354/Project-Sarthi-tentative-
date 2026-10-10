@@ -42,7 +42,7 @@ The first three steps must already be valuable. Users should not need an account
 
 ### A. Project Fingerprint — the hero experience
 
-The first screen after analysis should feel like a visual identity for *this particular repository*, not a generic dashboard populated with different text. Make the existing Technical Overview / Ecosystem Facts content the starting point, but evolve it beyond a row of language percentages and technology badges.
+The first screen after analysis should feel like a visual identity for _this particular repository_, not a generic dashboard populated with different text. Make the existing Technical Overview / Ecosystem Facts content the starting point, but evolve it beyond a row of language percentages and technology badges.
 
 The hero should prioritize useful, high-signal facts such as:
 
@@ -267,7 +267,6 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 - **Preserved Pipeline & Zero-Cost Safeguards:** Retains shallow-cloning, Groq `openai/gpt-oss-120b` zero-cost integration, deterministic fallback, strict schema validation, and commitment to never hallucinate metrics or connections.
 
 **Exit condition:** Comparing materially different repositories (e.g., Express backend, Click CLI, Anyhow library) produces visibly distinct visual models and information hierarchies with interactive contextual explanations and unobtrusive evidence.
-
 
 ### Phase 4 — Validate usefulness, then deepen analysis
 

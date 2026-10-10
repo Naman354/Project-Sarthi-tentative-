@@ -66,7 +66,9 @@ export default function UniversalVisualModel({
               </div>
 
               <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center justify-between text-[11px] font-semibold">
-                <span className={isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}>
+                <span
+                  className={isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}
+                >
                   {isSelected ? "● Selected" : "Inspect"}
                 </span>
                 {area.nextStep && (

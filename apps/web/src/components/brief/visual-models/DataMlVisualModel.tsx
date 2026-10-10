@@ -78,9 +78,7 @@ export default function DataMlVisualModel({
                   <span>{stage.title}</span>
                 </span>
               </div>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-3">
-                {stage.desc}
-              </p>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-3">{stage.desc}</p>
 
               <div className="space-y-2">
                 {stage.items.map((item) => {
@@ -97,9 +95,7 @@ export default function DataMlVisualModel({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold truncate">
-                          {item.name}
-                        </span>
+                        <span className="text-xs font-bold truncate">{item.name}</span>
                         {item.associatedFiles.length > 0 && (
                           <span className="text-[9px] font-mono px-1 rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-500">
                             {item.associatedFiles.length}f

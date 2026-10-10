@@ -507,7 +507,9 @@ export class UniversalEvidenceCollector {
 
     // 7. Determine Frameworks, Tools, and Project Classification
     const allDeps = manifests.flatMap((m) => m.dependencies).map((d) => d.toLowerCase());
-    const allDevDeps = manifests.flatMap((m) => m.devDependencies || []).map((d) => d.toLowerCase());
+    const allDevDeps = manifests
+      .flatMap((m) => m.devDependencies || [])
+      .map((d) => d.toLowerCase());
     const allDependenciesCombined = [...allDeps, ...allDevDeps];
 
     // Framework detection mapping
@@ -652,8 +654,7 @@ export class UniversalEvidenceCollector {
       projectTypes.push("web-application");
     if (hasBackendFramework && !projectTypes.includes("backend-system"))
       projectTypes.push("backend-system");
-    if (hasCliFramework && !projectTypes.includes("cli-tool"))
-      projectTypes.push("cli-tool");
+    if (hasCliFramework && !projectTypes.includes("cli-tool")) projectTypes.push("cli-tool");
 
     // Extract high-signal structural facts tailored to project type
     const structuralFacts: StructuralFact[] = [];
@@ -692,8 +693,8 @@ export class UniversalEvidenceCollector {
         ...(cliFw
           ? { detail: cliFw }
           : hasRustBinary
-          ? { detail: "Rust Binary Executable" }
-          : { detail: "Script Dispatcher" }),
+            ? { detail: "Rust Binary Executable" }
+            : { detail: "Script Dispatcher" }),
       });
       structuralFacts.push({
         label: "Binary Target",
@@ -707,7 +708,8 @@ export class UniversalEvidenceCollector {
       });
       structuralFacts.push({
         label: "Verification",
-        value: testsFound.length > 0 ? `${testsFound.length} Test Indicators` : "Manual / CLI Tests",
+        value:
+          testsFound.length > 0 ? `${testsFound.length} Test Indicators` : "Manual / CLI Tests",
         ...(testsFound[0] ? { detail: testsFound[0] } : { detail: "CLI integration test" }),
       });
     } else if (category === "library-framework") {
@@ -724,7 +726,9 @@ export class UniversalEvidenceCollector {
       structuralFacts.push({
         label: "Package Boundaries",
         value: `${manifests[0]?.dependencies.length || 0} Dependencies`,
-        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : { detail: "Crate / Manifest" }),
+        ...(manifests[0]?.filePath
+          ? { detail: manifests[0].filePath }
+          : { detail: "Crate / Manifest" }),
       });
       structuralFacts.push({
         label: "Test Harness",
@@ -738,9 +742,7 @@ export class UniversalEvidenceCollector {
       structuralFacts.push({
         label: "Pipeline Category",
         value: "Data & ML System",
-        ...(mlFws.length > 0
-          ? { detail: mlFws.join(", ") }
-          : { detail: "Python Analytics" }),
+        ...(mlFws.length > 0 ? { detail: mlFws.join(", ") } : { detail: "Python Analytics" }),
       });
       structuralFacts.push({
         label: "Script / Notebook Surface",
@@ -770,7 +772,9 @@ export class UniversalEvidenceCollector {
       });
       structuralFacts.push({
         label: "Ecosystem",
-        value: manifests[0]?.ecosystem ? `${manifests[0].ecosystem.toUpperCase()} Manifest` : "General",
+        value: manifests[0]?.ecosystem
+          ? `${manifests[0].ecosystem.toUpperCase()} Manifest`
+          : "General",
         ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : {}),
       });
       structuralFacts.push({

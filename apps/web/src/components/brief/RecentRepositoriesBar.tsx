@@ -1,39 +1,76 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useSyncExternalStore } from "react";
 import type { RecentRepositoryItem } from "../../types/brief";
 
 interface RecentRepositoriesBarProps {
   onSelectRepo: (url: string) => void;
 }
 
+const RECENT_REPOS_STORAGE_KEY = "sarthi_recent_repos";
+const RECENT_REPOS_EVENT = "sarthi_recent_repos_updated";
+
+const EMPTY_REPOS: RecentRepositoryItem[] = [];
+let cachedRaw: string | null = null;
+let cachedRepos: RecentRepositoryItem[] = EMPTY_REPOS;
+
+function getSnapshot(): RecentRepositoryItem[] {
+  if (typeof window === "undefined") {
+    return EMPTY_REPOS;
+  }
+  try {
+    const raw = localStorage.getItem(RECENT_REPOS_STORAGE_KEY);
+    if (raw === cachedRaw) {
+      return cachedRepos;
+    }
+    cachedRaw = raw;
+    cachedRepos = raw ? (JSON.parse(raw) as RecentRepositoryItem[]) : EMPTY_REPOS;
+    return cachedRepos;
+  } catch {
+    return EMPTY_REPOS;
+  }
+}
+
+function getServerSnapshot(): RecentRepositoryItem[] {
+  return EMPTY_REPOS;
+}
+
+function subscribe(callback: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+  window.addEventListener(RECENT_REPOS_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(RECENT_REPOS_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
 export function saveRecentRepo(item: RecentRepositoryItem): void {
   if (typeof window === "undefined") return;
   try {
-    const raw = localStorage.getItem("sarthi_recent_repos");
+    const raw = localStorage.getItem(RECENT_REPOS_STORAGE_KEY);
     const existing: RecentRepositoryItem[] = raw ? JSON.parse(raw) : [];
     const filtered = existing.filter((r) => r.repoUrl.toLowerCase() !== item.repoUrl.toLowerCase());
     const updated = [item, ...filtered].slice(0, 8);
-    localStorage.setItem("sarthi_recent_repos", JSON.stringify(updated));
+    localStorage.setItem(RECENT_REPOS_STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event(RECENT_REPOS_EVENT));
   } catch {
     // Ignore storage errors
   }
 }
 
 export default function RecentRepositoriesBar({ onSelectRepo }: RecentRepositoriesBarProps) {
-  const [recentRepos, setRecentRepos] = useState<RecentRepositoryItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem("sarthi_recent_repos");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
+  const recentRepos = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const handleClear = () => {
-    localStorage.removeItem("sarthi_recent_repos");
-    setRecentRepos([]);
+    try {
+      localStorage.removeItem(RECENT_REPOS_STORAGE_KEY);
+      window.dispatchEvent(new Event(RECENT_REPOS_EVENT));
+    } catch {
+      // Ignore storage errors
+    }
   };
 
   if (recentRepos.length === 0) {

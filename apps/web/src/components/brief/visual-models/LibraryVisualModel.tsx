@@ -22,15 +22,13 @@ export default function LibraryVisualModel({
   );
 
   const internalCoreAreas = areas.filter(
-    (a) =>
-      !publicApiAreas.includes(a) &&
-      !/test|spec|bench|config|feature|build/i.test(a.name)
+    (a) => !publicApiAreas.includes(a) && !/test|spec|bench|config|feature|build/i.test(a.name)
   );
 
   const configTestingAreas = areas.filter(
     (a) =>
       /test|spec|bench|config|feature|build|flag|manifest/i.test(a.name) ||
-      !publicApiAreas.includes(a) && !internalCoreAreas.includes(a)
+      (!publicApiAreas.includes(a) && !internalCoreAreas.includes(a))
   );
 
   const columns = [
@@ -81,7 +79,9 @@ export default function LibraryVisualModel({
           >
             <div>
               <div className="flex items-center justify-between border-b border-zinc-200/70 dark:border-zinc-700/60 pb-2.5 mb-3">
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${col.badgeColor}`}>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${col.badgeColor}`}
+                >
                   {col.badge}
                 </span>
                 <span className="text-[10px] font-mono text-zinc-400">

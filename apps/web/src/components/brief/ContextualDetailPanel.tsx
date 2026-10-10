@@ -68,9 +68,7 @@ export default function ContextualDetailPanel({
               </span>
             )}
           </div>
-          <h4 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-            {area.name}
-          </h4>
+          <h4 className="text-base font-bold text-zinc-900 dark:text-zinc-100">{area.name}</h4>
         </div>
 
         <button
@@ -80,7 +78,12 @@ export default function ContextualDetailPanel({
           title="Close detail panel"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -103,9 +106,7 @@ export default function ContextualDetailPanel({
               <span>✦</span>
               <span>Next Step Exploration</span>
             </span>
-            <p className="text-xs text-indigo-900 dark:text-indigo-200">
-              {area.nextStep}
-            </p>
+            <p className="text-xs text-indigo-900 dark:text-indigo-200">{area.nextStep}</p>
           </div>
 
           {nextTargetArea && (
@@ -185,11 +186,25 @@ export default function ContextualDetailPanel({
       {fileTarget && (
         <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500 truncate">
-            <svg className="w-3.5 h-3.5 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="w-3.5 h-3.5 text-zinc-400 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <span className="truncate">{fileTarget}</span>
-            {lineStart && <span className="text-indigo-600 dark:text-indigo-400 font-semibold">:L{lineStart}</span>}
+            {lineStart && (
+              <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+                :L{lineStart}
+              </span>
+            )}
           </div>
 
           {githubUrl && (
@@ -200,8 +215,18 @@ export default function ContextualDetailPanel({
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors shrink-0"
             >
               <span>Inspect Code</span>
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
               </svg>
             </a>
           )}

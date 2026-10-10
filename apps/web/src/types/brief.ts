@@ -22,12 +22,7 @@ export interface ProjectCapability {
 }
 
 export type ProjectCategory =
-  | "web-application"
-  | "backend-system"
-  | "cli-tool"
-  | "library-framework"
-  | "data-ml"
-  | "universal";
+  "web-application" | "backend-system" | "cli-tool" | "library-framework" | "data-ml" | "universal";
 
 export interface StructuralFact {
   label: string;
@@ -42,15 +37,7 @@ export interface ConceptualArea {
   evidenceIds: string[];
   associatedFiles: string[];
   category?:
-    | "frontend"
-    | "api"
-    | "service"
-    | "data"
-    | "cli"
-    | "core"
-    | "pipeline"
-    | "config"
-    | "external";
+    "frontend" | "api" | "service" | "data" | "cli" | "core" | "pipeline" | "config" | "external";
   nextStep?: string;
 }
 

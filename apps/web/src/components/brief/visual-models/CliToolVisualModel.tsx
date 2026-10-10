@@ -34,9 +34,7 @@ export default function CliToolVisualModel({
       subtitle: "Main routine & subcommand router",
       icon: "⚡",
       items: areas.filter(
-        (a) =>
-          /command|dispatch|router|entry|core/i.test(a.name) &&
-          !/arg|flag|input/i.test(a.name)
+        (a) => /command|dispatch|router|entry|core/i.test(a.name) && !/arg|flag|input/i.test(a.name)
       ),
     },
     {
@@ -77,7 +75,9 @@ export default function CliToolVisualModel({
           <span>&gt;_</span>
           <span>CLI Execution Pipeline</span>
         </span>
-        <span className="font-mono text-[11px]">Command Path: Invocations → Execution → Terminal STDOUT</span>
+        <span className="font-mono text-[11px]">
+          Command Path: Invocations → Execution → Terminal STDOUT
+        </span>
       </div>
 
       {/* Horizontal Pipeline Steps on desktop, vertical on mobile */}
@@ -99,12 +99,8 @@ export default function CliToolVisualModel({
                 </span>
               </div>
 
-              <h5 className="text-xs font-bold text-zinc-100 mb-0.5">
-                {stage.title}
-              </h5>
-              <p className="text-[10px] text-zinc-400 leading-tight mb-3">
-                {stage.subtitle}
-              </p>
+              <h5 className="text-xs font-bold text-zinc-100 mb-0.5">{stage.title}</h5>
+              <p className="text-[10px] text-zinc-400 leading-tight mb-3">{stage.subtitle}</p>
 
               {/* Items in this stage */}
               <div className="space-y-2">
@@ -122,9 +118,7 @@ export default function CliToolVisualModel({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold truncate">
-                          {item.name}
-                        </span>
+                        <span className="text-xs font-bold truncate">{item.name}</span>
                         {item.associatedFiles.length > 0 && (
                           <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-zinc-700 text-zinc-300">
                             {item.associatedFiles.length}f
