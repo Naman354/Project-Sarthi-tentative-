@@ -5,6 +5,7 @@ import type {
   ParsedOutput,
   NormalizedEntity,
   NormalizedRelationship,
+  SourceLocation,
 } from "../types.js";
 
 interface PrismaField {
@@ -75,7 +76,12 @@ export class PrismaParserPlugin implements ParserPlugin {
       }
 
       const lines = schemaText.split("\n");
-      let currentModel: { name: string; fields: PrismaField[]; tableName?: string } | null = null;
+      let currentModel: {
+        name: string;
+        fields: PrismaField[];
+        tableName?: string;
+        startLine: number;
+      } | null = null;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]?.trim() || "";
@@ -87,6 +93,7 @@ export class PrismaParserPlugin implements ParserPlugin {
           currentModel = {
             name: modelMatch[1],
             fields: [],
+            startLine: i + 1,
           };
           continue;
         }
@@ -95,16 +102,27 @@ export class PrismaParserPlugin implements ParserPlugin {
         if (currentModel) {
           if (line.startsWith("}")) {
             // End of model block
+            const endLine = i + 1;
+            const modelLoc: SourceLocation = {
+              startLine: currentModel.startLine,
+              startColumn: 0,
+              endLine,
+              endColumn: line.length,
+            };
+
+            const modelId = `model:${relativePath}#${currentModel.name}`;
             const modelEntity: NormalizedEntity = {
-              id: `model:${currentModel.name}`,
+              id: modelId,
               type: "model",
               name: currentModel.name,
               filePath: relativePath,
+              location: modelLoc,
               metadata: {
                 modelName: currentModel.name,
                 tableName: currentModel.tableName || currentModel.name.toLowerCase(),
                 fieldsCount: currentModel.fields.length,
                 fields: currentModel.fields,
+                ...(modelLoc ? { location: modelLoc } : {}),
               },
             };
             entities.push(modelEntity);
@@ -113,8 +131,8 @@ export class PrismaParserPlugin implements ParserPlugin {
             for (const field of currentModel.fields) {
               if (field.relationTarget) {
                 relationships.push({
-                  sourceId: `model:${currentModel.name}`,
-                  targetId: `model:${field.relationTarget}`,
+                  sourceId: modelId,
+                  targetId: `model:${relativePath}#${field.relationTarget}`,
                   type: "queries",
                   metadata: {
                     field: field.name,

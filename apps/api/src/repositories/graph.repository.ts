@@ -10,6 +10,7 @@ import type {
   ModuleDetailResponse,
   GraphVersionSummary,
 } from "../graph/types.js";
+import type { SourceLocation } from "../parsers/types.js";
 
 export interface PersistGraphMeta {
   gitCommitHash?: string | null | undefined;
@@ -23,7 +24,8 @@ export interface NodeMetadata {
   filePath?: string;
   method?: string;
   path?: string;
-  [key: string]: Prisma.JsonValue | undefined;
+  location?: SourceLocation | null;
+  [key: string]: unknown;
 }
 
 function parseNodeMetadata(metadata: Prisma.JsonValue | null): NodeMetadata {
@@ -65,7 +67,7 @@ export class GraphRepository {
       const versionNodes = nodes.map((node) => {
         const newId = randomUUID();
         idMap.set(node.id, newId);
-        const metaObj = node.metadata as Prisma.InputJsonObject;
+        const metaObj = (node.metadata || {}) as Record<string, unknown>;
         return {
           id: newId,
           graphVersionId: graphVersion.id,
@@ -74,7 +76,8 @@ export class GraphRepository {
           metadata: {
             ...metaObj,
             originalEntityId: node.entityId,
-          },
+            ...(node.location ? { location: node.location as unknown as Prisma.InputJsonValue } : {}),
+          } as Prisma.InputJsonObject,
         };
       });
 
@@ -174,19 +177,20 @@ export class GraphRepository {
     for (const edge of version.edges) {
       outgoingMap.set(edge.sourceNodeId, (outgoingMap.get(edge.sourceNodeId) || 0) + 1);
       incomingMap.set(edge.targetNodeId, (incomingMap.get(edge.targetNodeId) || 0) + 1);
-      edgeTypeCounts[edge.relationshipType] = (edgeTypeCounts[edge.relationshipType] || 0) + 1;
     }
 
     const nodeTypeCounts: Record<string, number> = {};
     const formattedNodes = version.nodes.map((node) => {
       nodeTypeCounts[node.nodeType] = (nodeTypeCounts[node.nodeType] || 0) + 1;
       const meta = parseNodeMetadata(node.metadata);
+      const loc = (meta.location as SourceLocation | undefined) ?? null;
       return {
         id: node.id,
         entityId: meta.entityId ?? meta.originalEntityId ?? node.id,
         graphVersionId: node.graphVersionId,
         nodeType: node.nodeType,
         name: node.name,
+        location: loc,
         metadata: meta,
         incomingCount: incomingMap.get(node.id) || 0,
         outgoingCount: outgoingMap.get(node.id) || 0,
@@ -376,6 +380,7 @@ export class GraphRepository {
           graphVersionId: node.graphVersionId,
           nodeType: node.nodeType,
           name: node.name,
+          location: (meta.location as SourceLocation | undefined) ?? null,
           metadata: meta,
           createdAt: node.createdAt,
         });

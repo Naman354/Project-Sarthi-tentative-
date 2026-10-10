@@ -1,4 +1,4 @@
-import type { EntityType, RelationshipType } from "../parsers/types.js";
+import type { EntityType, RelationshipType, SourceLocation } from "../parsers/types.js";
 
 export interface GraphNode {
   id: string; // Database ID (UUID)
@@ -6,6 +6,7 @@ export interface GraphNode {
   graphVersionId?: string;
   nodeType: EntityType | string;
   name: string;
+  location?: SourceLocation | null;
   metadata: Record<string, unknown>;
   createdAt?: Date;
 }

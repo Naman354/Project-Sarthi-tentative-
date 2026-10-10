@@ -2,258 +2,317 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import SystemStatus from "./SystemStatus";
-import AuthStatus from "./AuthStatus";
+import { api } from "../lib/api";
+import type { ExploreResponse } from "../types/brief";
+import ProjectBriefView from "../components/brief/ProjectBriefView";
+import RecentRepositoriesBar, { saveRecentRepo } from "../components/brief/RecentRepositoriesBar";
 import {
   SparklesIcon,
   NetworkGraphIcon,
   ArrowRightIcon,
-  CodeIcon,
   TargetIcon,
-  SearchIcon,
-  SlidersIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
   ShieldCheckIcon,
 } from "../components/Icons";
 
-export default function Home() {
-  const [showDevStatus, setShowDevStatus] = useState(false);
+const EXAMPLE_REPOS = [
+  { label: "Express", url: "https://github.com/expressjs/express", tech: "Node.js" },
+  { label: "Flask", url: "https://github.com/pallets/flask", tech: "Python" },
+  { label: "mdBook", url: "https://github.com/rust-lang/mdBook", tech: "Rust" },
+];
 
+export default function Home() {
+  const [repoUrl, setRepoUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [exploreData, setExploreData] = useState<ExploreResponse | null>(null);
+
+  const handleExplore = async (targetUrl?: string, forceRefresh = false) => {
+    const urlToAnalyze = (targetUrl || repoUrl).trim();
+    if (!urlToAnalyze) {
+      setErrorMessage("Please enter a public GitHub repository URL.");
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsLoading(true);
+
+    try {
+      setLoadingStep("Validating public GitHub repository URL...");
+      await new Promise((r) => setTimeout(r, 200));
+
+      setLoadingStep("Cloning repository snapshot & extracting commit SHA...");
+      const res = await api.post<ExploreResponse>(
+        "/public/explore",
+        { githubUrl: urlToAnalyze, forceRefresh },
+        { skipAuth: true }
+      );
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || "Could not analyze repository");
+      }
+
+      setLoadingStep("Finalizing evidence-backed Project Brief...");
+      await new Promise((r) => setTimeout(r, 200));
+
+      setExploreData(res.data);
+
+      // Save to recent repositories in localStorage
+      const brief = res.data.brief;
+      saveRecentRepo({
+        repoUrl: brief.repoUrl,
+        owner: brief.owner,
+        repo: brief.repo,
+        commitSha: brief.commitSha,
+        purpose: brief.purpose,
+        primaryLanguage: brief.technicalOverview.primaryLanguage,
+        analyzedAt: brief.generatedAt,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
+      setLoadingStep("");
+    }
+  };
+
+  const handleRefresh = () => {
+    if (exploreData?.brief?.repoUrl) {
+      handleExplore(exploreData.brief.repoUrl, true);
+    }
+  };
+
+  const handleReset = () => {
+    setExploreData(null);
+    setRepoUrl("");
+    setErrorMessage(null);
+  };
+
+  // If a Project Brief is active, show the Project Brief View
+  if (exploreData) {
+    return (
+      <div className="flex flex-col flex-1 items-center px-4 py-8 sm:py-12 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl pointer-events-none" />
+        <main className="w-full relative z-10">
+          <ProjectBriefView
+            brief={exploreData.brief}
+            evidenceSummary={exploreData.evidenceSummary}
+            onRefresh={handleRefresh}
+            onReset={handleReset}
+            isRefreshing={isLoading}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // Otherwise, render the initial landing exploration journey
   return (
     <div className="flex flex-col flex-1 items-center px-4 py-12 sm:py-20 relative overflow-hidden">
       {/* Background radial glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/15 via-purple-500/10 to-transparent blur-3xl pointer-events-none" />
 
-      <main className="w-full max-w-6xl flex flex-col items-center relative z-10 space-y-16">
+      <main className="w-full max-w-5xl flex flex-col items-center relative z-10 space-y-12">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold backdrop-blur-sm shadow-xs">
             <SparklesIcon className="w-4 h-4 text-indigo-500 animate-pulse" />
-            <span>Software Understanding Platform • Milestones 1–9 Live</span>
+            <span>Instant Repository Explorer • No Account Required</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.15]">
             Understand Any Codebase in{" "}
             <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Minutes
+              Five Minutes
             </span>
           </h1>
 
-          <p className="text-base sm:text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-            Git remembers{" "}
-            <span className="text-zinc-900 dark:text-zinc-200 font-medium">what changed</span>.
-            Project Sarthi remembers{" "}
-            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
-              what the software means
-            </span>
-            . Interactive knowledge graphs, architectural insights, and instant context recovery.
+          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+            Paste a public GitHub repository to get an evidence-backed{" "}
+            <span className="text-zinc-900 dark:text-zinc-200 font-semibold">Project Brief</span>:
+            understand its purpose, discover capabilities, navigate its conceptual structure, and verify claims through source permalinks.
           </p>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link
-              href="/projects"
-              id="hero-projects-cta"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/35 transition-all cursor-pointer group"
+          {/* Repository Exploration Input Bar */}
+          <div className="w-full max-w-2xl mx-auto pt-2">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleExplore();
+              }}
+              className="relative flex flex-col sm:flex-row items-center gap-2 p-1.5 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500/60 focus-within:border-indigo-500 bg-white dark:bg-zinc-900 shadow-xl shadow-indigo-500/10 transition-all"
             >
-              <span>Open Projects Workspace</span>
-              <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+              <div className="flex items-center gap-2.5 flex-1 w-full pl-3 pr-2 py-2 sm:py-0">
+                <svg
+                  className="w-5 h-5 text-zinc-400 shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  />
+                </svg>
 
-            <Link
-              href="/register"
-              id="hero-register-cta"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-semibold text-sm transition-all"
-            >
-              <span>Create Free Account</span>
-            </Link>
-          </div>
+                <input
+                  type="text"
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  placeholder="https://github.com/owner/repository"
+                  disabled={isLoading}
+                  className="w-full bg-transparent text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-hidden font-mono"
+                />
+              </div>
 
-          {/* Omnibar Hint */}
-          <div className="pt-2 flex items-center justify-center gap-2 text-xs text-zinc-500">
-            <SearchIcon className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Global Omnibar Search enabled inside projects:</span>
-            <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-              Ctrl+K
-            </kbd>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Explore Project</span>
+                    <ArrowRightIcon className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Quick Example Links */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs text-zinc-500">
+              <span className="text-[11px] font-semibold text-zinc-400">Quick Examples:</span>
+              {EXAMPLE_REPOS.map((ex) => (
+                <button
+                  key={ex.label}
+                  type="button"
+                  onClick={() => {
+                    setRepoUrl(ex.url);
+                    handleExplore(ex.url);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 text-zinc-600 dark:text-zinc-300 transition-colors font-medium cursor-pointer"
+                >
+                  {ex.label} <span className="opacity-60 text-[10px]">({ex.tech})</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Live Progress State */}
+            {isLoading && loadingStep && (
+              <div className="mt-4 p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30 text-xs text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-3 animate-fade-in">
+                <svg className="w-4 h-4 animate-spin text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span className="font-medium">{loadingStep}</span>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="mt-4 p-4 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/30 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2.5 animate-fade-in">
+                <svg className="w-4 h-4 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Recently Explored Repositories from localStorage */}
+        <RecentRepositoriesBar
+          onSelectRepo={(url) => {
+            setRepoUrl(url);
+            handleExplore(url);
+          }}
+        />
 
         {/* 4 Pillars of Project Sarthi */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Knowledge Graph */}
-          <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-sm hover:border-indigo-500/50 transition-all flex flex-col justify-between group">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <NetworkGraphIcon className="w-6 h-6" />
+        <div className="w-full pt-4 space-y-4">
+          <div className="text-center space-y-1">
+            <h2 className="text-xl font-bold text-zinc-950 dark:text-white">
+              Built for Fast, Evidence-Backed Understanding
+            </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Honest explanations grounded in verified repository files, manifests, and documentation
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+            {/* Pillar 1 */}
+            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+                <SparklesIcon className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-                Interactive Project Graph
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
+                5-Minute Project Brief
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Visual topological map of modules, API routes, controllers, and Prisma schemas with
-                pan, zoom, and instant node inspection.
+                Plain-language project purpose and audience. Answers what this software does before asking you to read raw code.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-              <span>Canvas &amp; Minimap</span>
-            </div>
-          </div>
 
-          {/* Card 2: Focus Mode & Search */}
-          <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-sm hover:border-purple-500/50 transition-all flex flex-col justify-between group">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <TargetIcon className="w-6 h-6" />
+            {/* Pillar 2 */}
+            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+                <TargetIcon className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-                Focus Mode &amp; Omnibar
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
+                Discovered Capabilities
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Milestone 9 brings universal{" "}
-                <kbd className="font-mono text-[10px] px-1 bg-zinc-200 dark:bg-zinc-800 rounded">
-                  Ctrl+K
-                </kbd>{" "}
-                search and 1-hop subgraph isolation to cut through complex codebase noise.
+                Prioritized capabilities labelled as documented, implementation-found, or inferred with source permalinks.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center text-xs font-semibold text-purple-600 dark:text-purple-400">
-              <span>Subgraph Isolation</span>
-            </div>
-          </div>
 
-          {/* Card 3: Health & Insights */}
-          <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-sm hover:border-amber-500/50 transition-all flex flex-col justify-between group">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <SparklesIcon className="w-6 h-6" />
+            {/* Pillar 3 */}
+            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+                <NetworkGraphIcon className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-                Architectural Health
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
+                Conceptual Architecture Map
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Automated detection of circular dependencies, orphan modules, and documentation
-                deficits with overall project health scoring.
+                Visual parts and relationships summarizing major responsibilities without cluttering the screen with dense nodes.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center text-xs font-semibold text-amber-600 dark:text-amber-400">
-              <span>Risk &amp; Metric Radar</span>
-            </div>
-          </div>
 
-          {/* Card 4: Resume Session */}
-          <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-sm hover:border-emerald-500/50 transition-all flex flex-col justify-between group">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <CodeIcon className="w-6 h-6" />
+            {/* Pillar 4 */}
+            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                <ShieldCheckIcon className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-                Resume Session Briefing
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
+                Zero-Cost &amp; Verified Evidence
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Eliminates the &quot;where was I working?&quot; cognitive friction by answering what
-                changed, what depends on what, and what to tackle next.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>Instant Context Recovery</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Milestone 9 Polish Spotlight */}
-        <div className="w-full p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent backdrop-blur-md">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200/80 dark:border-zinc-800/80">
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                Milestone 9 Highlights
-              </span>
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mt-1 flex items-center gap-2">
-                <SlidersIcon className="w-5 h-5 text-indigo-500" />
-                Usability, Search &amp; Polish
-              </h2>
-            </div>
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-sm self-start sm:self-auto"
-            >
-              <span>Explore Projects</span>
-              <ArrowRightIcon className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-6">
-            <div className="p-4 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-500">
-                Feature
-              </span>
-              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                Global Omnibar
-              </h4>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Press{" "}
-                <kbd className="font-mono text-[10px] px-1 bg-zinc-100 dark:bg-zinc-800 rounded">
-                  Ctrl+K
-                </kbd>{" "}
-                anywhere to jump across routes, models, modules, and architectural insights.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-500">
-                Feature
-              </span>
-              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                Graph Focus Mode
-              </h4>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Select any route or service to isolate its 1-hop neighborhood, automatically dimming
-                irrelevant nodes.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">
-                Feature
-              </span>
-              <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                Sleek Skeletons &amp; Feedback
-              </h4>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Fluid loading skeletons, animated progress modal, and graceful recovery states
-                across all workspaces.
+                Powered by Groq&apos;s free tier. All claims link to real commit-pinned files on GitHub, preventing hallucinations.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Collapsible Developer Verification Section (PostgreSQL & Auth Checks) */}
-        <div className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 overflow-hidden transition-all">
-          <button
-            type="button"
-            onClick={() => setShowDevStatus(!showDevStatus)}
-            className="w-full flex items-center justify-between p-4 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+        {/* Existing Authenticated Workspace Link */}
+        <div className="pt-4 flex items-center justify-center gap-4 text-xs text-zinc-500">
+          <span>Looking for the authenticated private workspace?</span>
+          <Link
+            href="/projects"
+            className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
           >
-            <div className="flex items-center gap-2">
-              <ShieldCheckIcon className="w-4 h-4 text-emerald-500" />
-              <span>Developer Environment Status (Database &amp; Auth Diagnostics)</span>
-            </div>
-            {showDevStatus ? (
-              <ChevronDownIcon className="w-4 h-4" />
-            ) : (
-              <ChevronRightIcon className="w-4 h-4" />
-            )}
-          </button>
-
-          {showDevStatus && (
-            <div className="p-6 pt-2 border-t border-zinc-200/60 dark:border-zinc-800/60 animate-fade-in">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                <SystemStatus />
-                <AuthStatus />
-              </div>
-            </div>
-          )}
+            Go to Projects Workspace →
+          </Link>
         </div>
       </main>
     </div>

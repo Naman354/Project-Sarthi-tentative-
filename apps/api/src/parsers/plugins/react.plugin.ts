@@ -5,6 +5,7 @@ import {
   walkAst,
   getStringLiteralValue,
   getExpressionName,
+  extractSourceLocation,
   type AstNode,
 } from "../visitors/ast.utils.js";
 import type {
@@ -88,6 +89,7 @@ export class ReactParserPlugin implements ParserPlugin {
         (relativePath.endsWith("page.tsx") || relativePath.endsWith("page.jsx"));
 
       let currentFileEntityId: string | null = null;
+      const fileComponentIds: string[] = [];
 
       // 1. Next.js App Router Page Identification
       if (isPageFile) {
@@ -100,15 +102,18 @@ export class ReactParserPlugin implements ParserPlugin {
           pageRoute = sub ? "/" + sub : "/";
         }
 
-        const pageId = `page:${pageRoute}`;
+        const pageLoc = extractSourceLocation(ast, relativePath);
+        const pageId = `page:${relativePath}#${pageRoute}`;
         const pageEntity: NormalizedEntity = {
           id: pageId,
           type: "page",
           name: `Page: ${pageRoute}`,
           filePath: relativePath,
+          location: pageLoc,
           metadata: {
             pageRoute,
             framework: "Next.js App Router",
+            ...(pageLoc ? { location: pageLoc } : {}),
           },
         };
         entities.push(pageEntity);
@@ -143,19 +148,23 @@ export class ReactParserPlugin implements ParserPlugin {
         }
 
         if (componentName) {
-          const componentId = `component:${componentName}`;
+          const componentLoc = extractSourceLocation(node, relativePath);
+          const componentId = `component:${relativePath}#${componentName}`;
           if (!entities.some((e) => e.id === componentId)) {
             const componentEntity: NormalizedEntity = {
               id: componentId,
               type: "component",
               name: componentName,
               filePath: relativePath,
+              location: componentLoc,
               metadata: {
                 componentName,
                 isPageRoot: isPageFile,
+                ...(componentLoc ? { location: componentLoc } : {}),
               },
             };
             entities.push(componentEntity);
+            fileComponentIds.push(componentId);
 
             if (currentFileEntityId && currentFileEntityId !== componentId) {
               relationships.push({
@@ -184,15 +193,58 @@ export class ReactParserPlugin implements ParserPlugin {
             if (firstArg) {
               const apiPath = getStringLiteralValue(firstArg);
               if (apiPath && (apiPath.startsWith("/") || apiPath.startsWith("http"))) {
-                const targetEntityId = `route:${apiPath}`;
-                if (currentFileEntityId) {
+                let cleanPath = apiPath;
+                try {
+                  if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+                    const parsedUrl = new URL(cleanPath);
+                    cleanPath = parsedUrl.pathname;
+                  }
+                } catch {
+                  // Fall back to original apiPath
+                }
+
+                let targetMethod = "GET";
+                if (callName?.startsWith("api.") || callName?.startsWith("axios.")) {
+                  const methodPart = callName.split(".")[1]?.toLowerCase();
+                  if (
+                    methodPart &&
+                    ["get", "post", "put", "delete", "patch"].includes(methodPart)
+                  ) {
+                    targetMethod = methodPart.toUpperCase();
+                  }
+                } else if (callName === "fetch" && args.length >= 2) {
+                  const optNode = args[1];
+                  if (optNode && optNode.type === "ObjectExpression") {
+                    const props = optNode["properties"] as AstNode[] | undefined;
+                    if (props) {
+                      for (const p of props) {
+                        if (p.type === "ObjectProperty" || p.type === "Property") {
+                          const keyNode = p["key"] as AstNode | undefined;
+                          const keyName = keyNode ? getExpressionName(keyNode) : null;
+                          if (keyName?.toLowerCase() === "method") {
+                            const val = getStringLiteralValue(p["value"] as AstNode);
+                            if (val) targetMethod = val.toUpperCase();
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+
+                const targetEntityId = `route:${targetMethod}:${cleanPath}`;
+                const callingEntityId =
+                  fileComponentIds[fileComponentIds.length - 1] || currentFileEntityId;
+
+                if (callingEntityId) {
                   relationships.push({
-                    sourceId: currentFileEntityId,
+                    sourceId: callingEntityId,
                     targetId: targetEntityId,
                     type: "uses",
                     metadata: {
                       caller: callName,
                       targetUrl: apiPath,
+                      cleanPath,
+                      httpMethod: targetMethod,
                     },
                   });
                 }

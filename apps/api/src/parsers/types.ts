@@ -4,11 +4,26 @@ export type EntityType =
 export type RelationshipType =
   "contains" | "handled_by" | "uses" | "queries" | "renders" | "documents";
 
+/**
+ * Precise source code position within a file.
+ * Line numbers are 1-indexed (the first line in a file is line 1).
+ * Column numbers are 0-indexed (the first character on a line is column 0),
+ * adhering to standard JavaScript AST (Babel / ESTree / LSP) conventions.
+ */
+export interface SourceLocation {
+  filePath?: string;
+  startLine: number;
+  startColumn?: number;
+  endLine: number;
+  endColumn?: number;
+}
+
 export interface NormalizedEntity {
   id: string;
   type: EntityType;
   name: string;
   filePath: string;
+  location?: SourceLocation | null;
   metadata: Record<string, unknown>;
 }
 

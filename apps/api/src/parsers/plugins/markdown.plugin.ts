@@ -5,11 +5,13 @@ import type {
   ParsedOutput,
   NormalizedEntity,
   NormalizedRelationship,
+  SourceLocation,
 } from "../types.js";
 
 interface DocHeading {
   level: number;
   text: string;
+  line: number;
 }
 
 export class MarkdownParserPlugin implements ParserPlugin {
@@ -77,7 +79,8 @@ export class MarkdownParserPlugin implements ParserPlugin {
       let codeBlockCount = 0;
       let inCodeBlock = false;
 
-      for (const line of lines) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]!;
         const trimmed = line.trim();
 
         if (trimmed.startsWith("```")) {
@@ -91,7 +94,7 @@ export class MarkdownParserPlugin implements ParserPlugin {
           if (match && match[1] && match[2]) {
             const level = match[1].length;
             const text = match[2].trim();
-            headings.push({ level, text });
+            headings.push({ level, text, line: i + 1 });
 
             if (level === 1 && !foundMainTitle) {
               docTitle = text;
@@ -101,12 +104,21 @@ export class MarkdownParserPlugin implements ParserPlugin {
         }
       }
 
+      const docLoc: SourceLocation = {
+        filePath: relativePath,
+        startLine: 1,
+        startColumn: 0,
+        endLine: Math.max(1, lines.length),
+        endColumn: lines[lines.length - 1]?.length ?? 0,
+      };
+
       const docId = `doc:${relativePath}`;
       const docEntity: NormalizedEntity = {
         id: docId,
         type: "doc",
         name: docTitle,
         filePath: relativePath,
+        location: docLoc,
         metadata: {
           title: docTitle,
           headingsCount: headings.length,
@@ -114,23 +126,41 @@ export class MarkdownParserPlugin implements ParserPlugin {
           codeBlockCount,
           lineCount: lines.length,
           wordCount: content.split(/\s+/).filter(Boolean).length,
+          location: docLoc,
         },
       };
       entities.push(docEntity);
 
       // Section child entities for major H2 headings
-      for (const heading of headings) {
+      for (let hIdx = 0; hIdx < headings.length; hIdx++) {
+        const heading = headings[hIdx]!;
         if (heading.level === 2) {
           const sectionId = `doc:${relativePath}#${heading.text.toLowerCase().replace(/[^a-z0-9_-]/g, "-")}`;
+          let endLine = lines.length;
+          for (let nextH = hIdx + 1; nextH < headings.length; nextH++) {
+            if (headings[nextH]!.level <= 2) {
+              endLine = Math.max(heading.line, headings[nextH]!.line - 1);
+              break;
+            }
+          }
+          const sectionLoc: SourceLocation = {
+            filePath: relativePath,
+            startLine: heading.line,
+            startColumn: 0,
+            endLine,
+            endColumn: lines[endLine - 1]?.length ?? 0,
+          };
           const sectionEntity: NormalizedEntity = {
             id: sectionId,
             type: "doc",
             name: `${docTitle} › ${heading.text}`,
             filePath: relativePath,
+            location: sectionLoc,
             metadata: {
               heading: heading.text,
               level: heading.level,
               parentDocId: docId,
+              location: sectionLoc,
             },
           };
           entities.push(sectionEntity);

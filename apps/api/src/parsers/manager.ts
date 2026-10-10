@@ -85,6 +85,9 @@ export class ParserManager {
               ...existing.metadata,
               ...entity.metadata,
             };
+            if (!existing.location && entity.location) {
+              existing.location = entity.location;
+            }
           }
         }
 

@@ -1,8 +1,44 @@
 import { parse, type ParserPlugin as BabelParserPlugin } from "@babel/parser";
+import type { SourceLocation } from "../types.js";
 
 export interface AstNode {
   type: string;
   [key: string]: unknown;
+}
+
+/**
+ * Extracts a normalized SourceLocation from a Babel AST node.
+ * Line numbers are 1-indexed; column numbers are 0-indexed.
+ * Returns null if location information is missing or incomplete.
+ */
+export function extractSourceLocation(
+  node: AstNode | null | undefined,
+  filePath?: string
+): SourceLocation | null {
+  if (!node || typeof node !== "object") return null;
+  const loc = node["loc"] as
+    | {
+        start?: { line?: number; column?: number };
+        end?: { line?: number; column?: number };
+      }
+    | undefined;
+
+  if (
+    loc &&
+    loc.start &&
+    typeof loc.start.line === "number" &&
+    loc.end &&
+    typeof loc.end.line === "number"
+  ) {
+    return {
+      ...(filePath ? { filePath } : {}),
+      startLine: loc.start.line,
+      startColumn: typeof loc.start.column === "number" ? loc.start.column : 0,
+      endLine: loc.end.line,
+      endColumn: typeof loc.end.column === "number" ? loc.end.column : 0,
+    };
+  }
+  return null;
 }
 
 export function parseSourceCode(sourceText: string, isTsx = true): AstNode | null {

@@ -1,6 +1,8 @@
 import { runParserTests } from "./unit/parsers.test.js";
 import { runGraphTests } from "./unit/graph.test.js";
 import { runAnalysisTests } from "./unit/analysis.test.js";
+import { runEvidenceFoundationTests } from "./unit/evidence-foundation.test.js";
+import { runProjectBriefTests } from "./unit/project-brief.test.js";
 
 async function main() {
   const startTime = Date.now();
@@ -14,6 +16,8 @@ async function main() {
     results.push(await runParserTests());
     results.push(await runGraphTests());
     results.push(await runAnalysisTests());
+    results.push(await runEvidenceFoundationTests());
+    results.push(await runProjectBriefTests());
   } catch (error) {
     console.error("\nUnexpected test suite runner failure:", error);
     process.exit(1);

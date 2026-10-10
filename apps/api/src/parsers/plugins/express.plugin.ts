@@ -5,6 +5,7 @@ import {
   walkAst,
   getStringLiteralValue,
   getExpressionName,
+  extractSourceLocation,
   type AstNode,
 } from "../visitors/ast.utils.js";
 import type {
@@ -134,7 +135,8 @@ export class ExpressParserPlugin implements ParserPlugin {
 
               if (routePath !== null) {
                 const httpMethod = methodName.toUpperCase();
-                const routeId = `route:${httpMethod}:${routePath}`;
+                const routeLoc = extractSourceLocation(node, relativePath);
+                const routeId = `route:${relativePath}#${httpMethod}:${routePath}`;
                 const routeName = `${httpMethod} ${routePath}`;
 
                 const handlerArg = args[args.length - 1];
@@ -157,12 +159,15 @@ export class ExpressParserPlugin implements ParserPlugin {
                   type: "route",
                   name: routeName,
                   filePath: relativePath,
+                  location: routeLoc,
                   metadata: {
                     httpMethod,
                     path: routePath,
+                    routeKey: `route:${httpMethod}:${routePath}`,
                     middleware: middlewareNames,
                     handler: handlerName,
                     caller: callerName || "router",
+                    ...(routeLoc ? { location: routeLoc } : {}),
                   },
                 };
                 entities.push(routeEntity);
@@ -181,15 +186,20 @@ export class ExpressParserPlugin implements ParserPlugin {
 
                 // Controller Entity & Relationship
                 if (handlerName && handlerName !== "anonymousHandler") {
-                  const controllerId = `controller:${handlerName}`;
+                  const controllerLoc = handlerArg
+                    ? extractSourceLocation(handlerArg, relativePath)
+                    : null;
+                  const controllerId = `controller:${relativePath}#${handlerName}`;
                   const controllerEntity: NormalizedEntity = {
                     id: controllerId,
                     type: "controller",
                     name: handlerName,
                     filePath: relativePath,
+                    location: controllerLoc,
                     metadata: {
                       handlerMethod: handlerName,
                       routeId,
+                      ...(controllerLoc ? { location: controllerLoc } : {}),
                     },
                   };
                   entities.push(controllerEntity);
