@@ -2,10 +2,7 @@ import type { Request, Response } from "express";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { simpleGit, type SimpleGit } from "simple-git";
-import {
-  exploreRepositoryInputSchema,
-  GITHUB_PUBLIC_REPO_REGEX,
-} from "../brief/schemas.js";
+import { exploreRepositoryInputSchema, GITHUB_PUBLIC_REPO_REGEX } from "../brief/schemas.js";
 import { universalEvidenceCollector } from "../brief/evidence-collector.js";
 import { groqBriefService } from "../brief/groq-brief.service.js";
 import { projectBriefCache } from "../brief/brief-cache.js";
@@ -27,7 +24,8 @@ export class PublicExploreController {
     if (!match || !match[1] || !match[2]) {
       res.status(400).json({
         success: false,
-        message: "URL must be a public GitHub repository (e.g. https://github.com/owner/repository)",
+        message:
+          "URL must be a public GitHub repository (e.g. https://github.com/owner/repository)",
       });
       return;
     }

@@ -4,7 +4,11 @@ import os from "node:os";
 import { parserManager } from "../../src/parsers/manager.js";
 import { graphBuilder } from "../../src/graph/builder.js";
 import { graphValidator } from "../../src/graph/validator.js";
-import type { NormalizedEntity, NormalizedRelationship, SourceLocation } from "../../src/parsers/types.js";
+import type {
+  NormalizedEntity,
+  NormalizedRelationship,
+  SourceLocation,
+} from "../../src/parsers/types.js";
 import type { GraphNode } from "../../src/graph/types.js";
 
 export async function runEvidenceFoundationTests(): Promise<{
@@ -137,18 +141,25 @@ Database schemas and persistence.
     // Run ParserManager on multi-file fixture
     const parseResult = await parserManager.parseRepository(tempDir);
 
-    assert(parseResult.entities.length > 0, "ParserManager extracts entities from multi-file fixture");
+    assert(
+      parseResult.entities.length > 0,
+      "ParserManager extracts entities from multi-file fixture"
+    );
 
     // Check Express Route Location
     const routeEntity = parseResult.entities.find((e) => e.type === "route");
     assert(routeEntity !== undefined, "Extracted Express route entity");
-    assert(routeEntity?.location !== undefined && routeEntity?.location !== null, "Express route has source location");
+    assert(
+      routeEntity?.location !== undefined && routeEntity?.location !== null,
+      "Express route has source location"
+    );
     assert(
       (routeEntity?.location?.startLine ?? 0) === 3,
       `Express route starts at line 3 (actual: ${routeEntity?.location?.startLine})`
     );
     assert(
-      typeof routeEntity?.location?.startColumn === "number" && (routeEntity?.location?.startColumn ?? -1) >= 0,
+      typeof routeEntity?.location?.startColumn === "number" &&
+        (routeEntity?.location?.startColumn ?? -1) >= 0,
       "Express route has 0-indexed startColumn"
     );
 
@@ -157,23 +168,33 @@ Database schemas and persistence.
       (e) => e.name === "Button" && e.filePath.includes("common")
     );
     assert(commonButtonEntity !== undefined, "Found common Button component entity");
-    assert(commonButtonEntity?.location !== undefined && commonButtonEntity?.location !== null, "Common Button has source location");
+    assert(
+      commonButtonEntity?.location !== undefined && commonButtonEntity?.location !== null,
+      "Common Button has source location"
+    );
     assert(
       (commonButtonEntity?.location?.startLine ?? 0) === 2,
       `Common Button component starts at line 2 (actual: ${commonButtonEntity?.location?.startLine})`
     );
 
     // Check Prisma Model Location
-    const userModelEntity = parseResult.entities.find((e) => e.type === "model" && e.name === "User");
+    const userModelEntity = parseResult.entities.find(
+      (e) => e.type === "model" && e.name === "User"
+    );
     assert(userModelEntity !== undefined, "Found User model entity");
-    assert(userModelEntity?.location !== undefined && userModelEntity?.location !== null, "User model has source location");
+    assert(
+      userModelEntity?.location !== undefined && userModelEntity?.location !== null,
+      "User model has source location"
+    );
     assert(
       (userModelEntity?.location?.startLine ?? 0) === 6,
       `User model starts at line 6 (actual: ${userModelEntity?.location?.startLine})`
     );
 
     // Check Markdown Doc and Section Locations
-    const docEntity = parseResult.entities.find((e) => e.type === "doc" && e.name === "Architecture");
+    const docEntity = parseResult.entities.find(
+      (e) => e.type === "doc" && e.name === "Architecture"
+    );
     assert(docEntity !== undefined, "Found Architecture doc entity");
     assert(docEntity?.location?.startLine === 1, "Doc entity starts at line 1");
 
@@ -203,7 +224,9 @@ Database schemas and persistence.
     // Build the graph from multi-file parse result
     const buildResult = graphBuilder.build(parseResult);
 
-    const buttonNodes = buildResult.nodes.filter((n) => n.name === "Button" && n.nodeType === "component");
+    const buttonNodes = buildResult.nodes.filter(
+      (n) => n.name === "Button" && n.nodeType === "component"
+    );
     assert(
       buttonNodes.length === 2,
       `Two components named 'Button' in different files remain 2 distinct GraphNodes (actual: ${buttonNodes.length})`
@@ -219,10 +242,7 @@ Database schemas and persistence.
       metadata: { extraMeta: true },
     };
 
-    const duplicateValidation = graphValidator.validate(
-      [commonButtonEntity!, duplicateEntity],
-      []
-    );
+    const duplicateValidation = graphValidator.validate([commonButtonEntity!, duplicateEntity], []);
     assert(
       duplicateValidation.nodes.length === 1,
       "Duplicate entity declarations in the same file merge into 1 GraphNode"
@@ -238,7 +258,9 @@ Database schemas and persistence.
     console.log("   Scenario: Genuine Cross-File Relationship Resolution");
 
     // React fetch('/api/users') should connect admin Button -> Express route GET /api/users
-    const userRouteNode = buildResult.nodes.find((n) => n.nodeType === "route" && n.name.includes("/api/users"));
+    const userRouteNode = buildResult.nodes.find(
+      (n) => n.nodeType === "route" && n.name.includes("/api/users")
+    );
     assert(userRouteNode !== undefined, "Found GET /api/users GraphNode");
 
     const adminButtonNode = buildResult.nodes.find(
@@ -249,15 +271,25 @@ Database schemas and persistence.
     const apiEdge = buildResult.edges.find(
       (e) => e.sourceNodeId === adminButtonNode?.id && e.targetNodeId === userRouteNode?.id
     );
-    assert(apiEdge !== undefined, "React fetch('/api/users') resolved to Express route GraphNode across files");
+    assert(
+      apiEdge !== undefined,
+      "React fetch('/api/users') resolved to Express route GraphNode across files"
+    );
 
     // Prisma relation Post -> User
-    const postModelNode = buildResult.nodes.find((n) => n.nodeType === "model" && n.name === "Post");
-    const userModelNode = buildResult.nodes.find((n) => n.nodeType === "model" && n.name === "User");
+    const postModelNode = buildResult.nodes.find(
+      (n) => n.nodeType === "model" && n.name === "Post"
+    );
+    const userModelNode = buildResult.nodes.find(
+      (n) => n.nodeType === "model" && n.name === "User"
+    );
     const modelRelationEdge = buildResult.edges.find(
       (e) => e.sourceNodeId === postModelNode?.id && e.targetNodeId === userModelNode?.id
     );
-    assert(modelRelationEdge !== undefined, "Prisma Post -> User relation edge resolved and survived");
+    assert(
+      modelRelationEdge !== undefined,
+      "Prisma Post -> User relation edge resolved and survived"
+    );
 
     // Invalid reference handling: reference to non-existent route or entity
     const brokenEntities: NormalizedEntity[] = [
@@ -296,7 +328,10 @@ Database schemas and persistence.
     console.log("   Scenario: Source Location Survival & Serialization");
 
     // All primary nodes in buildResult should retain their location
-    assert(adminButtonNode?.location !== null && adminButtonNode?.location !== undefined, "adminButtonNode retains location in GraphNode");
+    assert(
+      adminButtonNode?.location !== null && adminButtonNode?.location !== undefined,
+      "adminButtonNode retains location in GraphNode"
+    );
     assert(
       adminButtonNode?.location?.startLine === 2,
       "GraphNode location startLine matches AST source position"
@@ -320,7 +355,8 @@ Database schemas and persistence.
       "Location survived JSON serialization round-trip"
     );
     assert(
-      roundTrippedAdminBtn?.location?.endLine !== undefined && (roundTrippedAdminBtn?.location?.endLine ?? 0) >= 2,
+      roundTrippedAdminBtn?.location?.endLine !== undefined &&
+        (roundTrippedAdminBtn?.location?.endLine ?? 0) >= 2,
       "Location retains endLine after serialization"
     );
 
@@ -387,19 +423,12 @@ Database schemas and persistence.
       retrievedNode.location !== null && retrievedNode.location !== undefined,
       "Retrieved node exposes location object"
     );
-    assert(
-      retrievedNode.location?.startLine === 14,
-      "Retrieved node matches persisted startLine"
-    );
-    assert(
-      retrievedNode.location?.endLine === 45,
-      "Retrieved node matches persisted endLine"
-    );
+    assert(retrievedNode.location?.startLine === 14, "Retrieved node matches persisted startLine");
+    assert(retrievedNode.location?.endLine === 45, "Retrieved node matches persisted endLine");
     assert(
       retrievedNode.location?.filePath === "src/services/order.service.ts",
       "Retrieved node matches persisted filePath"
     );
-
   } finally {
     // Clean up temporary test files
     await fs.rm(tempDir, { recursive: true, force: true });

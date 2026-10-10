@@ -190,11 +190,18 @@ CRITICAL SAFETY & FACTUALITY INSTRUCTIONS:
       return brief;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      console.warn(`[GroqBriefService] Model generation error (${errorMessage}), falling back to deterministic brief.`);
+      console.warn(
+        `[GroqBriefService] Model generation error (${errorMessage}), falling back to deterministic brief.`
+      );
 
       let userNotice = "AI analysis failed. Presenting deterministic evidence overview.";
-      if (errorMessage.includes("429") || errorMessage.toLowerCase().includes("rate limit") || errorMessage.toLowerCase().includes("quota")) {
-        userNotice = "Groq free-tier rate limit reached. Displaying deterministic evidence overview.";
+      if (
+        errorMessage.includes("429") ||
+        errorMessage.toLowerCase().includes("rate limit") ||
+        errorMessage.toLowerCase().includes("quota")
+      ) {
+        userNotice =
+          "Groq free-tier rate limit reached. Displaying deterministic evidence overview.";
       }
 
       const fallback = this.generateDeterministicFallbackBrief(bundle, userNotice);
@@ -236,30 +243,63 @@ CRITICAL SAFETY & FACTUALITY INSTRUCTIONS:
         name: c.name,
         description: c.description,
         evidenceStatus: c.evidenceStatus,
-        evidenceIds: validIds.length > 0 ? validIds : bundle.evidenceRecords.slice(0, 1).map((e) => e.id),
-        primaryFiles: c.primaryFiles.length > 0 ? c.primaryFiles : [bundle.evidenceRecords[0]?.filePath || "README.md"],
+        evidenceIds:
+          validIds.length > 0 ? validIds : bundle.evidenceRecords.slice(0, 1).map((e) => e.id),
+        primaryFiles:
+          c.primaryFiles.length > 0
+            ? c.primaryFiles
+            : [bundle.evidenceRecords[0]?.filePath || "README.md"],
       };
     });
 
     // Filter conceptual area evidence IDs
+    // Filter conceptual area evidence IDs and enrich with category and next exploration step
     const areas: ConceptualArea[] = aiOutput.conceptualMap.areas.map((a, idx) => {
       const validIds = a.evidenceIds.filter((id) => validEvidenceMap.has(id));
+      const nameLower = a.name.toLowerCase();
+      let category: ConceptualArea["category"] = "core";
+      if (/ui|client|react|view|page|frontend|web/i.test(nameLower)) category = "frontend";
+      else if (/route|api|endpoint|controller|handler|dispatch/i.test(nameLower)) category = "api";
+      else if (/model|db|database|prisma|storage|entity|schema/i.test(nameLower)) category = "data";
+      else if (/cli|command|console|terminal|args|flag/i.test(nameLower)) category = "cli";
+      else if (/pipeline|dataset|model|train|feature|infer/i.test(nameLower)) category = "pipeline";
+      else if (/service|logic|engine|worker|manager/i.test(nameLower)) category = "service";
+      else if (/config|setting|manifest|env/i.test(nameLower)) category = "config";
+
+      // Find an outgoing relationship from this area
+      const outgoing = aiOutput.conceptualMap.relationships.find((r) => r.fromAreaId === a.id);
+      let nextStep = "";
+      if (outgoing) {
+        const target = aiOutput.conceptualMap.areas.find((ta) => ta.id === outgoing.toAreaId);
+        if (target) {
+          nextStep = `Connects to ${target.name} (${outgoing.label}). Explore ${target.name} next.`;
+        }
+      }
+      if (!nextStep && a.associatedFiles.length > 0) {
+        nextStep = `Inspect ${a.associatedFiles[0]} to trace this component's implementation.`;
+      }
+
       return {
         id: a.id || `area-${idx + 1}`,
         name: a.name,
         role: a.role,
         evidenceIds: validIds,
         associatedFiles: a.associatedFiles,
+        category,
+        ...(nextStep ? { nextStep } : {}),
       };
     });
 
-    const relationships: ConceptualRelationship[] = aiOutput.conceptualMap.relationships.map((r) => ({
-      fromAreaId: r.fromAreaId,
-      toAreaId: r.toAreaId,
-      label: r.label,
-      evidenceIds: r.evidenceIds.filter((id) => validEvidenceMap.has(id)),
-    }));
+    const relationships: ConceptualRelationship[] = aiOutput.conceptualMap.relationships.map(
+      (r) => ({
+        fromAreaId: r.fromAreaId,
+        toAreaId: r.toAreaId,
+        label: r.label,
+        evidenceIds: r.evidenceIds.filter((id) => validEvidenceMap.has(id)),
+      })
+    );
 
+    const cls = bundle.classification;
     const technicalOverview: TechnicalOverview = {
       primaryLanguage: bundle.languages[0]?.language || "Unknown",
       ecosystem: bundle.manifests[0]?.ecosystem || "General",
@@ -268,6 +308,12 @@ CRITICAL SAFETY & FACTUALITY INSTRUCTIONS:
       entryPoints: bundle.entryPoints,
       totalFiles: bundle.structure.totalFiles,
       totalDirectories: bundle.structure.totalDirectories,
+      ...(cls?.category ? { projectCategory: cls.category } : {}),
+      ...(cls?.confidence ? { categoryConfidence: cls.confidence } : {}),
+      ...(cls?.rationale ? { categoryRationale: cls.rationale } : {}),
+      ...(cls?.detectedFrameworks ? { detectedFrameworks: cls.detectedFrameworks } : {}),
+      ...(cls?.detectedTools ? { detectedTools: cls.detectedTools } : {}),
+      ...(cls?.structuralFacts ? { structuralFacts: cls.structuralFacts } : {}),
     };
 
     // Build map of all referenced evidence records for direct UI resolution
@@ -323,8 +369,8 @@ CRITICAL SAFETY & FACTUALITY INSTRUCTIONS:
     const intendedAudience = bundle.projectTypes.includes("library-or-package")
       ? `Software engineers integrating ${primaryLang} components into their applications.`
       : bundle.projectTypes.includes("cli-tool")
-      ? "Developers and system administrators using command-line workflows."
-      : "Engineers and developers building and running software services.";
+        ? "Developers and system administrators using command-line workflows."
+        : "Engineers and developers building and running software services.";
 
     const capabilities: ProjectCapability[] = [];
     const evRecords = bundle.evidenceRecords;

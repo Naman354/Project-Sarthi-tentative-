@@ -1,10 +1,5 @@
 export type EvidenceType =
-  | "documentation"
-  | "manifest"
-  | "source"
-  | "parser_entity"
-  | "test"
-  | "config";
+  "documentation" | "manifest" | "source" | "parser_entity" | "test" | "config";
 
 export interface EvidenceRecord {
   id: string; // e.g. "ev-1", "ev-2"
@@ -58,24 +53,32 @@ export interface RepositoryEvidenceBundle {
     treeSummary: string[];
   };
   documentation: {
-    primaryDoc?: {
-      filePath: string;
-      title: string;
-      excerpt: string;
-    } | undefined;
+    primaryDoc?:
+      | {
+          filePath: string;
+          title: string;
+          excerpt: string;
+        }
+      | undefined;
     docFiles: string[];
   };
   testsFound: string[];
   evidenceRecords: EvidenceRecord[];
   parserCoverage: "specialized-ast-graph" | "universal-baseline";
+  classification?:
+    | {
+        category: ProjectCategory;
+        confidence: "high" | "medium" | "inferred";
+        rationale: string;
+        detectedFrameworks: string[];
+        detectedTools: string[];
+        structuralFacts: StructuralFact[];
+      }
+    | undefined;
 }
 
 export type EvidenceStatus =
-  | "documented"
-  | "implementation_found"
-  | "test_found"
-  | "inferred"
-  | "unresolved";
+  "documented" | "implementation_found" | "test_found" | "inferred" | "unresolved";
 
 export interface ProjectCapability {
   id: string;
@@ -86,12 +89,38 @@ export interface ProjectCapability {
   primaryFiles: string[];
 }
 
+export type ProjectCategory =
+  | "web-application"
+  | "backend-system"
+  | "cli-tool"
+  | "library-framework"
+  | "data-ml"
+  | "universal";
+
+export interface StructuralFact {
+  label: string;
+  value: string;
+  detail?: string | undefined;
+}
+
 export interface ConceptualArea {
   id: string;
   name: string;
   role: string;
   evidenceIds: string[];
   associatedFiles: string[];
+  category?:
+    | "frontend"
+    | "api"
+    | "service"
+    | "data"
+    | "cli"
+    | "core"
+    | "pipeline"
+    | "config"
+    | "external"
+    | undefined;
+  nextStep?: string | undefined;
 }
 
 export interface ConceptualRelationship {
@@ -116,6 +145,12 @@ export interface TechnicalOverview {
   entryPoints: string[];
   totalFiles: number;
   totalDirectories: number;
+  projectCategory?: ProjectCategory | undefined;
+  categoryConfidence?: "high" | "medium" | "inferred" | undefined;
+  categoryRationale?: string | undefined;
+  detectedFrameworks?: string[] | undefined;
+  detectedTools?: string[] | undefined;
+  structuralFacts?: StructuralFact[] | undefined;
 }
 
 export interface ProjectBrief {

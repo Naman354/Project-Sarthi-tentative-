@@ -44,7 +44,8 @@ export default function EvidenceExplorer({ evidenceMap }: EvidenceExplorerProps)
             </span>
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Every material claim in the Project Brief is traceable to these verified repository records
+            Every material claim in the Project Brief is traceable to these verified repository
+            records
           </p>
         </div>
 
@@ -64,7 +65,11 @@ export default function EvidenceExplorer({ evidenceMap }: EvidenceExplorerProps)
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
       </div>
@@ -74,9 +79,7 @@ export default function EvidenceExplorer({ evidenceMap }: EvidenceExplorerProps)
         {Object.entries(TYPE_LABELS).map(([key, label]) => {
           const isActive = activeFilter === key;
           const count =
-            key === "all"
-              ? allRecords.length
-              : allRecords.filter((r) => r.type === key).length;
+            key === "all" ? allRecords.length : allRecords.filter((r) => r.type === key).length;
 
           if (key !== "all" && count === 0) return null;
 
@@ -94,7 +97,9 @@ export default function EvidenceExplorer({ evidenceMap }: EvidenceExplorerProps)
               <span>{label}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  isActive ? "bg-indigo-700 text-indigo-100" : "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
+                  isActive
+                    ? "bg-indigo-700 text-indigo-100"
+                    : "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
                 }`}
               >
                 {count}
@@ -135,8 +140,18 @@ export default function EvidenceExplorer({ evidenceMap }: EvidenceExplorerProps)
                       title="Open verified location on GitHub pinned to commit"
                     >
                       <span>Open on GitHub</span>
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
                       </svg>
                     </a>
                   )}

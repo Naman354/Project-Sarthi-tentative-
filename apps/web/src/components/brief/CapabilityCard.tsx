@@ -67,23 +67,24 @@ export default function CapabilityCard({
     .filter(Boolean) as EvidenceRecord[];
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-sm hover:shadow-md transition-all p-5 flex flex-col justify-between group">
+    <div className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-2xs hover:shadow-xs transition-all p-4 sm:p-5 flex flex-col justify-between group">
       <div>
-        {/* Header: Title & Status Badge */}
-        <div className="flex items-start justify-between gap-3 mb-2.5">
-          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+        {/* Header: Title & Subtle Status Indicator */}
+        <div className="flex items-start justify-between gap-2.5 mb-2">
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
             {capability.name}
-          </h3>
+          </h4>
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border shrink-0 ${status.bg} ${status.text} ${status.border}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border shrink-0 ${status.bg} ${status.text} ${status.border}`}
+            title={`Claim verified: ${status.label}`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-            {status.label}
+            <span>{status.label}</span>
           </span>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3">
           {capability.description}
         </p>
 
@@ -161,7 +162,9 @@ export default function CapabilityCard({
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <span className="font-mono text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
                       {ev.filePath}
-                      {ev.startLine ? ` (L${ev.startLine}${ev.endLine && ev.endLine !== ev.startLine ? `-L${ev.endLine}` : ""})` : ""}
+                      {ev.startLine
+                        ? ` (L${ev.startLine}${ev.endLine && ev.endLine !== ev.startLine ? `-L${ev.endLine}` : ""})`
+                        : ""}
                     </span>
                     {ev.url && (
                       <a
@@ -171,13 +174,25 @@ export default function CapabilityCard({
                         className="text-[11px] text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 inline-flex items-center gap-1 font-medium"
                       >
                         <span>GitHub</span>
-                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 4h6m0 0v6m0-6L10 14" />
+                        <svg
+                          className="w-2.5 h-2.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 4h6m0 0v6m0-6L10 14"
+                          />
                         </svg>
                       </a>
                     )}
                   </div>
-                  <p className="text-zinc-600 dark:text-zinc-300 text-[12px] mb-2">{ev.description}</p>
+                  <p className="text-zinc-600 dark:text-zinc-300 text-[12px] mb-2">
+                    {ev.description}
+                  </p>
                   {ev.snippet && (
                     <pre className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-mono text-[11px] overflow-x-auto whitespace-pre leading-relaxed border border-zinc-200 dark:border-zinc-800">
                       {ev.snippet}

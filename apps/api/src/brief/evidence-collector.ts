@@ -5,6 +5,8 @@ import type {
   EvidenceRecord,
   ManifestSummary,
   LanguageStat,
+  ProjectCategory,
+  StructuralFact,
 } from "./types.js";
 import { parserManager } from "../parsers/manager.js";
 
@@ -185,10 +187,7 @@ export class UniversalEvidenceCollector {
           }
         }
 
-        const excerpt = lines
-          .slice(0, 45)
-          .join("\n")
-          .substring(0, 2000);
+        const excerpt = lines.slice(0, 45).join("\n").substring(0, 2000);
 
         primaryDoc = {
           filePath: readmePath,
@@ -213,7 +212,10 @@ export class UniversalEvidenceCollector {
           const line = lines[i]!.trim();
           if (line.startsWith("## ")) {
             if (currentSectionTitle) {
-              const snippet = lines.slice(currentSectionStart - 1, i).join("\n").substring(0, 400);
+              const snippet = lines
+                .slice(currentSectionStart - 1, i)
+                .join("\n")
+                .substring(0, 400);
               evidenceRecords.push({
                 id: nextEvidenceId(),
                 type: "documentation",
@@ -503,34 +505,289 @@ export class UniversalEvidenceCollector {
       parserCoverage = "universal-baseline";
     }
 
-    // 7. Determine Project Types
-    const projectTypes: string[] = [];
-    if (
-      manifests.some((m) =>
-        m.dependencies.some((d) => ["react", "next", "vue", "svelte", "angular"].includes(d.toLowerCase()))
+    // 7. Determine Frameworks, Tools, and Project Classification
+    const allDeps = manifests.flatMap((m) => m.dependencies).map((d) => d.toLowerCase());
+    const allDevDeps = manifests.flatMap((m) => m.devDependencies || []).map((d) => d.toLowerCase());
+    const allDependenciesCombined = [...allDeps, ...allDevDeps];
+
+    // Framework detection mapping
+    const frameworkMap: Record<string, string> = {
+      react: "React",
+      next: "Next.js",
+      vue: "Vue",
+      svelte: "Svelte",
+      angular: "Angular",
+      express: "Express",
+      fastify: "Fastify",
+      nest: "NestJS",
+      koa: "Koa",
+      flask: "Flask",
+      django: "Django",
+      fastapi: "FastAPI",
+      "actix-web": "Actix Web",
+      axum: "Axum",
+      "gin-gonic": "Gin",
+      prisma: "Prisma ORM",
+      "@prisma/client": "Prisma Client",
+      mongoose: "Mongoose",
+      typeorm: "TypeORM",
+      torch: "PyTorch",
+      pytorch: "PyTorch",
+      tensorflow: "TensorFlow",
+      pandas: "Pandas",
+      numpy: "NumPy",
+      "scikit-learn": "Scikit-Learn",
+      click: "Click",
+      typer: "Typer",
+      clap: "Clap",
+      commander: "Commander.js",
+      yargs: "Yargs",
+      tailwindcss: "TailwindCSS",
+      vite: "Vite",
+      tokio: "Tokio",
+      anyhow: "Anyhow",
+      serde: "Serde",
+    };
+
+    const detectedFrameworksSet = new Set<string>();
+    const repoLower = meta.repo ? meta.repo.toLowerCase() : "";
+    for (const [depKey, frameworkName] of Object.entries(frameworkMap)) {
+      if (
+        allDependenciesCombined.some((d) => d.includes(depKey)) ||
+        repoLower === depKey ||
+        manifests.some((m) => m.name?.toLowerCase().includes(depKey))
+      ) {
+        detectedFrameworksSet.add(frameworkName);
+      }
+    }
+    const detectedFrameworks = Array.from(detectedFrameworksSet);
+
+    // Tools detection
+    const detectedToolsSet = new Set<string>();
+    if (topLevelEntries.includes("Cargo.toml")) detectedToolsSet.add("Cargo");
+    if (topLevelEntries.includes("package.json")) detectedToolsSet.add("Node.js / npm");
+    if (topLevelEntries.includes("pyproject.toml") || topLevelEntries.includes("requirements.txt"))
+      detectedToolsSet.add("Python / Pip");
+    if (topLevelEntries.includes("go.mod")) detectedToolsSet.add("Go Modules");
+    if (topLevelEntries.includes("Dockerfile") || topLevelEntries.includes("docker-compose.yml"))
+      detectedToolsSet.add("Docker");
+    if (testsFound.length > 0) detectedToolsSet.add("Automated Test Harness");
+    const detectedTools = Array.from(detectedToolsSet);
+
+    // Classify category
+    let category: ProjectCategory = "universal";
+    let confidence: "high" | "medium" | "inferred" = "inferred";
+    let rationale = "General repository structure.";
+
+    const hasWebFramework = detectedFrameworks.some((f) =>
+      ["React", "Next.js", "Vue", "Svelte", "Angular"].includes(f)
+    );
+    const hasBackendFramework = detectedFrameworks.some((f) =>
+      [
+        "Express",
+        "Fastify",
+        "NestJS",
+        "Koa",
+        "Flask",
+        "Django",
+        "FastAPI",
+        "Actix Web",
+        "Axum",
+        "Gin",
+      ].includes(f)
+    );
+    const hasCliFramework = detectedFrameworks.some((f) =>
+      ["Click", "Typer", "Clap", "Commander.js", "Yargs"].includes(f)
+    );
+    const hasMlFramework =
+      detectedFrameworks.some((f) =>
+        ["PyTorch", "TensorFlow", "Pandas", "Scikit-Learn"].includes(f)
+      ) || allFilePaths.some((p) => p.endsWith(".ipynb"));
+
+    const hasRustBinary =
+      topLevelEntries.includes("Cargo.toml") &&
+      (allFilePaths.includes("src/main.rs") || allFilePaths.some((p) => p.startsWith("src/bin/")));
+    const hasRustLibraryOnly =
+      topLevelEntries.includes("Cargo.toml") &&
+      allFilePaths.includes("src/lib.rs") &&
+      !hasRustBinary;
+
+    if (hasMlFramework) {
+      category = "data-ml";
+      confidence = "high";
+      rationale = `Detected machine learning environment (${detectedFrameworks.filter((f) => ["PyTorch", "TensorFlow", "Pandas", "Scikit-Learn"].includes(f)).join(", ") || "Jupyter notebooks/data models"}).`;
+    } else if (hasWebFramework) {
+      category = "web-application";
+      confidence = "high";
+      rationale = `Detected frontend UI frameworks and web application components (${detectedFrameworks.filter((f) => ["React", "Next.js", "Vue", "Svelte", "Angular"].includes(f)).join(", ")}).`;
+    } else if (hasBackendFramework || parserCoverage === "specialized-ast-graph") {
+      category = "backend-system";
+      confidence = "high";
+      rationale = `Detected server routes, API controllers, and backend services (${detectedFrameworks.filter((f) => ["Express", "Fastify", "NestJS", "Koa", "Flask", "Django", "FastAPI", "Prisma ORM"].includes(f)).join(", ") || "API endpoints"}).`;
+    } else if (
+      hasCliFramework ||
+      hasRustBinary ||
+      allFilePaths.some((p) => p.startsWith("bin/") || p.startsWith("cmd/"))
+    ) {
+      category = "cli-tool";
+      confidence = "high";
+      rationale = `Detected command-line execution entrypoints and CLI tooling (${detectedFrameworks.filter((f) => ["Click", "Typer", "Clap", "Commander.js", "Yargs"].includes(f)).join(", ") || (hasRustBinary ? "Cargo main.rs binary" : "bin directory")}).`;
+    } else if (
+      hasRustLibraryOnly ||
+      entryPoints.some(
+        (e) => e.includes("lib.rs") || e.endsWith("index.ts") || e.endsWith("__init__.py")
       )
     ) {
+      category = "library-framework";
+      confidence = "medium";
+      rationale = `Detected public API exports and library module surfaces without standalone server or CLI entrypoints.`;
+    } else {
+      category = "universal";
+      confidence = "inferred";
+      rationale = `Ecosystem baseline derived from ${languages[0]?.language || "repository"} code files and directory layout.`;
+    }
+
+    const projectTypes: string[] = [category];
+    if (hasWebFramework && !projectTypes.includes("web-application"))
       projectTypes.push("web-application");
-    }
-    if (
-      manifests.some((m) =>
-        m.dependencies.some((d) => ["express", "fastify", "koa", "nest", "flask", "django", "actix-web", "gin-gonic"].includes(d.toLowerCase()))
-      )
-    ) {
-      projectTypes.push("backend-api");
-    }
-    if (
-      topLevelEntries.includes("Cargo.toml") ||
-      allFilePaths.some((p) => p.startsWith("bin/") || p.includes("cli"))
-    ) {
+    if (hasBackendFramework && !projectTypes.includes("backend-system"))
+      projectTypes.push("backend-system");
+    if (hasCliFramework && !projectTypes.includes("cli-tool"))
       projectTypes.push("cli-tool");
+
+    // Extract high-signal structural facts tailored to project type
+    const structuralFacts: StructuralFact[] = [];
+    if (category === "web-application" || category === "backend-system") {
+      structuralFacts.push({
+        label: "Primary Architecture",
+        value: category === "web-application" ? "Web Application" : "Backend API Service",
+        ...(detectedFrameworks.length > 0
+          ? { detail: detectedFrameworks.slice(0, 3).join(", ") }
+          : { detail: "Modular Service" }),
+      });
+      structuralFacts.push({
+        label: "Entrypoint Surface",
+        value: entryPoints[0] || "Server Root",
+        ...(entryPoints.length > 1
+          ? { detail: `${entryPoints.length} detected entrypoints` }
+          : { detail: "Main dispatch file" }),
+      });
+      structuralFacts.push({
+        label: "Ecosystem Packages",
+        value: `${manifests[0]?.dependencies.length || 0} Declared Dependencies`,
+        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : {}),
+      });
+      structuralFacts.push({
+        label: "Quality & Testing",
+        value: testsFound.length > 0 ? "Test Suite Configured" : "Universal Baseline",
+        ...(testsFound[0] ? { detail: testsFound[0] } : { detail: "No test directory identified" }),
+      });
+    } else if (category === "cli-tool") {
+      const cliFw = detectedFrameworks.find((f) =>
+        ["Click", "Clap", "Commander.js", "Typer"].includes(f)
+      );
+      structuralFacts.push({
+        label: "Execution Model",
+        value: "Command-Line Tool",
+        ...(cliFw
+          ? { detail: cliFw }
+          : hasRustBinary
+          ? { detail: "Rust Binary Executable" }
+          : { detail: "Script Dispatcher" }),
+      });
+      structuralFacts.push({
+        label: "Binary Target",
+        value: entryPoints[0] || "CLI Entrypoint",
+        detail: "Main argument processor",
+      });
+      structuralFacts.push({
+        label: "Tool Dependencies",
+        value: `${manifests[0]?.dependencies.length || 0} External Crates/Packages`,
+        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : {}),
+      });
+      structuralFacts.push({
+        label: "Verification",
+        value: testsFound.length > 0 ? `${testsFound.length} Test Indicators` : "Manual / CLI Tests",
+        ...(testsFound[0] ? { detail: testsFound[0] } : { detail: "CLI integration test" }),
+      });
+    } else if (category === "library-framework") {
+      structuralFacts.push({
+        label: "Package Role",
+        value: "Reusable Library / SDK",
+        detail: "Exposes public API for downstream consumption",
+      });
+      structuralFacts.push({
+        label: "Public Interface",
+        value: entryPoints[0] || "Root Module Exports",
+        detail: "Primary export surface",
+      });
+      structuralFacts.push({
+        label: "Package Boundaries",
+        value: `${manifests[0]?.dependencies.length || 0} Dependencies`,
+        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : { detail: "Crate / Manifest" }),
+      });
+      structuralFacts.push({
+        label: "Test Harness",
+        value: testsFound.length > 0 ? "Automated Test Suite" : "Unit Tests",
+        ...(testsFound[0] ? { detail: testsFound[0] } : { detail: "Specification coverage" }),
+      });
+    } else if (category === "data-ml") {
+      const mlFws = detectedFrameworks.filter((f) =>
+        ["PyTorch", "TensorFlow", "Pandas", "Scikit-Learn"].includes(f)
+      );
+      structuralFacts.push({
+        label: "Pipeline Category",
+        value: "Data & ML System",
+        ...(mlFws.length > 0
+          ? { detail: mlFws.join(", ") }
+          : { detail: "Python Analytics" }),
+      });
+      structuralFacts.push({
+        label: "Script / Notebook Surface",
+        value: `${allFilePaths.filter((p) => p.endsWith(".ipynb") || p.endsWith(".py")).length} Python / Notebook Files`,
+        ...(entryPoints[0] ? { detail: entryPoints[0] } : { detail: "Pipeline root" }),
+      });
+      structuralFacts.push({
+        label: "Ecosystem Packages",
+        value: `${manifests[0]?.dependencies.length || 0} ML Packages`,
+        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : {}),
+      });
+      structuralFacts.push({
+        label: "Evaluation",
+        value: testsFound.length > 0 ? "Test Suite Verified" : "Data Pipeline",
+        ...(testsFound[0] ? { detail: testsFound[0] } : {}),
+      });
+    } else {
+      structuralFacts.push({
+        label: "Project Category",
+        value: "Modular Architecture",
+        detail: `${languages[0]?.language || "Codebase"} repository`,
+      });
+      structuralFacts.push({
+        label: "Primary Entrypoint",
+        value: entryPoints[0] || "Root Directory",
+        detail: `${totalFiles} total files`,
+      });
+      structuralFacts.push({
+        label: "Ecosystem",
+        value: manifests[0]?.ecosystem ? `${manifests[0].ecosystem.toUpperCase()} Manifest` : "General",
+        ...(manifests[0]?.filePath ? { detail: manifests[0].filePath } : {}),
+      });
+      structuralFacts.push({
+        label: "Structure",
+        value: `${topLevelEntries.length} Top-level Modules`,
+        detail: `${totalDirectories} directories`,
+      });
     }
-    if (languages.some((l) => l.language === "Python") && allFilePaths.some((p) => p.endsWith(".ipynb") || p.includes("torch") || p.includes("model"))) {
-      projectTypes.push("data-or-ml");
-    }
-    if (projectTypes.length === 0) {
-      projectTypes.push("library-or-package");
-    }
+
+    const classification = {
+      category,
+      confidence,
+      rationale,
+      detectedFrameworks,
+      detectedTools,
+      structuralFacts,
+    };
 
     // Compact Directory Tree Summary (top 2-3 levels)
     const treeSummary: string[] = [];
@@ -541,7 +798,9 @@ export class UniversalEvidenceCollector {
         .filter(Boolean);
       const uniqueSubs = Array.from(new Set(subEntries)).slice(0, 4);
       if (uniqueSubs.length > 0) {
-        treeSummary.push(`${top}/ [${uniqueSubs.join(", ")}${uniqueSubs.length >= 4 ? ", ..." : ""}]`);
+        treeSummary.push(
+          `${top}/ [${uniqueSubs.join(", ")}${uniqueSubs.length >= 4 ? ", ..." : ""}]`
+        );
       } else {
         treeSummary.push(top);
       }
@@ -577,6 +836,7 @@ export class UniversalEvidenceCollector {
       testsFound,
       evidenceRecords,
       parserCoverage,
+      classification,
     };
   }
 }

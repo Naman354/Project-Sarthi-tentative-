@@ -1,9 +1,5 @@
 export type EvidenceStatus =
-  | "documented"
-  | "implementation_found"
-  | "test_found"
-  | "inferred"
-  | "unresolved";
+  "documented" | "implementation_found" | "test_found" | "inferred" | "unresolved";
 
 export interface EvidenceRecord {
   id: string;
@@ -25,12 +21,37 @@ export interface ProjectCapability {
   primaryFiles: string[];
 }
 
+export type ProjectCategory =
+  | "web-application"
+  | "backend-system"
+  | "cli-tool"
+  | "library-framework"
+  | "data-ml"
+  | "universal";
+
+export interface StructuralFact {
+  label: string;
+  value: string;
+  detail?: string;
+}
+
 export interface ConceptualArea {
   id: string;
   name: string;
   role: string;
   evidenceIds: string[];
   associatedFiles: string[];
+  category?:
+    | "frontend"
+    | "api"
+    | "service"
+    | "data"
+    | "cli"
+    | "core"
+    | "pipeline"
+    | "config"
+    | "external";
+  nextStep?: string;
 }
 
 export interface ConceptualRelationship {
@@ -55,6 +76,12 @@ export interface TechnicalOverview {
   entryPoints: string[];
   totalFiles: number;
   totalDirectories: number;
+  projectCategory?: ProjectCategory;
+  categoryConfidence?: "high" | "medium" | "inferred";
+  categoryRationale?: string;
+  detectedFrameworks?: string[];
+  detectedTools?: string[];
+  structuralFacts?: StructuralFact[];
 }
 
 export interface ProjectBrief {

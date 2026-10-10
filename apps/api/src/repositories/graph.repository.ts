@@ -76,7 +76,9 @@ export class GraphRepository {
           metadata: {
             ...metaObj,
             originalEntityId: node.entityId,
-            ...(node.location ? { location: node.location as unknown as Prisma.InputJsonValue } : {}),
+            ...(node.location
+              ? { location: node.location as unknown as Prisma.InputJsonValue }
+              : {}),
           } as Prisma.InputJsonObject,
         };
       });

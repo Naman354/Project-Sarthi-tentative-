@@ -13,7 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
-
+apps/api/.env
 # Cloned repositories and cache for analysis
 temp/
 apps/api/temp/

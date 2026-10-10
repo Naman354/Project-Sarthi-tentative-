@@ -45,6 +45,8 @@ app.get("/health", async (_req, res) => {
 
 // API Routes
 app.use("/public", publicExploreRoutes);
+app.use("/api/v1/public", publicExploreRoutes);
+app.use("/api/public", publicExploreRoutes);
 app.use("/auth", authRoutes);
 app.use("/projects", projectRoutes);
 

@@ -1,8 +1,8 @@
 # Project Sarthi — Revised Product Plan
 
-**Plan status:** Proposed replacement for the previous V1 feature-led roadmap  
+**Plan status:** Active roadmap, revised after the Phase 2 Project Brief implementation and first product review  
 **Prepared:** 10 October 2026  
-**Product focus:** Help an unfamiliar user understand what a software repository is within their first five minutes  
+**Product focus:** A distinctive, project-adaptive visual overview that helps an unfamiliar user understand a repository within their first five minutes  
 **Cost constraint:** No subscriptions, no paid API usage, no billing-enabled fallback
 
 ---
@@ -11,7 +11,7 @@
 
 ### Product definition
 
-**Project Sarthi is an interactive guide to unfamiliar software repositories.** It turns a repository into a clear, visual, evidence-backed introduction that helps a newcomer understand the project's purpose, capabilities, and major parts without first needing to read the raw code.
+**Project Sarthi is an interactive visual guide to unfamiliar software repositories.** It turns a repository into a distinctive project fingerprint: an at-a-glance view of its ecosystem, project type, major building blocks, and how those parts fit together. A clear project explanation remains important, while source evidence supports deeper exploration without dominating the initial experience.
 
 Sarthi is for more than developers working on their own projects. Primary scenarios include:
 
@@ -29,10 +29,10 @@ The product should be judged by the accuracy and usefulness of that understandin
 ### First-time user journey
 
 1. Paste a public repository URL.
-2. See a clear project introduction: likely purpose, audience, and main capabilities.
-3. Explore a visual map of the project's conceptual parts.
-4. Select a capability to understand it at a high level.
-5. Open real evidence: source files, relevant lines, docs, examples, and tests.
+2. Get a project fingerprint tailored to the repository: ecosystem, project type, main components, and a useful visual summary.
+3. Understand the project's purpose and most important capabilities in concise supporting context.
+4. Explore a project-specific visual model of how its important parts work together.
+5. Open source evidence when curious or when they need to verify or investigate a claim.
 
 The first three steps must already be valuable. Users should not need an account, learn graph terminology, or configure a complex workspace before receiving a useful introduction, where practical protections against abuse allow it.
 
@@ -40,50 +40,69 @@ The first three steps must already be valuable. Users should not need an account
 
 ## 2. Product experience
 
-### A. Project Brief — the primary screen
+### A. Project Fingerprint — the hero experience
 
-The landing experience for an analyzed repository should prioritize information in this order:
+The first screen after analysis should feel like a visual identity for *this particular repository*, not a generic dashboard populated with different text. Make the existing Technical Overview / Ecosystem Facts content the starting point, but evolve it beyond a row of language percentages and technology badges.
 
-1. **What is this project?** A plain-language description of its purpose and likely audience.
-2. **What can it do?** A small, prioritized set of capabilities grounded in repository evidence.
-3. **How is it organized?** A conceptual map of the major parts appropriate to this project type.
-4. **What supports these claims?** Evidence links into actual repository files and documentation.
-5. **What remains unclear?** Important gaps or uncertain interpretations, shown honestly.
+The hero should prioritize useful, high-signal facts such as:
 
-Do not lead with a health score, raw file inventory, graph metrics, technology badges, or a wall of generated prose.
+- Detected project type and its likely purpose (for example, application, library, CLI, data/ML project, game, infrastructure, or monorepo).
+- Languages, core frameworks, runtimes, and important tools actually detected.
+- The project's main building blocks, expressed in a visual arrangement appropriate to its type.
+- A small number of meaningful structural facts, such as public packages/commands, major subsystems, routes/API surfaces, data/model pipeline stages, or deployment units—only when the evidence makes them reliable.
+- A concise purpose statement and a route into the fuller project brief.
 
-### B. Capability cards
+Do not promote arbitrary numbers just to fill the hero. Every displayed metric must be explainable and useful. Language distribution can be supporting metadata; it should not be mistaken for an understanding of architecture.
 
-Each discovered capability should show:
+### B. Project-type-aware visual models
 
-- Name and plain-language explanation.
-- Why it appears to be a capability of this project.
-- The main files or symbols associated with it, when identifiable.
-- Evidence status: documented, implementation found, test found, inferred, or unresolved.
-- An action to explore the supporting evidence.
+Different repository types must not collapse into the same set of cards with only their labels changed. First classify the repository using detected manifests, structure, entrypoints, docs, symbols, and other available signals. Then select and populate the most appropriate visual model. Classification is a hint with confidence/uncertainty, not a rigid exclusive label.
 
-Sarthi must not describe a feature as working merely because a relevant file exists. Finding a test is not the same as running it successfully.
+Examples of distinct visual models:
 
-### C. Conceptual project map
+- **Web/application:** a system map showing major client, API, service, data, and external-service areas, where actually detected.
+- **Library/framework:** public API or package surface, core modules, and a usage/extension path.
+- **CLI/tool:** command tree and the path from input/arguments through processing to output.
+- **Data/ML:** data sources, preparation steps, model/training or inference stages, and outputs—only where supported by the repository.
+- **Infrastructure/DevOps:** deployment units, environments, configuration, and pipeline stages.
+- **Game/simulation:** runtime loop and major gameplay/simulation systems or asset groups, where identifiable.
+- **Monorepo:** workspace/package topology and important connections between packages.
 
-The map should summarize understandable responsibilities, not display every import and symbol by default. Groups may differ across projects: a web app, library, CLI, machine-learning project, game, infrastructure repo, and monorepo should not be forced into the same architecture template.
+These are design directions, not hard-coded assumptions. Use a distinct visual grammar and hierarchy when it helps comprehension, but do not invent behavior or relationships to make a diagram look complete. If classification is uncertain or deeper analysis is unsupported, use a clear universal project fingerprint rather than forcing an inappropriate specialist layout.
 
-Users can progressively reveal more detail, select a group, see its role, and open the relevant source. Every displayed relationship should have an evidence basis. Unresolved relationships must not be fabricated to make the map look complete.
+Start with a small set of reusable visual primitives and a handful of strong project-type layouts. Do not build a large plugin/layout framework in this iteration.
 
-### D. Source-backed explanations
+### C. Project Brief — important supporting context
 
-When a user opens a capability, Sarthi should explain it in plain language and provide paths to supporting files and source locations. The initial release does not need an open-ended “chat with your codebase” interface; guided explanations are easier to scope, validate, and make useful.
+Keep the project purpose, intended audience, and a short prioritized set of capabilities easy to find. However, the brief must not consume the visual hero or dominate the page as several large prose cards. Present it as concise, readable context adjacent to or immediately below the Project Fingerprint. Let users expand capability explanations when they want more detail.
 
-### E. Evidence and uncertainty
+### D. Guided exploration instead of scattered description cards
 
-Every substantive claim should be traceable to repository evidence. Distinguish:
+Organize the experience around a few meaningful visual and interaction choices rather than a long stack of disconnected cards. Users should be able to select a major system, capability, package, command, or pipeline stage and understand:
 
-- **Documented:** the repository's documentation says this.
-- **Implementation found:** relevant source code was identified.
-- **Test found:** relevant tests were identified.
-- **Test passed:** only when the test was actually run and passed.
-- **Inferred:** the available evidence suggests this, but does not prove it.
-- **Unresolved:** the analysis could not confidently establish it.
+- What role it plays in this project.
+- What it connects to or enables, when that connection is supported.
+- Where to go next to understand the workflow.
+
+The next step should change naturally with the selected project type and selected item. Avoid showing the same generic collection of cards on every repository simply because the frontend has those components available.
+
+### E. Evidence is supporting infrastructure, not the main event
+
+Evidence quality remains essential to correctness, but the default UI must not feel like an audit report or evidence browser. Keep the first impression focused on understanding the project. Show compact source attribution only where it builds trust, and make file paths, line excerpts, and detailed evidence available on demand through a selected component/capability or a dedicated explorer.
+
+Distinguish among documented, implementation found, test found, test passed (only if actually run), inferred, and unresolved claims. Do not repeat conspicuous status tags on every visual element if a subtler treatment or details panel communicates the same thing. Never remove evidence validation from the analysis pipeline just to reduce its visibility in the UI.
+
+### F. Progressive disclosure and visual hierarchy
+
+Use this initial hierarchy as the default, adapting order when the project type makes another view more useful:
+
+1. **Project Fingerprint:** project type, ecosystem, distinctive visual model, and a few meaningful facts.
+2. **Purpose and capabilities:** what the project does and what it enables.
+3. **Explore the system:** interact with the relevant map, package surface, command tree, pipeline, or other project-specific model.
+4. **Technical details and source evidence:** expandable/on-demand detail for users who want to go deeper.
+5. **Limitations and uncertainty:** visible and honest, but not needlessly noisy.
+
+The aim is not to hide technical depth. It is to let users choose depth as they explore rather than forcing every detail into the initial screen.
 
 ---
 
@@ -106,7 +125,7 @@ Existing functionality is not automatically retained just because it exists. It 
 - **Parser/graph outputs:** fix entity identity, path/line accuracy, relationship resolution, and unsupported cases before using the results to make explanatory claims.
 - **Insight generation:** replace generic scores and weak heuristics with useful, source-backed statements. Prioritize what helps a newcomer understand the project.
 - **Resume Session:** treat as a later returning-user feature, not the main first-time experience.
-- **UI/navigation:** reorganize around Project Brief → Capabilities → Project Map → Source Evidence.
+- **UI/navigation:** move from a generic Project Brief/card stack to Project Fingerprint → concise purpose/capabilities → project-specific exploration → on-demand source evidence. Keep evidence validation, but reduce its visual dominance.
 - **Tests:** add end-to-end repository fixtures that check the user-visible findings, not only that individual parser functions return some entities.
 
 ### Defer
@@ -121,6 +140,9 @@ Existing functionality is not automatically retained just because it exists. It 
 
 - Health scores as the hero content.
 - Large, unfiltered node-edge graphs as the first screen.
+- A generic language-percentage/technology-badge strip presented as if it were a meaningful project overview.
+- Repeated generic cards that make different repositories feel interchangeable.
+- Evidence IDs, line snippets, and status badges dominating the first screen.
 - Decorative metrics whose meaning or reliability is unclear.
 - Claims such as “AI-synthesized” unless the current flow genuinely uses AI and the label benefits the user.
 - Any generated claim or connection that cannot be traced to evidence.
@@ -216,75 +238,59 @@ No vendor is permanently “best.” Pick the provider based on tested explanati
 3. **Generate structured brief:** send bounded evidence with instructions that repository text is untrusted data. Require every capability/claim to reference evidence IDs.
 4. **Validate output:** use Zod/schema validation, ensure every evidence ID exists, ensure paths/lines belong to the pinned snapshot, discard invalid references, and mark uncertainty. Schema-valid output is not necessarily factually correct.
 5. **Persist and cache:** save the brief and evidence snapshot so revisiting the same commit does not trigger more model calls.
-6. **Render the UI:** use deterministic frontend components for the brief, cards, map, and source evidence.
+6. **Render the UI:** build a project-type-aware Project Fingerprint and interactive visual model, with concise brief context and source evidence revealed contextually.
 7. **Explain on demand:** retrieve focused evidence for a selected capability and use one bounded model call, not the entire repository.
 
 Do not start with a vector database, separate AI microservice, or multiple cooperating agents. A provider adapter and an application-level generation service are sufficient.
 
 ---
 
-## 6. Proposed implementation roadmap
+## 6. Current status and next roadmap
 
-The former ten milestones are complete as an engineering roadmap but have not established product value. The following roadmap supersedes them for the next phase. It is organized around demonstrable user outcomes, not feature count.
+The initial evidence foundation and Phase 2 Project Brief MVP have now been implemented. The reported validation includes 116 passing API tests, successful API/frontend builds and lint checks, and live Groq brief-generation tests on public JavaScript/TypeScript, Python, and Rust repositories. These checks establish that the pipeline can run; they do not prove that the interface gives users a distinctive or useful understanding of every project type.
 
-### Phase 0 — Establish a baseline [COMPLETED]
+The immediate task is a focused product/UX iteration, not another backend rebuild.
 
-- Ran initial repository reconnaissance and baseline audit against multi-ecosystem codebases.
-- Identified primary architectural gaps: source location loss, cross-file symbol collision during deduplication, and client-server identifier mismatches.
+### Phase 3 — Project Fingerprint and adaptive visual exploration
 
-**Status:** Completed. Gaps documented and addressed in Phase 1A.
+**Goal:** Transform the repository overview from a uniform collection of descriptive cards into a visually distinctive, project-adaptive hero experience where different software types look and behave differently.
 
-### Phase 1A — Evidence foundation [COMPLETED]
+- **Hero Project Fingerprint:** Promote Ecosystem Facts and Technical Overview into the primary hero. Highlights detected category, confidence, framework badges, runtime tools, and 3-4 project-specific structural facts alongside concise purpose and capability quick-routes.
+- **Project-Adaptive Visual Models:**
+  - **Web Application & Backend Systems:** Multi-tier architectural topology (Client/Frontend ➔ Routing/API Layer ➔ Core Service Engine ➔ Data & Storage).
+  - **Libraries & Frameworks:** Public contract hierarchy (Public API surface ➔ Internal Core Implementation ➔ Test & Build Configuration).
+  - **CLI Tools:** Execution pipeline (Input / CLI Flags ➔ Command Dispatch ➔ Execution Engine ➔ Formatted Output).
+  - **Data / ML Projects:** Processing and training flow (Data Ingestion ➔ Preprocessing & Features ➔ Model Training / Inference ➔ Output Artifacts).
+  - **Universal Baseline:** Modular subsystem topology for general or unclassified repositories.
+- **Interactive Contextual Detail Panel:** Selecting any component, subsystem, package, command, or pipeline stage displays its role, inbound/outbound connections, next-step exploration recommendations, and commit-pinned source links without triggering full-page context shifts.
+- **De-emphasized Source Evidence:** Evidence tables and verbose file excerpts are removed from the first screen. Source grounding is delivered through contextual component drawers and a secondary audit tab, maintaining 100% auditability and commit-pinned permalinks without clutter.
+- **Preserved Pipeline & Zero-Cost Safeguards:** Retains shallow-cloning, Groq `openai/gpt-oss-120b` zero-cost integration, deterministic fallback, strict schema validation, and commitment to never hallucinate metrics or connections.
 
-- Defined typed [SourceLocation](file:///d:/Development/Project-Sarthi-tentative-/apps/api/src/parsers/types.ts#L13-L19) preserving 1-indexed lines and 0-indexed columns across Babel AST, Prisma models, Express routers, and Markdown files.
-- Replaced naive entity deduplication with file-aware composite keys (`${type}:${filePath}:${name}`) so distinct declarations across files remain separate graph nodes.
-- Resolved cross-plugin identifier mismatches between React client calls and Express routes.
-- Persisted and retrieved source locations through `Node.metadata.location` without requiring disruptive database migrations.
-- Added comprehensive regression test suite (37 tests passing, 75 total suite tests passing).
+**Exit condition:** Comparing materially different repositories (e.g., Express backend, Click CLI, Anyhow library) produces visibly distinct visual models and information hierarchies with interactive contextual explanations and unobtrusive evidence.
 
-**Status:** Completed and verified.
 
-### Phase 2 — Project Brief generator & Universal Baseline [COMPLETED]
+### Phase 4 — Validate usefulness, then deepen analysis
 
-- Implemented [UniversalEvidenceCollector](file:///d:/Development/Project-Sarthi-tentative-/apps/api/src/brief/evidence-collector.ts) capturing manifests, documentation, entrypoints, and tests across Node.js, Python, Rust, and Go repositories.
-- Implemented [GroqBriefService](file:///d:/Development/Project-Sarthi-tentative-/apps/api/src/brief/groq-brief.service.ts) using official `groq-sdk` with free-tier model (`openai/gpt-oss-120b`). Server-side only; untrusted repository text treated strictly as data.
-- Built strict [projectBriefAiOutputSchema](file:///d:/Development/Project-Sarthi-tentative-/apps/api/src/brief/schemas.ts) validated with Zod. Validates every evidence ID reference against the input bundle; strips hallucinated IDs.
-- Implemented zero-cost constraint: deterministic fallback overview activated automatically if Groq is unconfigured or returns a 429 rate limit. No paid fallback or billing risk.
-- Implemented public repository exploration endpoint (`/public/explore`) requiring no registration or login, with URL security validation, shallow clone (`--depth 1`), 40s timeout, and guaranteed temporary directory cleanup.
-- Implemented commit-pinned SHA-256 caching (`ProjectBriefCache`) preventing redundant model calls for the same commit.
-- Delivered frontend Project Brief experience: Purpose hero, Capability cards with evidence status badges, visual Conceptual Architecture Map, Guided Codebase Tour, Verified Source Evidence Explorer with commit-pinned GitHub permalinks, collapsible Technical Overview, and Recent Repositories (`localStorage`).
-- Added multi-ecosystem regression tests (TS/JS, Python, Rust) with Groq mocking and rate-limit handling (41 tests passing, 116 total suite tests passing).
+- Run five-minute usability checks with people who have not seen the chosen repositories.
+- Ask users to identify the project type, explain its purpose, name important parts, and describe at least one supported relationship or workflow.
+- Review where the visual representation is generic, confusing, or overconfident; refine those cases before adding more layouts.
+- Check factual correctness against a human-reviewed answer key and confirm that visual claims/relationships remain evidence-grounded.
+- Add deeper project-type-specific analysis only where user tests reveal a real comprehension gap and the repository signals justify it.
+- Consider recurring value such as change awareness or saved exploration sessions later, after the first-time experience proves useful.
 
-**Known Limitations Recorded Honestly:**
-- Repositories hosted outside public GitHub (e.g., GitLab, Bitbucket, self-hosted instances) are not currently supported by the public exploration route.
-- Very large repositories exceeding 50MB uncompressed or 2,000 files are bounded to prevent resource exhaustion.
-- Deep inter-procedural call graph traversal is supported for Express/React/Prisma; other ecosystems currently utilize the universal baseline.
-
-### Phase 3 — First-five-minute UX [CURRENT BASELINE ESTABLISHED]
-
-- Project Brief is now the default public landing experience.
-- Frictionless exploration without registration or onboarding prerequisites.
-- Capabilities, Conceptual Map, and Evidence permalinks prioritized over health metrics.
-
-**Exit condition:** an unfamiliar person can use it without an onboarding call or knowledge of Sarthi's internal terminology.
-
-### Phase 4 — Validate value, then expand
-
-- Run five-minute usability tests with people who have not seen the repositories.
-- Check factual correctness against a human-reviewed answer key.
-- Measure whether users can explain purpose, name key capabilities, and describe the main components.
-- Compare outputs between free model candidates; select by results, not brand.
-- Only then add deeper capability walkthroughs and more project-type-specific analyzers.
-
-**Exit condition:** measurable improvement over reading the README and browsing the raw file tree alone.
+**Exit condition:** measurable user understanding improves over the current page and over reading the README/file tree alone. Expand feature scope only after this condition is met.
 
 ---
 
 ## 7. Acceptance criteria for the first useful release
 
-The first release is successful only if:
+The useful visual release is successful only if:
 
-- At least 4 of 5 unfamiliar test users can explain a project's purpose and three important capabilities after five minutes (initial target; adjust based on testing).
+- At least 4 of 5 unfamiliar test users can identify the project type, explain the project's purpose, and name three important capabilities after five minutes (initial target; adjust based on testing).
+- At least three materially different repository types produce noticeably different and appropriate visual hierarchies—not identical card layouts with changed labels.
+- The visual overview emphasizes useful ecosystem/structure facts rather than arbitrary counts or decorative badges.
+- Users can explore an important project component and understand its role and any supported relationships.
+- Source evidence is available where useful, but detailed evidence does not dominate the default screen.
 - Capability claims link to real source evidence or are explicitly labelled as documentation-derived/inferred.
 - The system does not invent paths, symbols, tests, or relationships in the test benchmark.
 - The same repository commit produces a cached brief until relevant inputs or prompt/schema/model versions change.
@@ -308,6 +314,6 @@ The first release is successful only if:
 
 ## 9. Immediate next action
 
-**Do not start by rewriting the application.** Start Phase 0 by running the current build against three public repositories and inspecting the actual outputs. Then implement Phase 1's evidence bundle, because every useful Project Brief, map, and explanation depends on trustworthy evidence.
+**Implement Phase 3: Project Fingerprint and adaptive visual exploration.** The data extraction, brief-generation pipeline, and evidence foundation already exist, so do not repeat the original Phase 0/1 setup or rebuild the analyzer by default.
 
-The first code change should be small and testable: define the evidence schema and produce it for one repository end to end. Once we trust that output, connect the AI provider and build the brief around it.
+Begin by inspecting the current output for three contrasting public repositories and mapping current fields to the proposed visual experience. Then implement the new hero and the smallest useful set of project-specific visual models. Add or change backend extraction only where a real data gap prevents a correct view. Validate the result in the running application and report which project types were actually exercised.

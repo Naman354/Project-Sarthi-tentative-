@@ -41,8 +41,18 @@ export default function TechnicalOverviewPanel({
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
             </svg>
           </div>
           <div>
@@ -98,8 +108,12 @@ export default function TechnicalOverviewPanel({
               <div className="flex flex-wrap gap-3 text-xs">
                 {languages.map((l) => (
                   <div key={l.language} className="flex items-center gap-1.5">
-                    <span className={`w-2.5 h-2.5 rounded-full ${LANGUAGE_COLORS[l.language] || "bg-indigo-400"}`} />
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">{l.language}</span>
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${LANGUAGE_COLORS[l.language] || "bg-indigo-400"}`}
+                    />
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                      {l.language}
+                    </span>
                     <span className="text-zinc-400 text-[11px] font-mono">{l.percentage}%</span>
                   </div>
                 ))}
@@ -110,25 +124,33 @@ export default function TechnicalOverviewPanel({
           {/* Quick Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60">
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">Total Files</span>
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">
+                Total Files
+              </span>
               <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5 block">
                 {overview.totalFiles}
               </span>
             </div>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60">
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">Directories</span>
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">
+                Directories
+              </span>
               <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5 block">
                 {overview.totalDirectories}
               </span>
             </div>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60">
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">Dependencies</span>
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">
+                Dependencies
+              </span>
               <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5 block">
                 {overview.dependencies.length}
               </span>
             </div>
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60">
-              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">Ecosystem</span>
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 block">
+                Ecosystem
+              </span>
               <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 capitalize mt-1 block">
                 {overview.ecosystem}
               </span>

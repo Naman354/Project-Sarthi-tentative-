@@ -22,10 +22,7 @@ export const exploreRepositoryInputSchema = z.object({
 export type ExploreRepositoryInput = z.infer<typeof exploreRepositoryInputSchema>;
 
 export const projectBriefAiOutputSchema = z.object({
-  purpose: z
-    .string()
-    .min(1, "Purpose is required")
-    .max(1000, "Purpose too long"),
+  purpose: z.string().min(1, "Purpose is required").max(1000, "Purpose too long"),
   intendedAudience: z.string().nullable().optional(),
   capabilities: z
     .array(
@@ -34,13 +31,7 @@ export const projectBriefAiOutputSchema = z.object({
         name: z.string().min(1),
         description: z.string().min(1),
         evidenceStatus: z
-          .enum([
-            "documented",
-            "implementation_found",
-            "test_found",
-            "inferred",
-            "unresolved",
-          ])
+          .enum(["documented", "implementation_found", "test_found", "inferred", "unresolved"])
           .default("inferred"),
         evidenceIds: z.array(z.string()).default([]),
         primaryFiles: z.array(z.string()).default([]),

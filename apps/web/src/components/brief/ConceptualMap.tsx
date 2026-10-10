@@ -20,9 +20,7 @@ export default function ConceptualMap({
   owner,
   repo,
 }: ConceptualMapProps) {
-  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(
-    areas[0]?.id || null
-  );
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(areas[0]?.id || null);
 
   const selectedArea = areas.find((a) => a.id === selectedAreaId) || areas[0];
 
@@ -79,12 +77,15 @@ export default function ConceptualMap({
                       </span>
                       {area.associatedFiles.length > 0 && (
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-200/60 dark:bg-zinc-700/60 text-zinc-600 dark:text-zinc-400">
-                          {area.associatedFiles.length} file{area.associatedFiles.length > 1 ? "s" : ""}
+                          {area.associatedFiles.length} file
+                          {area.associatedFiles.length > 1 ? "s" : ""}
                         </span>
                       )}
                     </div>
 
-                    <h4 className={`text-sm font-bold mb-1.5 ${isSelected ? "text-indigo-900 dark:text-indigo-200" : "text-zinc-900 dark:text-zinc-100"}`}>
+                    <h4
+                      className={`text-sm font-bold mb-1.5 ${isSelected ? "text-indigo-900 dark:text-indigo-200" : "text-zinc-900 dark:text-zinc-100"}`}
+                    >
                       {area.name}
                     </h4>
 
@@ -94,7 +95,11 @@ export default function ConceptualMap({
                   </div>
 
                   <div className="mt-3 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/50 flex items-center justify-between text-[11px] font-semibold">
-                    <span className={isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"}>
+                    <span
+                      className={
+                        isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400"
+                      }
+                    >
                       {isSelected ? "Active Area" : "Click to inspect"}
                     </span>
                     <svg
@@ -170,7 +175,10 @@ export default function ConceptualMap({
                     {outgoingRels.map((r, i) => {
                       const target = areas.find((a) => a.id === r.toAreaId);
                       return (
-                        <div key={`out-${i}`} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+                        <div
+                          key={`out-${i}`}
+                          className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5"
+                        >
                           <span className="text-indigo-500 font-bold">↳</span>
                           <span>{r.label}</span>
                           <span className="font-semibold text-zinc-900 dark:text-zinc-200">
@@ -182,7 +190,10 @@ export default function ConceptualMap({
                     {incomingRels.map((r, i) => {
                       const source = areas.find((a) => a.id === r.fromAreaId);
                       return (
-                        <div key={`in-${i}`} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+                        <div
+                          key={`in-${i}`}
+                          className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5"
+                        >
                           <span className="text-emerald-500 font-bold">↰</span>
                           <span className="font-semibold text-zinc-900 dark:text-zinc-200">
                             {source?.name || r.fromAreaId}
@@ -213,8 +224,18 @@ export default function ConceptualMap({
                           className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-mono text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/40 transition-colors group"
                         >
                           <span className="truncate">{file}</span>
-                          <svg className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 shrink-0 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          <svg
+                            className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 shrink-0 ml-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
                           </svg>
                         </a>
                       );

@@ -66,10 +66,22 @@ export async function runProjectBriefTests(): Promise<{
       repo: "test-ts-app",
     });
 
-    assert(tsBundle.languages.some((l) => l.language === "TypeScript"), "TS fixture: detects TypeScript as primary language");
-    assert(tsBundle.manifests.some((m) => m.ecosystem === "node"), "TS fixture: parses Node.js manifest with dependencies");
-    assert(tsBundle.entryPoints.includes("src/index.ts"), "TS fixture: detects src/index.ts as entry point");
-    assert(tsBundle.evidenceRecords.length >= 3, "TS fixture: generates documentation, manifest, and source evidence records");
+    assert(
+      tsBundle.languages.some((l) => l.language === "TypeScript"),
+      "TS fixture: detects TypeScript as primary language"
+    );
+    assert(
+      tsBundle.manifests.some((m) => m.ecosystem === "node"),
+      "TS fixture: parses Node.js manifest with dependencies"
+    );
+    assert(
+      tsBundle.entryPoints.includes("src/index.ts"),
+      "TS fixture: detects src/index.ts as entry point"
+    );
+    assert(
+      tsBundle.evidenceRecords.length >= 3,
+      "TS fixture: generates documentation, manifest, and source evidence records"
+    );
 
     // 1B. Python Project Fixture
     const pyRepoDir = path.join(tempDir, "py-project");
@@ -88,7 +100,7 @@ export async function runProjectBriefTests(): Promise<{
     );
     await fs.writeFile(
       path.join(pyRepoDir, "tests", "test_main.py"),
-      'def test_root():\n    assert True\n'
+      "def test_root():\n    assert True\n"
     );
     await fs.writeFile(
       path.join(pyRepoDir, "README.md"),
@@ -103,11 +115,20 @@ export async function runProjectBriefTests(): Promise<{
       repo: "fastapi-demo",
     });
 
-    assert(pyBundle.languages.some((l) => l.language === "Python"), "Python fixture: detects Python language");
-    assert(pyBundle.manifests.some((m) => m.ecosystem === "python"), "Python fixture: extracts pyproject.toml & requirements.txt");
+    assert(
+      pyBundle.languages.some((l) => l.language === "Python"),
+      "Python fixture: detects Python language"
+    );
+    assert(
+      pyBundle.manifests.some((m) => m.ecosystem === "python"),
+      "Python fixture: extracts pyproject.toml & requirements.txt"
+    );
     assert(pyBundle.entryPoints.includes("main.py"), "Python fixture: detects main.py entrypoint");
     assert(pyBundle.testsFound.length > 0, "Python fixture: detects tests/ folder and test files");
-    assert(pyBundle.parserCoverage === "universal-baseline", "Python fixture: sets universal-baseline coverage correctly");
+    assert(
+      pyBundle.parserCoverage === "universal-baseline",
+      "Python fixture: sets universal-baseline coverage correctly"
+    );
 
     // 1C. Rust CLI / Library Fixture
     const rustRepoDir = path.join(tempDir, "rust-cli");
@@ -133,10 +154,22 @@ export async function runProjectBriefTests(): Promise<{
       repo: "ripgrep-clone",
     });
 
-    assert(rustBundle.languages.some((l) => l.language === "Rust"), "Rust fixture: detects Rust language");
-    assert(rustBundle.manifests.some((m) => m.ecosystem === "rust"), "Rust fixture: extracts Cargo.toml manifest");
-    assert(rustBundle.entryPoints.includes("src/main.rs"), "Rust fixture: detects src/main.rs entry point");
-    assert(rustBundle.projectTypes.includes("cli-tool"), "Rust fixture: infers cli-tool project type");
+    assert(
+      rustBundle.languages.some((l) => l.language === "Rust"),
+      "Rust fixture: detects Rust language"
+    );
+    assert(
+      rustBundle.manifests.some((m) => m.ecosystem === "rust"),
+      "Rust fixture: extracts Cargo.toml manifest"
+    );
+    assert(
+      rustBundle.entryPoints.includes("src/main.rs"),
+      "Rust fixture: detects src/main.rs entry point"
+    );
+    assert(
+      rustBundle.projectTypes.includes("cli-tool"),
+      "Rust fixture: infers cli-tool project type"
+    );
 
     // --------------------------------------------------------------------------
     // Scenario 2: Deterministic Fallback Brief Generation
@@ -147,17 +180,31 @@ export async function runProjectBriefTests(): Promise<{
     // Test deterministic brief for Rust CLI
     const fallbackBrief = briefService.generateDeterministicFallbackBrief(rustBundle);
 
-    assert(fallbackBrief.generatedBy === "deterministic-fallback", "Fallback brief marks generatedBy as deterministic-fallback");
-    assert(fallbackBrief.purpose.length > 0, "Fallback brief derives meaningful purpose from README/manifest");
-    assert(fallbackBrief.capabilities.length >= 2, "Fallback brief discovers capabilities deterministically");
+    assert(
+      fallbackBrief.generatedBy === "deterministic-fallback",
+      "Fallback brief marks generatedBy as deterministic-fallback"
+    );
+    assert(
+      fallbackBrief.purpose.length > 0,
+      "Fallback brief derives meaningful purpose from README/manifest"
+    );
+    assert(
+      fallbackBrief.capabilities.length >= 2,
+      "Fallback brief discovers capabilities deterministically"
+    );
     assert(
       fallbackBrief.capabilities.every((c) => c.evidenceIds.length > 0),
       "Fallback brief capabilities contain evidence IDs"
     );
-    assert(fallbackBrief.conceptualMap.areas.length >= 2, "Fallback brief defines conceptual areas");
+    assert(
+      fallbackBrief.conceptualMap.areas.length >= 2,
+      "Fallback brief defines conceptual areas"
+    );
     assert(fallbackBrief.guidedTour.length >= 2, "Fallback brief provides guided tour steps");
     assert(
-      fallbackBrief.evidenceMap[fallbackBrief.capabilities[0]!.evidenceIds[0]!]?.url?.includes("github.com"),
+      fallbackBrief.evidenceMap[fallbackBrief.capabilities[0]!.evidenceIds[0]!]?.url?.includes(
+        "github.com"
+      ),
       "Fallback brief evidence records contain commit-pinned GitHub permalinks"
     );
 
@@ -263,13 +310,17 @@ export async function runProjectBriefTests(): Promise<{
     } as unknown as Groq;
 
     testAiService.setClient(mockGroqHallucinated);
-    const hallucinationFilteredBrief = await testAiService.generateBrief(rustBundle, { forceRefresh: true });
+    const hallucinationFilteredBrief = await testAiService.generateBrief(rustBundle, {
+      forceRefresh: true,
+    });
     assert(
       !hallucinationFilteredBrief.capabilities[0]!.evidenceIds.includes("ev-fake-9999"),
       "Hallucinated evidence ID 'ev-fake-9999' was discarded by reference validator"
     );
     assert(
-      hallucinationFilteredBrief.capabilities[0]!.evidenceIds.includes(rustBundle.evidenceRecords[0]!.id),
+      hallucinationFilteredBrief.capabilities[0]!.evidenceIds.includes(
+        rustBundle.evidenceRecords[0]!.id
+      ),
       "Legitimate evidence ID was preserved by reference validator"
     );
 
@@ -350,7 +401,10 @@ export async function runProjectBriefTests(): Promise<{
     );
     assert(cachedHit !== null, "Successfully retrieves cached brief");
     assert(cachedHit?.cached === true, "Cached brief indicates cached: true");
-    assert(cachedHit?.commitSha === rustBundle.commitSha, "Cached brief matches analyzed commit SHA");
+    assert(
+      cachedHit?.commitSha === rustBundle.commitSha,
+      "Cached brief matches analyzed commit SHA"
+    );
 
     // Clean up cache
     await projectBriefCache.clear();
@@ -366,8 +420,10 @@ export async function runProjectBriefTests(): Promise<{
       conceptualMap: { areas: [] },
     };
     const schemaValidation = projectBriefAiOutputSchema.safeParse(malformedOutput);
-    assert(!schemaValidation.success, "Rejects malformed AI output missing purpose and capabilities");
-
+    assert(
+      !schemaValidation.success,
+      "Rejects malformed AI output missing purpose and capabilities"
+    );
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
