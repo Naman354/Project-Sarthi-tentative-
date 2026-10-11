@@ -11,7 +11,7 @@
 
 ### Product definition
 
-**Project Sarthi is an interactive visual guide to unfamiliar software repositories.** It turns a repository into a distinctive project fingerprint: an at-a-glance view of its ecosystem, project type, major building blocks, and how those parts fit together. A clear project explanation remains important, while source evidence supports deeper exploration without dominating the initial experience.
+**Project Sarthi is an interactive visual guide to unfamiliar software repositories.** It turns a repository into an informative, distinctive overview of its ecosystem, structure, project type, and important capabilities. The interface should make useful repository facts inviting to explore, while keeping the project purpose clear and using internal evidence grounding to protect accuracy. Source-evidence inspection is not part of the user-facing experience in the current direction.
 
 Sarthi is for more than developers working on their own projects. Primary scenarios include:
 
@@ -29,10 +29,10 @@ The product should be judged by the accuracy and usefulness of that understandin
 ### First-time user journey
 
 1. Paste a public repository URL.
-2. Get a project fingerprint tailored to the repository: ecosystem, project type, main components, and a useful visual summary.
-3. Understand the project's purpose and most important capabilities in concise supporting context.
-4. Explore a project-specific visual model of how its important parts work together.
-5. Open source evidence when curious or when they need to verify or investigate a claim.
+2. See a compelling Technical Overview with useful ecosystem facts and **Distinctive Structural Facts** selected by default.
+3. Quickly understand the project's purpose and concrete capabilities in a separate, easy-to-find section.
+4. Explore the project's structure and select meaningful parts to understand what they do and how they relate.
+5. Leave with a clearer mental model of what the repository contains and what makes it distinctive.
 
 The first three steps must already be valuable. Users should not need an account, learn graph terminology, or configure a complex workspace before receiving a useful introduction, where practical protections against abuse allow it.
 
@@ -40,64 +40,75 @@ The first three steps must already be valuable. Users should not need an account
 
 ## 2. Product experience
 
-### A. Technical Overview — the dominant hero experience
+### A. Technical Overview — the hero experience
 
-The primary visual section at the top of the analyzed repository page is the **Technical Overview**. It acts as an interactive, data-rich exploration dashboard that gives developers an immediate, evidence-grounded technical understanding of the repository.
+The Technical Overview is the primary visual hero. Preserve the inviting, data-rich direction of the earlier overview rather than replacing it with a generic identity card. It should combine visualized ecosystem facts with a handful of useful structural observations, without becoming a grid of interchangeable statistic cards.
 
-The hero prioritizes accurate, high-signal facts:
+Within the hero's tabs, **Distinctive Structural Facts must be the leftmost tab and selected by default**. It must contain useful, repository-specific information—not placeholders or generic architecture labels. Depending on the evidence available, these facts may include entrypoints, public exports or commands, workspace/package boundaries, notable subsystems, scripts, build tools, or testing setup.
 
-- **Language distribution visualization:** Multi-colored proportional bar with percentages and file counts, with the calculation method clearly labelled ("Distribution across N analyzed files").
-- **Repository composition breakdown:** Clear proportional distribution of Source Code, Test Suites, Documentation, and Config & Build files.
-- **Detected technology stack:** Primary language, detected frameworks (e.g., Express, Fastify, Click, Anyhow, React, Tokio), runtimes, and build tools.
-- **Declared dependencies:** Clearly distinguishes declared production/runtime dependencies from development and build dependencies, with interactive filtering.
-- **Entrypoints & build scripts:** Application entrypoints (e.g. `src/index.ts`, `src/lib.rs`, `main.py`) and declared build/execution scripts with commit-pinned links.
-- **Directory and module topology:** Top-level module tree summary showing major architectural units.
-- **Distinctive structural facts:** High-signal architectural facts tailored to this specific repository.
+Other useful hero content may include:
 
-Every displayed metric is explainable, verifiable, and grounded in repository evidence without fabricated data.
+- Language distribution, with a clear explanation of what the percentages measure.
+- Meaningful file counts and detected languages, frameworks, runtimes, and important tools.
+- Dependency counts and structural metrics whose meaning is clear and whose calculation is reliable.
+- A project-type-appropriate visual summary when it explains something that metrics alone cannot.
 
-### B. Project Description — separate, compact context
+Remove the **Repository Composition** section/tab entirely. Do not recreate it under a different name. Keep individual metrics that genuinely help a user understand a repository, but place them where they make sense within the Technical Overview.
 
-A separate, compact Project Description section is positioned immediately near the Technical Overview.
+Do not promote arbitrary numbers just to fill the hero. Never confuse file-count percentages with code-size percentages, or declared dependencies with dependencies proven to be used at runtime. If a fact cannot be reliably collected or explained, omit it.
 
-It explains:
-- What the project does (concise purpose statement).
-- Who it is intended for, when identifiable.
-- Its most important capabilities in compact summary format.
-
-Keep these explanations concise so they provide clear context to the Technical Overview without competing with it for visual dominance.
-
-### C. Project-type-aware visual models
+### B. Project-type-aware visual models
 
 Different repository types must not collapse into the same set of cards with only their labels changed. First classify the repository using detected manifests, structure, entrypoints, docs, symbols, and other available signals. Then select and populate the most appropriate visual model. Classification is a hint with confidence/uncertainty, not a rigid exclusive label.
 
 Examples of distinct visual models:
 
-- **Web applications & backend systems:** a multi-tier system topology showing client ingress, API routing surface, domain services, and data persistence layers.
-- **Libraries & frameworks:** a public contract and module hierarchy emphasizing the exported interface, internal engine, and testing/specification harness.
-- **CLI tools:** a terminal execution pipeline tracing command invocations, flags, subcommand dispatch, operations engine, and formatted output streams.
-- **Data/ML projects:** data sources, preprocessing steps, actual notebooks and model components, and evaluation—only where supported by the repository.
-- **Universal baseline:** a modular architectural subsystem topology for general or unclassified repositories.
+- **Web/application:** a system map showing major client, API, service, data, and external-service areas, where actually detected.
+- **Library/framework:** public API or package surface, core modules, and a usage/extension path.
+- **CLI/tool:** command tree and the path from input/arguments through processing to output.
+- **Data/ML:** data sources, preparation steps, model/training or inference stages, and outputs—only where supported by the repository.
+- **Infrastructure/DevOps:** deployment units, environments, configuration, and pipeline stages.
+- **Game/simulation:** runtime loop and major gameplay/simulation systems or asset groups, where identifiable.
+- **Monorepo:** workspace/package topology and important connections between packages.
 
-These are design directions, not hard-coded templates. Build visuals from the facts the analysis actually discovers without inventing architecture.
+These are design directions, not hard-coded assumptions. Use a distinct visual grammar and hierarchy when it helps comprehension, but do not invent behavior or relationships to make a diagram look complete. If classification is uncertain or deeper analysis is unsupported, use a clear universal project fingerprint rather than forcing an inappropriate specialist layout.
+
+Start with a small set of reusable visual primitives and a handful of strong project-type layouts. Do not build a large plugin/layout framework in this iteration.
+
+### C. Project description and capabilities — clear supporting context
+
+Show the project description in its own prominent, easy-to-find section near the Technical Overview. Keep the existing concise writing style, but make sure this section is not mistaken for a caption or buried below multiple panels.
+
+Rewrite capabilities so they describe concrete, project-specific jobs, behaviors, or value. Labels such as “routing,” “core engine,” or “data layer” are not useful capabilities on their own. Explain what a user or developer can actually accomplish with the project, what it enables, or what distinct behavior it implements. Prefer a few meaningful capabilities over a fixed number of vague ones. Keep the descriptions concise and clearly differentiated.
 
 ### D. Guided exploration instead of scattered description cards
 
-Organize the experience around meaningful visual and interaction choices rather than long stacks of redundant text cards. Users can select any component, package, route, or pipeline stage and inspect its role, inbound/outbound architectural connections, and commit-pinned source links via an interactive contextual detail drawer.
+Organize the experience around a few meaningful visual and interaction choices rather than a long stack of disconnected cards. Users should be able to select a major system, capability, package, command, or pipeline stage and understand:
 
-### E. Evidence is supporting infrastructure, not the main event
+- What role it plays in this project.
+- What it connects to or enables, when that connection is supported.
+- Where to go next to understand the workflow.
 
-Evidence quality remains essential to correctness, but the default UI must not feel like an audit report. Keep the first impression focused on understanding the project. Show compact source attribution where it builds trust, and make file paths, line excerpts, and detailed evidence available on demand through contextual drawers and a dedicated evidence explorer tab.
+The next step should change naturally with the selected project type and selected item. Avoid showing the same generic collection of cards on every repository simply because the frontend has those components available.
 
-### F. Progressive disclosure and visual hierarchy
+### E. Evidence remains internal to the current UX direction
 
-1. **Technical Overview:** dominant visual hero with language charts, file composition, declared dependencies, entrypoints, and structural facts.
-2. **Project Description & Purpose:** concise purpose, audience, and key capability highlights.
-3. **Explore the System:** interactive visual model (web/backend system map, library surface, CLI execution pipeline, data pipeline, or universal modular topology).
-4. **Contextual Detail & Source Evidence:** on-demand detail drawer and secondary audit tab.
-5. **Limitations and Gaps:** honest acknowledgment of unverified items or baseline coverage.
+Evidence quality remains essential to correctness, but **source evidence must not appear in the user-facing interface in this iteration**. Remove evidence tables, source snippets, evidence tabs, source-evidence badges, and evidence-specific UI labels. Do not surface line-pinned source links as a replacement for those elements.
 
-The aim is not to hide technical depth. It is to let users choose depth as they explore rather than forcing every detail into the initial screen.
+Keep the backend's evidence bundle, claim validation, and other internal grounding mechanisms so the product continues to avoid unsupported claims. This is a UX decision, not a request to remove the accuracy safeguards or rewrite the analysis pipeline. Uncertainty should be communicated in natural language only when it materially affects a user's understanding; avoid exposing internal evidence terminology.
+
+### F. Progressive disclosure and site-wide navigation
+
+Use this as a starting hierarchy, then make informed UX decisions from the actual code and rendered experience:
+
+1. **Technical Overview:** an inviting visual hero, with Distinctive Structural Facts first and selected by default.
+2. **Project description:** clearly visible context explaining what the project does.
+3. **Meaningful capabilities and exploration:** help users discover what the project enables and understand its important parts.
+4. **Additional technical details:** reveal when useful, without repeating facts or turning every detail into a card.
+
+Review every major heading, label, tab, and navigation destination. Replace mechanical/internal wording with language that tells users what they will get or be able to do. Audit the Projects and Overview tabs: make their purposes clear and distinct, or combine/remove them if they currently lead to redundant or low-value experiences. Do not keep a navigation item merely because the route or component already exists.
+
+The aim is not to remove technical depth. It is to arrange information so users can understand the project naturally, then choose where to explore further.
 
 ---
 
@@ -120,7 +131,7 @@ Existing functionality is not automatically retained just because it exists. It 
 - **Parser/graph outputs:** fix entity identity, path/line accuracy, relationship resolution, and unsupported cases before using the results to make explanatory claims.
 - **Insight generation:** replace generic scores and weak heuristics with useful, source-backed statements. Prioritize what helps a newcomer understand the project.
 - **Resume Session:** treat as a later returning-user feature, not the main first-time experience.
-- **UI/navigation:** move from a generic Project Brief/card stack to Project Fingerprint → concise purpose/capabilities → project-specific exploration → on-demand source evidence. Keep evidence validation, but reduce its visual dominance.
+- **UI/navigation:** center the experience on Technical Overview → prominent project description → concrete capabilities and project-specific exploration. Remove source-evidence UI entirely while preserving internal evidence validation.
 - **Tests:** add end-to-end repository fixtures that check the user-visible findings, not only that individual parser functions return some entities.
 
 ### Defer
@@ -137,7 +148,7 @@ Existing functionality is not automatically retained just because it exists. It 
 - Large, unfiltered node-edge graphs as the first screen.
 - A generic language-percentage/technology-badge strip presented as if it were a meaningful project overview.
 - Repeated generic cards that make different repositories feel interchangeable.
-- Evidence IDs, line snippets, and status badges dominating the first screen.
+- All source-evidence UI, including evidence tabs/tables, line snippets, source-evidence links, and evidence-status badges.
 - Decorative metrics whose meaning or reliability is unclear.
 - Claims such as “AI-synthesized” unless the current flow genuinely uses AI and the label benefits the user.
 - Any generated claim or connection that cannot be traced to evidence.
@@ -233,7 +244,7 @@ No vendor is permanently “best.” Pick the provider based on tested explanati
 3. **Generate structured brief:** send bounded evidence with instructions that repository text is untrusted data. Require every capability/claim to reference evidence IDs.
 4. **Validate output:** use Zod/schema validation, ensure every evidence ID exists, ensure paths/lines belong to the pinned snapshot, discard invalid references, and mark uncertainty. Schema-valid output is not necessarily factually correct.
 5. **Persist and cache:** save the brief and evidence snapshot so revisiting the same commit does not trigger more model calls.
-6. **Render the UI:** build a project-type-aware Project Fingerprint and interactive visual model, with concise brief context and source evidence revealed contextually.
+6. **Render the UI:** lead with Technical Overview and Distinctive Structural Facts, followed by a prominent project description, concrete capabilities, and project-specific exploration. Keep evidence validation internal; do not render source-evidence UI in the current UX direction.
 7. **Explain on demand:** retrieve focused evidence for a selected capability and use one bounded model call, not the entire repository.
 
 Do not start with a vector database, separate AI microservice, or multiple cooperating agents. A provider adapter and an application-level generation service are sufficient.
@@ -246,23 +257,24 @@ The initial evidence foundation and Phase 2 Project Brief MVP have now been impl
 
 The immediate task is a focused product/UX iteration, not another backend rebuild.
 
-### Phase 3 & 3B — Restore the Technical Overview Hero and Adaptive Visual Exploration
+### Phase 3 — UX reset: make repository exploration useful and distinctive
 
-**Goal:** Establish the Technical Overview as the dominant, data-rich visual hero at the top of the analyzed repository page, supported by a separate concise Project Description and genuine project-type visual models.
+**Goal:** move beyond a generic collection of cards and make Sarthi feel like an engaging, project-aware way to explore unfamiliar software. UX comes first; detailed visual styling can evolve over multiple iterations.
 
-- **Hero Technical Overview Dashboard:** Dominant visual section at the top of the analyzed page. Highlights proportional language distribution (% of analyzed files), repository composition (source vs test vs doc vs config), declared production vs development dependencies, application entrypoints, build/execution scripts, and distinctive structural facts.
-- **Separate Project Description:** Compact section near the Technical Overview providing project purpose, intended audience, and key capability highlights without competing for visual dominance.
-- **Project-Adaptive Visual Models:**
-  - **Web Application & Backend Systems:** Multi-tier architectural topology (Client Ingress ➔ API Routing Surface ➔ Domain Service Engine ➔ Data Persistence).
-  - **Libraries & Frameworks:** Public contract & module hierarchy (Public API surface ➔ Internal Engine ➔ Test Harness & Build Specification).
-  - **CLI Tools:** Terminal execution pipeline (Invocations & Flags ➔ Command Dispatcher ➔ Execution Engine ➔ Formatted Output).
-  - **Data / ML Projects:** Grounded processing and training flow (Data Ingestion ➔ Feature Prep ➔ Modeling / Analytics ➔ Evaluation & Artifacts).
-  - **Universal Baseline:** Modular subsystem topology for general or unclassified repositories.
-- **Interactive Contextual Detail Panel:** Selecting any component displays its role, inbound/outbound connections, next-step recommendations, and commit-pinned source links.
-- **De-emphasized Source Evidence:** 100% auditable source grounding delivered through contextual drawers and a secondary audit tab.
-- **Preserved Pipeline & Zero-Cost Safeguards:** Retains shallow-cloning, Groq zero-cost integration, deterministic fallback, strict schema validation, and commitment to never hallucinate metrics or connections.
+- Keep the Technical Overview / ecosystem dashboard as the main visual hero. Do not replace it with a generic project-identity card.
+- In the hero's tab row, put **Distinctive Structural Facts** first and select it by default. Populate it with informative facts that are specific to the analyzed repository, such as entrypoints, public API or command surfaces, package/workspace boundaries, important project modules, available scripts, and testing setup. Show only facts supported by the collected data; avoid placeholders, arbitrary metrics, and generic statements.
+- Remove the **Repository Composition** section/tab from the user-facing experience. Retain useful technical overview elements—such as language distribution and clearly defined file/dependency metrics—where they add value, but do not recreate Repository Composition under another name.
+- Give the project description its own prominent, clearly discoverable section. Keep the concise wording, but do not let it disappear beneath the hero or become a minor caption.
+- Remove source-evidence UI from the user-facing product: no evidence table/tab, source snippets, evidence-status badges, or evidence-oriented section. Keep internal evidence grounding and validation in the backend so the application continues to avoid unsupported claims. Do not delete working evidence infrastructure just to remove its visual presentation.
+- Redesign the core capabilities experience so each item explains a concrete, project-specific job, behavior, or value—not vague labels such as generic “core engine,” “routing,” or “data layer” without context. Make the capabilities clearly distinguishable from one another. Prefer a small number of high-value capabilities over filling a fixed quota with weak ones.
+- Audit the entire application experience, not only the hero. Rework information hierarchy, page flow, headings, labels, empty states, and navigation. Replace internal/mechanical wording (for example, “Newcomer Tour Guide” or “Technical Overview & Repository Intelligence”) with natural, user-friendly language. Choose final wording based on what the section helps a person do.
+- Address the **Projects** and **Overview** tabs. Determine the user purpose each one serves. Make them genuinely useful and distinct, or remove/combine redundant navigation where appropriate. Do not preserve tabs that lead to empty, repetitive, or low-value screens merely because they already exist.
+- Break the repetitive card pattern. Use whatever mix of charts, grouped facts, distinctive layouts, diagrams, progressive disclosure, lists, panels, and interactions best helps users understand the actual repository. Do not force every section into an identical title-description-card structure.
+- Choose a fresh, coherent color palette that differs meaningfully from the current one. You have freedom over the palette and detailed UI decisions. Prioritize readable contrast, semantic consistency, and visual hierarchy; do not spend this iteration polishing every decorative detail.
+- Keep project-type-aware representations where they add real explanatory value, but do not assume that changing labels or slightly rearranging a generic diagram counts as adaptation. Different project types should foreground different useful information, and all displayed facts must be grounded in the analyzed repository.
+- Inspect the current API payload and reuse it wherever possible. Change extraction or contracts only when a demonstrated information gap blocks an accurate and useful experience. Preserve the working analysis pipeline, Groq integration, deterministic fallback, caching, security controls, and responsiveness.
 
-**Exit condition:** Comparing materially different repositories (`expressjs/express`, `pallets/click`, `dtolnay/anyhow`) produces an informative technical overview dashboard, a separate concise description, and visibly distinct visual models.
+**Exit condition:** the first screen makes the technical overview inviting and informative; the project purpose is easy to find; capabilities communicate real project value; source-evidence UI no longer dominates or appears in the interface; navigation has clear purposes; and the whole experience no longer feels like the same generic set of text cards applied to every repository.
 
 ### Phase 4 — Validate usefulness, then deepen analysis
 
@@ -277,23 +289,20 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 
 ---
 
-## 7. Acceptance criteria for the first useful release
+## 7. Acceptance criteria for the next useful release
 
-The useful visual release is successful only if:
-
-- At least 4 of 5 unfamiliar test users can identify the project type, explain the project's purpose, and name three important capabilities after five minutes (initial target; adjust based on testing).
-- At least three materially different repository types produce noticeably different and appropriate visual hierarchies—not identical card layouts with changed labels.
-- The visual overview emphasizes useful ecosystem/structure facts rather than arbitrary counts or decorative badges.
-- Users can explore an important project component and understand its role and any supported relationships.
-- Source evidence is available where useful, but detailed evidence does not dominate the default screen.
-- Capability claims link to real source evidence or are explicitly labelled as documentation-derived/inferred.
-- The system does not invent paths, symbols, tests, or relationships in the test benchmark.
-- The same repository commit produces a cached brief until relevant inputs or prompt/schema/model versions change.
-- Provider outages, rate limits, and invalid AI output do not crash repository viewing; the user sees a clear message and any valid deterministic information that remains available.
-- No path enables paid usage, surprise billing, or a paid fallback.
-- At least three different repository types receive an appropriate baseline explanation, even if deeper support differs.
-
----
+- The Technical Overview is the primary visual hero; **Distinctive Structural Facts** is its leftmost and default tab, populated with meaningful repository-specific information.
+- The standalone Repository Composition UI is removed.
+- The project description is a separate, easy-to-find section with concise purpose, audience (when known), and explanation.
+- All source-evidence UI is removed from the frontend, while internal validation remains available to prevent unsupported claims.
+- Core capabilities describe concrete, distinguishable things the project does or enables rather than vague architectural labels.
+- Headings and navigation use natural, user-friendly language rather than internal or mechanical terminology.
+- Projects and Overview are useful, clearly differentiated destinations, or redundant/low-value navigation has been removed or combined.
+- The visual language varies across the site; the page is not simply a repeated sequence of interchangeable cards.
+- The color palette differs from the current palette and maintains accessible contrast.
+- Repository-specific metrics are clearly defined and computed from actual collected data. The interface does not invent facts or force a metric to display when information is unavailable.
+- Existing repository exploration, model generation/fallback, caching, and security safeguards continue working.
+- Validation includes at least three different repository types. Automated checks are reported separately from browser-level visual verification.
 
 ## 8. Engineering and product constraints
 
@@ -309,6 +318,4 @@ The useful visual release is successful only if:
 
 ## 9. Immediate next action
 
-**Implement Phase 3: Project Fingerprint and adaptive visual exploration.** The data extraction, brief-generation pipeline, and evidence foundation already exist, so do not repeat the original Phase 0/1 setup or rebuild the analyzer by default.
-
-Begin by inspecting the current output for three contrasting public repositories and mapping current fields to the proposed visual experience. Then implement the new hero and the smallest useful set of project-specific visual models. Add or change backend extraction only where a real data gap prevents a correct view. Validate the result in the running application and report which project types were actually exercised.
+**Implement Phase 3: UX reset.** Do not start a new backend or architecture milestone. Review the current running UI and existing analysis payload, decide which navigation and content genuinely earn their place, and redesign the experience around the information that best helps users understand an unfamiliar repository. Put Distinctive Structural Facts first in the hero tabs, remove Repository Composition and all source-evidence UI, give project purpose a prominent separate section, make capabilities concrete, and simplify or remove the ineffective Projects/Overview destinations. Antigravity owns the detailed UI decisions and may iterate on styling later; this pass is judged primarily by clear user purpose, better information hierarchy, distinctiveness, and usefulness. Preserve backend evidence validation internally.

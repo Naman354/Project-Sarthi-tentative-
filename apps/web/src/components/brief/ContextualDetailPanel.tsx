@@ -54,12 +54,12 @@ export default function ContextualDetailPanel({
     : null;
 
   return (
-    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-white dark:bg-zinc-900 shadow-md p-5 space-y-4 animate-fade-in">
+    <div className="rounded-2xl border border-violet-200 dark:border-violet-900/60 bg-white dark:bg-zinc-900 shadow-md p-5 space-y-4 animate-fade-in">
       {/* Top Header */}
       <div className="flex items-start justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300">
               {area.category || "Building Block"}
             </span>
             {area.associatedFiles.length > 0 && (
@@ -91,7 +91,7 @@ export default function ContextualDetailPanel({
       {/* Role Explanation */}
       <div className="space-y-1">
         <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
-          Architectural Responsibility
+          Role in this project
         </span>
         <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {area.role}
@@ -100,20 +100,20 @@ export default function ContextualDetailPanel({
 
       {/* Next Step Guidance Callout */}
       {area.nextStep && (
-        <div className="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 flex items-start justify-between gap-3">
+        <div className="p-3 rounded-xl bg-violet-50/70 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-900/40 flex items-start justify-between gap-3">
           <div className="space-y-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300 flex items-center gap-1">
               <span>✦</span>
-              <span>Next Step Exploration</span>
+              <span>Where to explore next</span>
             </span>
-            <p className="text-xs text-indigo-900 dark:text-indigo-200">{area.nextStep}</p>
+            <p className="text-xs text-violet-900 dark:text-violet-200">{area.nextStep}</p>
           </div>
 
           {nextTargetArea && (
             <button
               type="button"
               onClick={() => onSelectArea(nextTargetArea.id)}
-              className="shrink-0 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+              className="shrink-0 px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-colors cursor-pointer"
             >
               Explore {nextTargetArea.name} →
             </button>
@@ -125,7 +125,7 @@ export default function ContextualDetailPanel({
       {(outgoingRels.length > 0 || incomingRels.length > 0) && (
         <div className="space-y-2 pt-1">
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
-            Connected Subsystems
+            How it connects
           </span>
 
           <div className="space-y-1.5 text-xs">
@@ -142,7 +142,7 @@ export default function ContextualDetailPanel({
                     <button
                       type="button"
                       onClick={() => onSelectArea(target.id)}
-                      className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer truncate"
+                      className="font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer truncate"
                     >
                       {target.name}
                     </button>
@@ -167,7 +167,7 @@ export default function ContextualDetailPanel({
                     <button
                       type="button"
                       onClick={() => onSelectArea(source.id)}
-                      className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer truncate"
+                      className="font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer truncate"
                     >
                       {source.name}
                     </button>
@@ -201,7 +201,7 @@ export default function ContextualDetailPanel({
             </svg>
             <span className="truncate">{fileTarget}</span>
             {lineStart && (
-              <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+              <span className="text-violet-600 dark:text-violet-400 font-semibold">
                 :L{lineStart}
               </span>
             )}
@@ -212,7 +212,7 @@ export default function ContextualDetailPanel({
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors shrink-0"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/60 transition-colors shrink-0"
             >
               <span>Inspect Code</span>
               <svg

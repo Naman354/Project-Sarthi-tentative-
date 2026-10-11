@@ -101,13 +101,13 @@ export default function AdaptiveVisualModel({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4">
         <div>
           <h3 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white flex items-center gap-2">
-            <span>Adaptive Architectural Map</span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-              {areas.length} Components
+            <span>Project Architecture</span>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800">
+              {areas.length} areas
             </span>
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Interactive representation tailored to this project&apos;s verified structural patterns
+            Select any area to see its role, connections, and where to explore further
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export default function AdaptiveVisualModel({
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
             }`}
           >
-            Project-Aware Layout
+            Project-Specific View
           </button>
           <button
             type="button"
@@ -133,7 +133,7 @@ export default function AdaptiveVisualModel({
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
             }`}
           >
-            Modular Grid
+            Overview Grid
           </button>
         </div>
       </div>

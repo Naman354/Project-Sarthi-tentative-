@@ -27,12 +27,12 @@ export default function Navbar() {
               <span className="font-bold text-lg tracking-tight text-zinc-900 dark:text-zinc-100">
                 Project Sarthi
               </span>
-              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                MVP v1.0
+              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/80 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
+                Beta
               </span>
             </div>
             <span className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden sm:inline">
-              Software Understanding Platform
+              Understand any repository
             </span>
           </div>
         </Link>
@@ -41,10 +41,10 @@ export default function Navbar() {
         <nav className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/"
-            id="nav-link-overview"
+            id="nav-link-explore"
             className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
           >
-            Overview
+            Explore
           </Link>
           <Link
             href="/projects"
@@ -64,7 +64,7 @@ export default function Navbar() {
                 id="user-profile-badge"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center text-xs font-bold">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-violet-500 to-purple-500 text-white flex items-center justify-center text-xs font-bold">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">

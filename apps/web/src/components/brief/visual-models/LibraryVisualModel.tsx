@@ -35,9 +35,11 @@ export default function LibraryVisualModel({
     {
       id: "public-contract",
       title: "Public API Surface & Exported Contracts",
-      subtitle: "Callable interfaces, types, macros, and entrypoints consumed by downstream projects",
+      subtitle:
+        "Callable interfaces, types, macros, and entrypoints consumed by downstream projects",
       badge: "Exported Interface",
-      badgeColor: "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800",
+      badgeColor:
+        "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800",
       accent: "border-purple-200 dark:border-purple-900/60 bg-purple-50/30 dark:bg-purple-950/20",
       items: publicApiAreas.length > 0 ? publicApiAreas : areas.slice(0, 1),
     },
@@ -46,7 +48,8 @@ export default function LibraryVisualModel({
       title: "Internal Engine & Module Subsystems",
       subtitle: "Implementation logic, state management, algorithm routines, and helper internals",
       badge: "Internal Core",
-      badgeColor: "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800",
+      badgeColor:
+        "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800",
       accent: "border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/30 dark:bg-indigo-950/20",
       items:
         internalCoreAreas.length > 0
@@ -58,12 +61,11 @@ export default function LibraryVisualModel({
       title: "Test Harness & Build Contract",
       subtitle: "Integration tests, compiler specifications, feature gates, and benchmarks",
       badge: "Specification & QA",
-      badgeColor: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700",
+      badgeColor:
+        "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700",
       accent: "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/20",
       items:
-        testHarnessAreas.length > 0
-          ? testHarnessAreas
-          : areas.slice(Math.max(1, areas.length - 1)),
+        testHarnessAreas.length > 0 ? testHarnessAreas : areas.slice(Math.max(1, areas.length - 1)),
     },
   ];
 
@@ -92,7 +94,9 @@ export default function LibraryVisualModel({
                 <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
                   {section.title}
                 </span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.2 rounded-full border ${section.badgeColor}`}>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.2 rounded-full border ${section.badgeColor}`}
+                >
                   {section.badge}
                 </span>
               </div>
@@ -101,9 +105,7 @@ export default function LibraryVisualModel({
               </span>
             </div>
 
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              {section.subtitle}
-            </p>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">{section.subtitle}</p>
 
             {/* Modules Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -124,7 +126,9 @@ export default function LibraryVisualModel({
                       <div className="flex items-center justify-between gap-1 mb-1">
                         <span
                           className={`text-xs font-bold truncate ${
-                            isSelected ? "text-purple-600 dark:text-purple-400" : "text-zinc-900 dark:text-zinc-100"
+                            isSelected
+                              ? "text-purple-600 dark:text-purple-400"
+                              : "text-zinc-900 dark:text-zinc-100"
                           }`}
                         >
                           {item.name}
@@ -141,7 +145,13 @@ export default function LibraryVisualModel({
                     </div>
 
                     <div className="mt-2.5 pt-1.5 border-t border-zinc-100 dark:border-zinc-700/50 flex items-center justify-between text-[10px]">
-                      <span className={isSelected ? "text-purple-600 dark:text-purple-400 font-bold" : "text-zinc-400"}>
+                      <span
+                        className={
+                          isSelected
+                            ? "text-purple-600 dark:text-purple-400 font-bold"
+                            : "text-zinc-400"
+                        }
+                      >
                         {isSelected ? "● Selected" : "Inspect interface"}
                       </span>
                       {item.nextStep && (

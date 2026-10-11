@@ -111,10 +111,10 @@ export default function RecentRepositoriesBar({ onSelectRepo }: RecentRepositori
             key={item.repoUrl}
             type="button"
             onClick={() => onSelectRepo(item.repoUrl)}
-            className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white/80 dark:bg-zinc-900/80 hover:border-indigo-500/50 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 text-left transition-all cursor-pointer group shadow-2xs"
+            className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white/80 dark:bg-zinc-900/80 hover:border-violet-500/50 hover:bg-violet-50/20 dark:hover:bg-violet-950/20 text-left transition-all cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 truncate">
                 {item.owner}/{item.repo}
               </span>
               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 shrink-0">

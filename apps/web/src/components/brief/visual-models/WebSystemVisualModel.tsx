@@ -38,7 +38,8 @@ export default function WebSystemVisualModel({
       icon: "🌐",
       description: "User presentation, web components, and client-side requests",
       items: frontendAreas,
-      color: "border-sky-300 dark:border-sky-800 bg-sky-50/40 dark:bg-sky-950/20 text-sky-900 dark:text-sky-200",
+      color:
+        "border-sky-300 dark:border-sky-800 bg-sky-50/40 dark:bg-sky-950/20 text-sky-900 dark:text-sky-200",
       accent: "bg-sky-500",
     },
     {
@@ -48,7 +49,8 @@ export default function WebSystemVisualModel({
       icon: "⚡",
       description: "Endpoint routing, request validation, middleware pipelines, and controllers",
       items: apiAreas.length > 0 ? apiAreas : areas.slice(0, Math.ceil(areas.length / 2)),
-      color: "border-indigo-300 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-200",
+      color:
+        "border-indigo-300 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-200",
       accent: "bg-indigo-500",
     },
     {
@@ -57,11 +59,9 @@ export default function WebSystemVisualModel({
       tag: "Service Engine",
       icon: "⚙️",
       description: "Business workflows, worker processing, and orchestrators",
-      items:
-        serviceAreas.length > 0
-          ? serviceAreas
-          : areas.slice(Math.ceil(areas.length / 2)),
-      color: "border-purple-300 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/20 text-purple-900 dark:text-purple-200",
+      items: serviceAreas.length > 0 ? serviceAreas : areas.slice(Math.ceil(areas.length / 2)),
+      color:
+        "border-purple-300 dark:border-purple-800 bg-purple-50/40 dark:bg-purple-950/20 text-purple-900 dark:text-purple-200",
       accent: "bg-purple-500",
     },
     {
@@ -71,7 +71,8 @@ export default function WebSystemVisualModel({
       icon: "🗄️",
       description: "ORM schemas, persistence queries, caches, and storage adapters",
       items: dataAreas,
-      color: "border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200",
+      color:
+        "border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200",
       accent: "bg-emerald-500",
     },
   ].filter((layer) => layer.items.length > 0);
@@ -97,8 +98,18 @@ export default function WebSystemVisualModel({
             {idx > 0 && (
               <div className="flex items-center justify-center -my-1.5">
                 <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-mono text-zinc-500 shadow-2xs">
-                  <svg className="w-3 h-3 text-indigo-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  <svg
+                    className="w-3 h-3 text-indigo-500 animate-pulse"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
                   </svg>
                   <span>
                     {idx === 1
@@ -117,7 +128,9 @@ export default function WebSystemVisualModel({
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{layer.icon}</span>
                   <h4 className="text-xs font-bold uppercase tracking-wider">{layer.name}</h4>
-                  <span className={`text-[10px] font-semibold px-2 py-0.2 rounded-full text-white ${layer.accent}`}>
+                  <span
+                    className={`text-[10px] font-semibold px-2 py-0.2 rounded-full text-white ${layer.accent}`}
+                  >
                     {layer.tag}
                   </span>
                 </div>
@@ -145,7 +158,9 @@ export default function WebSystemVisualModel({
                         <div className="flex items-center justify-between gap-1 mb-1">
                           <span
                             className={`text-xs font-bold truncate ${
-                              isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-900 dark:text-zinc-100"
+                              isSelected
+                                ? "text-indigo-600 dark:text-indigo-400"
+                                : "text-zinc-900 dark:text-zinc-100"
                             }`}
                           >
                             {item.name}
@@ -162,7 +177,13 @@ export default function WebSystemVisualModel({
                       </div>
 
                       <div className="mt-2.5 pt-1.5 border-t border-zinc-100 dark:border-zinc-700/50 flex items-center justify-between text-[10px]">
-                        <span className={isSelected ? "text-indigo-600 dark:text-indigo-400 font-bold" : "text-zinc-400"}>
+                        <span
+                          className={
+                            isSelected
+                              ? "text-indigo-600 dark:text-indigo-400 font-bold"
+                              : "text-zinc-400"
+                          }
+                        >
                           {isSelected ? "● Active View" : "Click to inspect"}
                         </span>
                         {item.nextStep && (

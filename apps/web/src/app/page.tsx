@@ -117,14 +117,14 @@ export default function Home() {
       <main className="w-full max-w-5xl flex flex-col items-center relative z-10 space-y-12">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold backdrop-blur-sm shadow-xs">
-            <SparklesIcon className="w-4 h-4 text-indigo-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-200 dark:border-violet-800 bg-violet-50/80 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 text-xs font-semibold backdrop-blur-sm shadow-xs">
+            <SparklesIcon className="w-4 h-4 text-violet-500 animate-pulse" />
             <span>Instant Repository Explorer • No Account Required</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.15]">
             Understand Any Codebase in{" "}
-            <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Five Minutes
             </span>
           </h1>
@@ -143,7 +143,7 @@ export default function Home() {
                 e.preventDefault();
                 handleExplore();
               }}
-              className="relative flex flex-col sm:flex-row items-center gap-2 p-1.5 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500/60 focus-within:border-indigo-500 bg-white dark:bg-zinc-900 shadow-xl shadow-indigo-500/10 transition-all"
+              className="relative flex flex-col sm:flex-row items-center gap-2 p-1.5 rounded-2xl border-2 border-violet-500/30 hover:border-violet-500/60 focus-within:border-violet-500 bg-white dark:bg-zinc-900 shadow-xl shadow-violet-500/10 transition-all"
             >
               <div className="flex items-center gap-2.5 flex-1 w-full pl-3 pr-2 py-2 sm:py-0">
                 <svg
@@ -171,7 +171,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-violet-400 text-white font-semibold text-xs transition-all shadow-md shadow-violet-600/25 flex items-center justify-center gap-2 cursor-pointer shrink-0"
               >
                 {isLoading ? (
                   <>
@@ -190,7 +190,7 @@ export default function Home() {
                   </>
                 ) : (
                   <>
-                    <span>Explore Project</span>
+                    <span>Explore Repository</span>
                     <ArrowRightIcon className="w-3.5 h-3.5" />
                   </>
                 )}
@@ -208,7 +208,7 @@ export default function Home() {
                     setRepoUrl(ex.url);
                     handleExplore(ex.url);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 text-zinc-600 dark:text-zinc-300 transition-colors font-medium cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 text-zinc-600 dark:text-zinc-300 transition-colors font-medium cursor-pointer"
                 >
                   {ex.label} <span className="opacity-60 text-[10px]">({ex.tech})</span>
                 </button>
@@ -217,7 +217,7 @@ export default function Home() {
 
             {/* Live Progress State */}
             {isLoading && loadingStep && (
-              <div className="mt-4 p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30 text-xs text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-3 animate-fade-in">
+              <div className="mt-4 p-4 rounded-xl border border-violet-200 dark:border-violet-900 bg-violet-50/50 dark:bg-violet-950/30 text-xs text-violet-700 dark:text-violet-300 flex items-center justify-center gap-3 animate-fade-in">
                 <svg
                   className="w-4 h-4 animate-spin text-indigo-600 shrink-0"
                   fill="none"
@@ -271,26 +271,25 @@ export default function Home() {
         <div className="w-full pt-4 space-y-4">
           <div className="text-center space-y-1">
             <h2 className="text-xl font-bold text-zinc-950 dark:text-white">
-              Built for Fast, Evidence-Backed Understanding
+              What Project Sarthi shows you
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Honest explanations grounded in verified repository files, manifests, and
-              documentation
+              A clear, evidence-grounded overview of any public repository in minutes
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             {/* Pillar 1 */}
             <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-3">
                 <SparklesIcon className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                5-Minute Project Brief
+                Technical Overview
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Plain-language project purpose and audience. Answers what this software does before
-                asking you to read raw code.
+                Ecosystem facts, detected stack, language breakdown, and structural characteristics
+                grounded in the actual repository manifests.
               </p>
             </div>
 
@@ -300,11 +299,11 @@ export default function Home() {
                 <TargetIcon className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Discovered Capabilities
+                Concrete Capabilities
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Prioritized capabilities labelled as documented, implementation-found, or inferred
-                with source permalinks.
+                What you can actually accomplish with this project: specific behaviors, jobs, and
+                value it delivers.
               </p>
             </div>
 
@@ -314,11 +313,11 @@ export default function Home() {
                 <NetworkGraphIcon className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Conceptual Architecture Map
+                Project Architecture Map
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Visual parts and relationships summarizing major responsibilities without cluttering
-                the screen with dense nodes.
+                A visual model adapted to the project type showing how major components relate,
+                grounded in detected structure.
               </p>
             </div>
 
@@ -328,11 +327,11 @@ export default function Home() {
                 <ShieldCheckIcon className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Zero-Cost &amp; Verified Evidence
+                No Account Needed
               </h3>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Powered by Groq&apos;s free tier. All claims link to real commit-pinned files on
-                GitHub, preventing hallucinations.
+                Paste any public GitHub URL and get results. Free to use, powered by Groq&apos;s
+                free tier, with no signup required.
               </p>
             </div>
           </div>
@@ -343,7 +342,7 @@ export default function Home() {
           <span>Looking for the authenticated private workspace?</span>
           <Link
             href="/projects"
-            className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+            className="text-violet-600 dark:text-violet-400 hover:underline font-semibold"
           >
             Go to Projects Workspace →
           </Link>

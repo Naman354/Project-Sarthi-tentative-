@@ -56,7 +56,9 @@ export default function DataMlVisualModel({
       icon: "📈",
       desc: "Predictions, metric evaluation, reports & export artifacts",
       badge: "Evaluation",
-      items: areas.filter((a) => /infer|predict|eval|metric|test|serve|output|artifact/i.test(a.name)),
+      items: areas.filter((a) =>
+        /infer|predict|eval|metric|test|serve|output|artifact/i.test(a.name)
+      ),
     },
   ];
 

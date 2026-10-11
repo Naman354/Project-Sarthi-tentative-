@@ -48,8 +48,12 @@ const LANGUAGE_EXTENSIONS: Record<string, string> = {
   ".php": "PHP",
   ".c": "C",
   ".cpp": "C++",
+  ".cc": "C++",
+  ".cxx": "C++",
   ".h": "C/C++ Header",
   ".hpp": "C++ Header",
+  ".hh": "C++ Header",
+  ".hxx": "C++ Header",
   ".cs": "C#",
   ".swift": "Swift",
   ".kt": "Kotlin",
@@ -57,14 +61,42 @@ const LANGUAGE_EXTENSIONS: Record<string, string> = {
   ".html": "HTML",
   ".css": "CSS",
   ".scss": "SCSS",
-  ".md": "Markdown",
-  ".json": "JSON",
-  ".yaml": "YAML",
-  ".yml": "YAML",
-  ".toml": "TOML",
+  ".sass": "Sass",
+  ".less": "Less",
+  ".vue": "Vue",
+  ".svelte": "Svelte",
+  ".astro": "Astro",
+  ".dart": "Dart",
+  ".lua": "Lua",
+  ".r": "R",
+  ".zig": "Zig",
+  ".ex": "Elixir",
+  ".exs": "Elixir",
+  ".erl": "Erlang",
+  ".clj": "Clojure",
+  ".cljs": "Clojure",
+  ".hs": "Haskell",
+  ".pl": "Perl",
+  ".pm": "Perl",
+  ".m": "Objective-C",
+  ".mm": "Objective-C++",
+  ".graphql": "GraphQL",
+  ".gql": "GraphQL",
+  ".proto": "Protobuf",
   ".sql": "SQL",
   ".sh": "Shell",
   ".bash": "Shell",
+  ".zsh": "Shell",
+  ".md": "Markdown",
+  ".mdx": "Markdown",
+  ".json": "JSON",
+  ".jsonc": "JSON",
+  ".json5": "JSON",
+  ".yaml": "YAML",
+  ".yml": "YAML",
+  ".toml": "TOML",
+  ".xml": "XML",
+  ".dockerfile": "Docker",
 };
 
 export class UniversalEvidenceCollector {
@@ -130,7 +162,17 @@ export class UniversalEvidenceCollector {
             allFilePaths.push(relPath);
 
             const ext = path.extname(entry).toLowerCase();
-            const lang = LANGUAGE_EXTENSIONS[ext] || "Other";
+            const lowerName = entry.toLowerCase();
+            let lang = LANGUAGE_EXTENSIONS[ext];
+            if (!lang) {
+              if (lowerName === "dockerfile" || lowerName.startsWith("dockerfile.")) {
+                lang = "Docker";
+              } else if (lowerName === "makefile" || lowerName.startsWith("makefile.")) {
+                lang = "Makefile";
+              } else {
+                lang = "Other";
+              }
+            }
             extensionCounts[lang] = (extensionCounts[lang] || 0) + 1;
           }
         } catch {
@@ -141,8 +183,8 @@ export class UniversalEvidenceCollector {
 
     await traverse(repoPath);
 
-    // Compute language stats
-    const languages: LanguageStat[] = Object.entries(extensionCounts)
+    // Compute language stats (known languages sorted first, Other at the end)
+    const knownLanguages: LanguageStat[] = Object.entries(extensionCounts)
       .filter(([lang]) => lang !== "Other")
       .map(([language, count]) => ({
         language,
@@ -150,6 +192,32 @@ export class UniversalEvidenceCollector {
         percentage: totalFiles > 0 ? Math.round((count / totalFiles) * 100) : 0,
       }))
       .sort((a, b) => b.fileCount - a.fileCount);
+
+    const otherCount = extensionCounts["Other"] || 0;
+    const languages: LanguageStat[] = [...knownLanguages];
+    if (otherCount > 0) {
+      languages.push({
+        language: "Other",
+        fileCount: otherCount,
+        percentage: totalFiles > 0 ? Math.round((otherCount / totalFiles) * 100) : 0,
+      });
+    }
+
+    // Ensure percentages strictly sum to 100%
+    const totalRepresentedCount = languages.reduce((sum, l) => sum + l.fileCount, 0);
+    if (totalRepresentedCount > 0) {
+      let accumulated = 0;
+      for (let i = 0; i < languages.length; i++) {
+        const item = languages[i];
+        if (!item) continue;
+        if (i === languages.length - 1) {
+          item.percentage = Math.max(0, 100 - accumulated);
+        } else {
+          item.percentage = Math.round((item.fileCount / totalRepresentedCount) * 100);
+          accumulated += item.percentage;
+        }
+      }
+    }
 
     // Compute file composition breakdown (source code, tests, documentation, configuration)
     let testFilesCount = 0;
