@@ -9,11 +9,27 @@ interface CapabilityCardProps {
 
 export default function CapabilityCard({ capability }: CapabilityCardProps) {
   return (
-    <div className="rounded-2xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-2xs hover:shadow-xs hover:border-violet-400/40 dark:hover:border-violet-700/40 transition-all p-4 sm:p-5 flex flex-col gap-2 group">
-      <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-violet-700 dark:group-hover:text-violet-400 transition-colors leading-snug">
-        {capability.name}
-      </h4>
-      <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+    <div
+      className="rounded-xl p-4 sm:p-5 flex flex-col gap-2 transition-all group"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        border: "1px solid var(--border-default)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+      }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h4
+          className="text-sm sm:text-base font-bold transition-colors leading-snug group-hover:text-[var(--teal-bright)]"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {capability.name}
+        </h4>
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ backgroundColor: "var(--teal-bright)" }}
+        />
+      </div>
+      <p className="text-xs sm:text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
         {capability.description}
       </p>
     </div>

@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
-import TechnicalOverviewHero from "./TechnicalOverviewHero";
-import ProjectDescriptionSection from "./ProjectDescriptionSection";
+import CodebaseMapWorkbench from "./CodebaseMapWorkbench";
+import CapabilityIndex from "./CapabilityIndex";
+import GuidedReadingTimeline from "./GuidedReadingTimeline";
 import AdaptiveVisualModel from "./visual-models/AdaptiveVisualModel";
-import CapabilityCard from "./CapabilityCard";
+import { ExternalLinkIcon } from "../Icons";
 
 interface ProjectBriefViewProps {
   brief: ProjectBrief;
@@ -22,62 +23,85 @@ export default function ProjectBriefView({
   onReset,
   isRefreshing = false,
 }: ProjectBriefViewProps) {
-  const [showAllCapabilities, setShowAllCapabilities] = useState(false);
+  const [activeNavSection, setActiveNavSection] = useState("map");
+  const [focusedAreaId, setFocusedAreaId] = useState<string | null>(null);
 
   const commitShort = brief.commitSha ? brief.commitSha.substring(0, 7) : "HEAD";
   const commitUrl = `https://github.com/${brief.owner}/${brief.repo}/tree/${brief.commitSha}`;
 
-  const visibleCapabilities = showAllCapabilities
-    ? brief.capabilities
-    : brief.capabilities.slice(0, 6);
+  const handleSelectNavSection = (section: string) => {
+    setActiveNavSection(section);
+    if (section === "map" || section === "overview") {
+      const mapEl = document.getElementById("map-section");
+      if (mapEl) {
+        mapEl.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      const el = document.getElementById(`${section}-section`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleInspectAreaInMap = (areaId: string) => {
+    setFocusedAreaId(areaId);
+    setActiveNavSection("map");
+    const mapEl = document.getElementById("map-section");
+    if (mapEl) {
+      mapEl.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 animate-fade-in pb-16">
-      {/* 1. Navigation Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="w-full max-w-[1600px] mx-auto space-y-8 animate-fade-in pb-20">
+      {/* =========================================================
+          1. SLIM WORKBENCH STATUS & SNAPSHOT BAR
+          ========================================================= */}
+      <div
+        className="p-3 sm:px-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          border: "1px solid var(--border-default)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+        }}
+      >
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer hover:text-white"
+            style={{
+              backgroundColor: "var(--bg-workspace)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-subtle)",
+            }}
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <span>←</span>
             <span>Explore Another</span>
           </button>
 
-          <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block" />
+          <div
+            className="h-4 w-px hidden sm:block"
+            style={{ backgroundColor: "var(--border-default)" }}
+          />
 
           {/* Repo Link */}
           <a
             href={brief.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-base sm:text-lg font-bold text-zinc-950 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors group"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-bold transition-colors group"
+            style={{ color: "var(--text-primary)" }}
           >
-            <span>
+            <span className="group-hover:text-[var(--teal-bright)]">
               {brief.owner} / {brief.repo}
             </span>
-            <svg
-              className="w-4 h-4 text-zinc-400 group-hover:text-violet-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
+            <ExternalLinkIcon className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100" />
           </a>
 
           {/* Pinned Commit */}
@@ -85,21 +109,31 @@ export default function ProjectBriefView({
             href={commitUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono transition-colors"
+            style={{
+              backgroundColor: "var(--bg-workspace)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-subtle)",
+            }}
             title="View this exact repository snapshot on GitHub"
           >
-            <span className="text-zinc-400">commit:</span>
-            <span className="font-semibold text-violet-600 dark:text-violet-400">
-              {commitShort}
-            </span>
+            <span style={{ color: "var(--text-muted)" }}>sha:</span>
+            <span style={{ color: "var(--teal-bright)" }}>{commitShort}</span>
           </a>
         </div>
 
-        {/* Right side */}
+        {/* Right Status Badges */}
         <div className="flex flex-wrap items-center gap-2">
           {brief.cached && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-              Cached
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold"
+              style={{
+                backgroundColor: "rgba(85,184,121,0.12)",
+                color: "var(--accent-green)",
+                border: "1px solid rgba(85,184,121,0.25)",
+              }}
+            >
+              ● Cached Snapshot
             </span>
           )}
 
@@ -107,11 +141,16 @@ export default function ProjectBriefView({
             type="button"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200 transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 hover:text-white"
+            style={{
+              backgroundColor: "var(--bg-workspace)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border-default)",
+            }}
             title="Re-run analysis and refresh"
           >
             <svg
-              className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-violet-500" : ""}`}
+              className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[var(--teal-bright)]" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -128,27 +167,22 @@ export default function ProjectBriefView({
         </div>
       </div>
 
-      {/* Deterministic Fallback Note */}
+      {/* Deterministic Fallback Alert if applicable */}
       {brief.generatedBy === "deterministic-fallback" && (
-        <div className="rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/40 p-4 flex items-start gap-3">
-          <div className="p-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 shrink-0">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <div className="flex-1 text-xs sm:text-sm text-amber-900 dark:text-amber-200">
-            <p className="font-semibold mb-0.5">Analysis generated from repository manifests</p>
-            <p className="text-amber-800 dark:text-amber-300/90 leading-relaxed">
+        <div
+          className="rounded-xl p-4 flex items-start gap-3"
+          style={{
+            backgroundColor: "rgba(244,176,79,0.08)",
+            border: "1px solid rgba(244,176,79,0.3)",
+            color: "var(--accent-amber)",
+          }}
+        >
+          <div className="shrink-0 mt-0.5 text-base">ℹ</div>
+          <div className="flex-1 text-xs sm:text-sm">
+            <p className="font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>
+              Analysis generated from repository manifests
+            </p>
+            <p className="leading-relaxed" style={{ color: "var(--text-secondary)" }}>
               {brief.limitationsAndGaps[0] ||
                 "AI synthesis was unavailable. This overview was generated directly from repository manifests, documentation, and source inventory."}
             </p>
@@ -156,20 +190,48 @@ export default function ProjectBriefView({
         </div>
       )}
 
-      {/* 2. Technical Overview Hero */}
-      <TechnicalOverviewHero
-        overview={brief.technicalOverview}
-        evidenceSummary={evidenceSummary}
-        repoOwner={brief.owner}
-        repoName={brief.repo}
-        commitSha={brief.commitSha}
-      />
+      {/* =========================================================
+          2. UNIFIED EXPLORER HERO (Codebase Map & Technical Overview)
+          ========================================================= */}
+      <section id="map-section" aria-label="Repository Explorer Workbench">
+        <CodebaseMapWorkbench
+          brief={brief}
+          evidenceSummary={evidenceSummary}
+          onExploreAnother={onReset}
+          activeNavSection={activeNavSection}
+          onSelectNavSection={handleSelectNavSection}
+          focusedAreaId={focusedAreaId}
+          onSelectArea={(id) => setFocusedAreaId(id)}
+        />
+      </section>
 
-      {/* 3. Project Description — prominent, full-width */}
-      <ProjectDescriptionSection brief={brief} />
+      {/* =========================================================
+          3. EDITORIAL CAPABILITIES INDEX (What This Project Does)
+          ========================================================= */}
+      {brief.capabilities.length > 0 && (
+        <CapabilityIndex
+          capabilities={brief.capabilities}
+          areas={brief.conceptualMap.areas}
+          onInspectArea={handleInspectAreaInMap}
+        />
+      )}
 
-      {/* 4. Project Architecture Map */}
-      <section aria-label="Project Architecture">
+      {/* =========================================================
+          4. GUIDED READING TIMELINE (Where to Start Reading)
+          ========================================================= */}
+      {brief.guidedTour.length > 0 && (
+        <GuidedReadingTimeline
+          steps={brief.guidedTour}
+          owner={brief.owner}
+          repo={brief.repo}
+          commitSha={brief.commitSha}
+        />
+      )}
+
+      {/* =========================================================
+          5. DEEP ARCHITECTURAL TOPOLOGY (Secondary Structural Inspection)
+          ========================================================= */}
+      <section id="topology-section" aria-label="Deep Architectural Topology">
         <AdaptiveVisualModel
           areas={brief.conceptualMap.areas}
           relationships={brief.conceptualMap.relationships}
@@ -181,139 +243,27 @@ export default function ProjectBriefView({
         />
       </section>
 
-      {/* 5. Capabilities */}
-      {brief.capabilities.length > 0 && (
-        <section id="capabilities-section" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white">
-                What This Project Does
-              </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Concrete capabilities and behaviors this repository provides
-              </p>
-            </div>
-            {brief.capabilities.length > 6 && (
-              <button
-                type="button"
-                onClick={() => setShowAllCapabilities(!showAllCapabilities)}
-                className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer shrink-0"
-              >
-                {showAllCapabilities
-                  ? "Show fewer"
-                  : `Show all ${brief.capabilities.length}`}
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 animate-fade-in">
-            {visibleCapabilities.map((capability) => (
-              <CapabilityCard
-                key={capability.id}
-                capability={capability}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 6. Newcomer Tour */}
-      {brief.guidedTour.length > 0 && (
-        <section className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 shadow-sm p-6 space-y-4">
-          <div>
-            <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-violet-500 text-white flex items-center justify-center text-xs">
-                ✦
-              </span>
-              <span>Where to Start Reading</span>
-            </h4>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Recommended order to explore this repository&#39;s structure
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-            {brief.guidedTour.map((step) => {
-              const targetUrl = step.targetFile
-                ? `https://github.com/${brief.owner}/${brief.repo}/blob/${brief.commitSha}/${step.targetFile.replace(/^\/+/, "")}`
-                : null;
-
-              return (
-                <div
-                  key={step.step}
-                  className="p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-violet-600 dark:text-violet-400 font-mono">
-                        Step {step.step}
-                      </span>
-                      {targetUrl && (
-                        <a
-                          href={targetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] text-zinc-500 hover:text-violet-600 font-medium inline-flex items-center gap-1"
-                        >
-                          <span>View File</span>
-                          <svg
-                            className="w-2.5 h-2.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                        </a>
-                      )}
-                    </div>
-                    <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1">
-                      {step.title}
-                    </h5>
-                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-
-                  {step.targetFile && (
-                    <div className="mt-3 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/50">
-                      <span className="font-mono text-[11px] text-zinc-500 truncate block">
-                        {step.targetFile}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 7. Limitations — only shown when they add useful context */}
+      {/* =========================================================
+          6. LIMITATIONS & GAPS
+          ========================================================= */}
       {brief.limitationsAndGaps.length > 0 && brief.generatedBy !== "deterministic-fallback" && (
-        <section className="rounded-2xl border border-amber-200/80 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 p-5 space-y-2">
-          <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-            <svg
-              className="w-4 h-4 text-amber-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <span>Analysis Gaps &amp; Limitations</span>
+        <section
+          className="rounded-xl p-4 sm:p-5 space-y-2"
+          style={{
+            backgroundColor: "rgba(244,176,79,0.06)",
+            border: "1px solid rgba(244,176,79,0.25)",
+          }}
+        >
+          <h4
+            className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+            style={{ color: "var(--accent-amber)" }}
+          >
+            <span>Analysis Gaps &amp; Known Limitations</span>
           </h4>
-          <ul className="list-disc list-inside space-y-1 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed">
+          <ul
+            className="list-disc list-inside space-y-1 text-xs leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
             {brief.limitationsAndGaps.map((gap, i) => (
               <li key={i}>{gap}</li>
             ))}

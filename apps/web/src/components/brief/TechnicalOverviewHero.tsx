@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo } from "react";
 import type { TechnicalOverview, EvidenceSummary, ProjectCategory } from "../../types/brief";
+import LanguageDonutChart from "./LanguageDonutChart";
+import { TechLogo } from "../TechIcons";
 
 interface TechnicalOverviewHeroProps {
   overview: TechnicalOverview;
@@ -9,220 +11,8 @@ interface TechnicalOverviewHeroProps {
   repoOwner: string;
   repoName: string;
   commitSha: string;
+  showHeader?: boolean;
 }
-
-const LANGUAGE_PALETTE: Record<string, { bg: string; text: string; dot: string; bar: string }> = {
-  TypeScript: {
-    bg: "bg-blue-500/10",
-    text: "text-blue-700 dark:text-blue-300",
-    dot: "bg-blue-500",
-    bar: "bg-blue-500",
-  },
-  JavaScript: {
-    bg: "bg-amber-500/10",
-    text: "text-amber-700 dark:text-amber-300",
-    dot: "bg-amber-400",
-    bar: "bg-amber-400",
-  },
-  Python: {
-    bg: "bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-300",
-    dot: "bg-emerald-500",
-    bar: "bg-emerald-500",
-  },
-  Rust: {
-    bg: "bg-orange-500/10",
-    text: "text-orange-700 dark:text-orange-300",
-    dot: "bg-orange-500",
-    bar: "bg-orange-500",
-  },
-  Go: {
-    bg: "bg-cyan-500/10",
-    text: "text-cyan-700 dark:text-cyan-300",
-    dot: "bg-cyan-500",
-    bar: "bg-cyan-500",
-  },
-  Java: {
-    bg: "bg-red-500/10",
-    text: "text-red-700 dark:text-red-300",
-    dot: "bg-red-500",
-    bar: "bg-red-500",
-  },
-  Ruby: {
-    bg: "bg-rose-500/10",
-    text: "text-rose-700 dark:text-rose-300",
-    dot: "bg-rose-500",
-    bar: "bg-rose-500",
-  },
-  C: {
-    bg: "bg-zinc-500/10",
-    text: "text-zinc-700 dark:text-zinc-300",
-    dot: "bg-zinc-500",
-    bar: "bg-zinc-500",
-  },
-  "C++": {
-    bg: "bg-indigo-500/10",
-    text: "text-indigo-700 dark:text-indigo-300",
-    dot: "bg-indigo-600",
-    bar: "bg-indigo-600",
-  },
-  "C#": {
-    bg: "bg-purple-500/10",
-    text: "text-purple-700 dark:text-purple-300",
-    dot: "bg-purple-600",
-    bar: "bg-purple-600",
-  },
-  PHP: {
-    bg: "bg-indigo-400/10",
-    text: "text-indigo-700 dark:text-indigo-300",
-    dot: "bg-indigo-500",
-    bar: "bg-indigo-500",
-  },
-  Swift: {
-    bg: "bg-orange-600/10",
-    text: "text-orange-700 dark:text-orange-300",
-    dot: "bg-orange-600",
-    bar: "bg-orange-600",
-  },
-  Kotlin: {
-    bg: "bg-violet-500/10",
-    text: "text-violet-700 dark:text-violet-300",
-    dot: "bg-violet-600",
-    bar: "bg-violet-600",
-  },
-  Shell: {
-    bg: "bg-emerald-600/10",
-    text: "text-emerald-700 dark:text-emerald-300",
-    dot: "bg-emerald-600",
-    bar: "bg-emerald-600",
-  },
-  HTML: {
-    bg: "bg-orange-500/10",
-    text: "text-orange-700 dark:text-orange-300",
-    dot: "bg-orange-400",
-    bar: "bg-orange-400",
-  },
-  CSS: {
-    bg: "bg-purple-500/10",
-    text: "text-purple-700 dark:text-purple-300",
-    dot: "bg-purple-500",
-    bar: "bg-purple-500",
-  },
-  Markdown: {
-    bg: "bg-zinc-400/10",
-    text: "text-zinc-600 dark:text-zinc-400",
-    dot: "bg-zinc-400",
-    bar: "bg-zinc-400",
-  },
-  JSON: {
-    bg: "bg-amber-500/10",
-    text: "text-amber-700 dark:text-amber-300",
-    dot: "bg-amber-500",
-    bar: "bg-amber-500",
-  },
-  YAML: {
-    bg: "bg-teal-500/10",
-    text: "text-teal-700 dark:text-teal-300",
-    dot: "bg-teal-500",
-    bar: "bg-teal-500",
-  },
-  TOML: {
-    bg: "bg-sky-500/10",
-    text: "text-sky-700 dark:text-sky-300",
-    dot: "bg-sky-500",
-    bar: "bg-sky-500",
-  },
-  SQL: {
-    bg: "bg-blue-600/10",
-    text: "text-blue-700 dark:text-blue-300",
-    dot: "bg-blue-600",
-    bar: "bg-blue-600",
-  },
-  Vue: {
-    bg: "bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-300",
-    dot: "bg-emerald-500",
-    bar: "bg-emerald-500",
-  },
-  Svelte: {
-    bg: "bg-orange-500/10",
-    text: "text-orange-700 dark:text-orange-300",
-    dot: "bg-orange-500",
-    bar: "bg-orange-500",
-  },
-  Astro: {
-    bg: "bg-purple-600/10",
-    text: "text-purple-700 dark:text-purple-300",
-    dot: "bg-purple-600",
-    bar: "bg-purple-600",
-  },
-  Dart: {
-    bg: "bg-cyan-600/10",
-    text: "text-cyan-700 dark:text-cyan-300",
-    dot: "bg-cyan-600",
-    bar: "bg-cyan-600",
-  },
-  Lua: {
-    bg: "bg-blue-400/10",
-    text: "text-blue-600 dark:text-blue-400",
-    dot: "bg-blue-500",
-    bar: "bg-blue-500",
-  },
-  R: {
-    bg: "bg-sky-600/10",
-    text: "text-sky-700 dark:text-sky-300",
-    dot: "bg-sky-600",
-    bar: "bg-sky-600",
-  },
-  Zig: {
-    bg: "bg-amber-600/10",
-    text: "text-amber-700 dark:text-amber-300",
-    dot: "bg-amber-600",
-    bar: "bg-amber-600",
-  },
-  GraphQL: {
-    bg: "bg-pink-500/10",
-    text: "text-pink-700 dark:text-pink-300",
-    dot: "bg-pink-500",
-    bar: "bg-pink-500",
-  },
-  Protobuf: {
-    bg: "bg-teal-600/10",
-    text: "text-teal-700 dark:text-teal-300",
-    dot: "bg-teal-600",
-    bar: "bg-teal-600",
-  },
-  XML: {
-    bg: "bg-amber-700/10",
-    text: "text-amber-800 dark:text-amber-300",
-    dot: "bg-amber-700",
-    bar: "bg-amber-700",
-  },
-  Docker: {
-    bg: "bg-sky-500/10",
-    text: "text-sky-700 dark:text-sky-300",
-    dot: "bg-sky-500",
-    bar: "bg-sky-500",
-  },
-  Makefile: {
-    bg: "bg-zinc-600/10",
-    text: "text-zinc-700 dark:text-zinc-300",
-    dot: "bg-zinc-600",
-    bar: "bg-zinc-600",
-  },
-  Config: {
-    bg: "bg-slate-500/10",
-    text: "text-slate-700 dark:text-slate-300",
-    dot: "bg-slate-500",
-    bar: "bg-slate-500",
-  },
-  Other: {
-    bg: "bg-zinc-400/10",
-    text: "text-zinc-600 dark:text-zinc-400",
-    dot: "bg-zinc-400",
-    bar: "bg-zinc-400",
-  },
-};
 
 const CATEGORY_STYLES: Record<
   ProjectCategory,
@@ -278,9 +68,12 @@ export default function TechnicalOverviewHero({
   repoOwner,
   repoName,
   commitSha,
+  showHeader = true,
 }: TechnicalOverviewHeroProps) {
   // "facts" is the default — leftmost, selected by default
-  const [activeTab, setActiveTab] = useState<"facts" | "dependencies" | "entrypoints" | "structure">("facts");
+  const [activeTab, setActiveTab] = useState<
+    "facts" | "dependencies" | "entrypoints" | "structure"
+  >("facts");
   const [depSearch, setDepSearch] = useState("");
 
   const { displayLanguages, totalAnalyzedFiles } = useMemo(() => {
@@ -379,6 +172,7 @@ export default function TechnicalOverviewHero({
 
     return { displayLanguages: finalItems, totalAnalyzedFiles: totalFiles };
   }, [evidenceSummary, overview.primaryLanguage, overview.totalFiles]);
+
   const frameworks = overview.detectedFrameworks || [];
   const tools = overview.detectedTools || [];
   const structuralFacts = overview.structuralFacts || [];
@@ -401,17 +195,14 @@ export default function TechnicalOverviewHero({
     return list.filter((d) => d.toLowerCase().includes(depSearch.toLowerCase()));
   }, [overview.devDependencies, depSearch]);
 
-  return (
-    <div className="relative overflow-hidden rounded-3xl border border-zinc-200/90 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 shadow-md">
-      {/* Background Subtle Gradient Glow */}
-      <div
-        className={`absolute top-0 right-0 w-[500px] h-[300px] bg-gradient-to-bl ${categoryMeta.accent} blur-3xl pointer-events-none`}
-      />
-
-      {/* Main Content Area */}
-      <div className="relative z-10 p-6 sm:p-8 space-y-7">
-        {/* Top Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-zinc-200/80 dark:border-zinc-800 pb-5">
+  const innerContent = (
+    <div className={`space-y-6 ${showHeader ? "relative z-10 p-6 sm:p-8" : "p-2 sm:p-4"}`}>
+      {/* Top Header — Only displayed when showHeader is true */}
+      {showHeader && (
+        <div
+          className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b"
+          style={{ borderColor: "var(--border-default)" }}
+        >
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Category Badge */}
@@ -423,14 +214,28 @@ export default function TechnicalOverviewHero({
               </span>
 
               {/* Ecosystem Badge */}
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border-subtle)",
+                }}
+              >
                 <span className="font-mono">{overview.ecosystem.toUpperCase()}</span>
                 <span>Ecosystem</span>
               </span>
 
               {/* Confidence Badge */}
               {overview.categoryConfidence && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-50 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-700/60">
+                <span
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: "var(--bg-elevated)",
+                    color: "var(--text-muted)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
                       overview.categoryConfidence === "high"
@@ -446,13 +251,16 @@ export default function TechnicalOverviewHero({
             </div>
 
             <div className="flex items-center gap-2 pt-1">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 dark:text-white tracking-tight">
+              <h2
+                className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Technical Overview
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl">
+            <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>
               Ecosystem facts, structure, and key characteristics grounded in commit{" "}
-              <span className="font-mono text-zinc-700 dark:text-zinc-300 font-semibold">
+              <span className="font-mono font-semibold" style={{ color: "var(--teal-bright)" }}>
                 {commitSha.substring(0, 7)}
               </span>
               .
@@ -461,486 +269,637 @@ export default function TechnicalOverviewHero({
 
           {/* Quick Metrics Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0">
-            <div className="p-3 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-center min-w-[90px]">
-              <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            <div
+              className="p-3 rounded-2xl text-center min-w-[90px]"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wider block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Files
               </span>
-              <span className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5 block">
+              <span
+                className="text-xl font-extrabold font-mono mt-0.5 block"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {totalAnalyzedFiles}
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-center min-w-[90px]">
-              <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            <div
+              className="p-3 rounded-2xl text-center min-w-[90px]"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wider block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Directories
               </span>
-              <span className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 font-mono mt-0.5 block">
+              <span
+                className="text-xl font-extrabold font-mono mt-0.5 block"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {overview.totalDirectories}
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-center min-w-[90px]">
-              <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            <div
+              className="p-3 rounded-2xl text-center min-w-[90px]"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wider block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Dependencies
               </span>
-              <span className="text-xl font-extrabold text-violet-600 dark:text-violet-400 font-mono mt-0.5 block">
+              <span
+                className="text-xl font-extrabold font-mono mt-0.5 block"
+                style={{ color: "var(--teal-bright)" }}
+              >
                 {prodDeps.length + devDeps.length}
               </span>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Language Distribution Chart — 100% Accounted */}
-        {displayLanguages.length > 0 && (
-          <div className="p-5 rounded-2xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-violet-500" />
-                  <span>Language Distribution</span>
-                </span>
-                <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block mt-0.5">
-                  Share of {totalAnalyzedFiles} analyzed files by language (100% accounted for, file-count based)
-                </span>
-              </div>
-              <span className="text-[10px] font-mono text-zinc-400 px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-700">
-                {displayLanguages.length} detected
-              </span>
-            </div>
+      {/* Language Distribution Donut Chart — 100% Accounted */}
+      {displayLanguages.length > 0 && (
+        <LanguageDonutChart languages={displayLanguages} totalFiles={totalAnalyzedFiles} />
+      )}
 
-            {/* Multi-colored Bar — spans 100% width */}
-            <div className="w-full h-3.5 rounded-full overflow-hidden flex bg-zinc-200/80 dark:bg-zinc-700 shadow-inner">
-              {displayLanguages.map((l) => {
-                const pal = LANGUAGE_PALETTE[l.language] || LANGUAGE_PALETTE.Other;
-                return (
-                  <div
-                    key={l.language}
-                    style={{ width: `${l.exactPercentage}%` }}
-                    className={`${pal?.bar || "bg-violet-500"} transition-all shrink-0`}
-                    title={`${l.language}: ${l.percentage}% (${l.fileCount} ${l.fileCount === 1 ? "file" : "files"})`}
-                  />
-                );
-              })}
-            </div>
+      {/* Detected Stack & Toolchain */}
+      {(frameworks.length > 0 || tools.length > 0 || overview.primaryLanguage) && (
+        <div
+          className="p-4 rounded-2xl flex flex-wrap items-center gap-2 text-xs"
+          style={{
+            backgroundColor: "var(--bg-elevated)",
+            border: "1px solid var(--border-default)",
+          }}
+        >
+          <span
+            className="font-bold mr-1 flex items-center gap-1.5"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: "var(--teal-bright)" }}
+            />
+            <span>Stack &amp; Toolchain:</span>
+          </span>
 
-            {/* Legend */}
-            <div className="flex flex-wrap gap-x-4 gap-y-2 pt-1 text-xs">
-              {displayLanguages.map((l) => {
-                const pal = LANGUAGE_PALETTE[l.language] || LANGUAGE_PALETTE.Other;
-                return (
-                  <div key={l.language} className="flex items-center gap-1.5">
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full ${pal?.dot || "bg-violet-500"}`}
-                    />
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                      {l.language}
-                    </span>
-                    <span className="text-zinc-400 font-mono text-[11px]">
-                      {l.percentage}% · {l.fileCount} {l.fileCount === 1 ? "file" : "files"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Detected Stack Strip */}
-        {(frameworks.length > 0 || tools.length > 0) && (
-          <div className="p-4 rounded-2xl bg-zinc-100/60 dark:bg-zinc-800/50 border border-zinc-200/70 dark:border-zinc-700/60 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-semibold text-zinc-600 dark:text-zinc-300 mr-1 flex items-center gap-1">
-              <svg
-                className="w-3.5 h-3.5 text-violet-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <span>Stack &amp; Toolchain:</span>
-            </span>
-
-            {/* Primary Language */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 font-bold shadow-2xs">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  (LANGUAGE_PALETTE[overview.primaryLanguage] || LANGUAGE_PALETTE.Other)?.dot ||
-                  "bg-violet-500"
-                }`}
-              />
+          {/* Primary Language */}
+          {overview.primaryLanguage && overview.primaryLanguage !== "Unknown" && (
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono font-bold"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <TechLogo name={overview.primaryLanguage} className="w-3.5 h-3.5" />
               <span>{overview.primaryLanguage}</span>
             </span>
+          )}
 
-            {/* Frameworks */}
-            {frameworks.map((fw) => (
-              <span
-                key={fw}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 font-semibold shadow-2xs"
-              >
-                <span>{fw}</span>
-              </span>
-            ))}
+          {/* Frameworks */}
+          {frameworks.map((fw) => (
+            <span
+              key={fw}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono font-semibold"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.12)",
+                color: "var(--teal-bright)",
+                border: "1px solid rgba(15,138,131,0.3)",
+              }}
+            >
+              <TechLogo name={fw} className="w-3.5 h-3.5" />
+              <span>{fw}</span>
+            </span>
+          ))}
 
-            {/* Tools */}
-            {tools.map((t) => (
+          {/* Tools */}
+          {tools.map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono font-medium"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border-subtle)",
+              }}
+            >
+              <TechLogo name={t} className="w-3.5 h-3.5" />
+              <span>{t}</span>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Tab Navigation — Facts first, default */}
+      <div className="space-y-4 pt-1">
+        <div
+          className="flex flex-wrap items-center gap-2 pb-2"
+          style={{ borderBottom: "1px solid var(--border-default)" }}
+        >
+          {/* Tab 1: Distinctive Structural Facts — leftmost, default */}
+          {structuralFacts.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab("facts")}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              style={{
+                backgroundColor:
+                  activeTab === "facts" ? "var(--teal-primary)" : "var(--bg-workspace)",
+                color: activeTab === "facts" ? "var(--text-primary)" : "var(--text-secondary)",
+                border:
+                  activeTab === "facts"
+                    ? "1px solid var(--teal-bright)"
+                    : "1px solid var(--border-subtle)",
+              }}
+            >
+              <span>What Makes It Distinctive</span>
               <span
-                key={t}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/80 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700/80 font-medium"
+                className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+                style={{
+                  backgroundColor:
+                    activeTab === "facts" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
+                  color: activeTab === "facts" ? "#fff" : "var(--teal-bright)",
+                }}
               >
-                <span>{t}</span>
+                {structuralFacts.length}
               </span>
-            ))}
+            </button>
+          )}
+
+          {/* Tab 2: Dependencies */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("dependencies")}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            style={{
+              backgroundColor:
+                activeTab === "dependencies" ? "var(--teal-primary)" : "var(--bg-workspace)",
+              color: activeTab === "dependencies" ? "var(--text-primary)" : "var(--text-secondary)",
+              border:
+                activeTab === "dependencies"
+                  ? "1px solid var(--teal-bright)"
+                  : "1px solid var(--border-subtle)",
+            }}
+          >
+            <span>Dependencies</span>
+            <span
+              className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+              style={{
+                backgroundColor:
+                  activeTab === "dependencies" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
+                color: activeTab === "dependencies" ? "#fff" : "var(--teal-bright)",
+              }}
+            >
+              {prodDeps.length + devDeps.length}
+            </span>
+          </button>
+
+          {/* Tab 3: Entrypoints & Scripts */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("entrypoints")}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            style={{
+              backgroundColor:
+                activeTab === "entrypoints" ? "var(--teal-primary)" : "var(--bg-workspace)",
+              color: activeTab === "entrypoints" ? "var(--text-primary)" : "var(--text-secondary)",
+              border:
+                activeTab === "entrypoints"
+                  ? "1px solid var(--teal-bright)"
+                  : "1px solid var(--border-subtle)",
+            }}
+          >
+            <span>Entrypoints &amp; Scripts</span>
+            <span
+              className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+              style={{
+                backgroundColor:
+                  activeTab === "entrypoints" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
+                color: activeTab === "entrypoints" ? "#fff" : "var(--teal-bright)",
+              }}
+            >
+              {overview.entryPoints.length + overview.scripts.length}
+            </span>
+          </button>
+
+          {/* Tab 4: Directory Structure */}
+          {treeSummary.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab("structure")}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              style={{
+                backgroundColor:
+                  activeTab === "structure" ? "var(--teal-primary)" : "var(--bg-workspace)",
+                color: activeTab === "structure" ? "var(--text-primary)" : "var(--text-secondary)",
+                border:
+                  activeTab === "structure"
+                    ? "1px solid var(--teal-bright)"
+                    : "1px solid var(--border-subtle)",
+              }}
+            >
+              <span>Directory Structure</span>
+              <span
+                className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+                style={{
+                  backgroundColor:
+                    activeTab === "structure" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
+                  color: activeTab === "structure" ? "#fff" : "var(--teal-bright)",
+                }}
+              >
+                {treeSummary.length}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* Tab: Distinctive Structural Facts (default) */}
+        {activeTab === "facts" && (
+          <div className="animate-fade-in">
+            {structuralFacts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {structuralFacts.map((fact, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl flex flex-col gap-1 transition-all"
+                    style={{
+                      backgroundColor: "var(--bg-elevated)",
+                      border: "1px solid var(--border-default)",
+                    }}
+                  >
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider truncate"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {fact.label}
+                    </span>
+                    <span
+                      className="text-sm font-bold block"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {fact.value}
+                    </span>
+                    {fact.detail && (
+                      <span
+                        className="text-[11px] block leading-relaxed"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        {fact.detail}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-xs" style={{ color: "var(--text-muted)" }}>
+                <p>No distinctive structural facts detected for this repository.</p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Tab Navigation — Facts first, default */}
-        <div className="space-y-4 pt-1">
-          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-            {/* Tab 1: Distinctive Structural Facts — leftmost, default */}
-            {structuralFacts.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveTab("facts")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "facts"
-                    ? "bg-violet-600 text-white shadow-2xs"
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                }`}
-              >
-                <span>What Makes It Distinctive</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-violet-500/30 text-[10px] font-mono">
-                  {structuralFacts.length}
-                </span>
-              </button>
-            )}
+        {/* Tab: Dependencies */}
+        {activeTab === "dependencies" && (
+          <div className="space-y-4 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                Declared runtime packages separated from development and build tooling.
+              </p>
 
-            {/* Tab 2: Dependencies */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("dependencies")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "dependencies"
-                  ? "bg-violet-600 text-white shadow-2xs"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              }`}
-            >
-              <span>Dependencies</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-violet-500/30 text-[10px] font-mono">
-                {prodDeps.length + devDeps.length}
-              </span>
-            </button>
-
-            {/* Tab 3: Entrypoints & Scripts */}
-            <button
-              type="button"
-              onClick={() => setActiveTab("entrypoints")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "entrypoints"
-                  ? "bg-violet-600 text-white shadow-2xs"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              }`}
-            >
-              <span>Entrypoints &amp; Scripts</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-violet-500/30 text-[10px] font-mono">
-                {overview.entryPoints.length + overview.scripts.length}
-              </span>
-            </button>
-
-            {/* Tab 4: Directory Structure */}
-            {treeSummary.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveTab("structure")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeTab === "structure"
-                    ? "bg-violet-600 text-white shadow-2xs"
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                }`}
-              >
-                <span>Directory Structure</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-violet-500/30 text-[10px] font-mono">
-                  {treeSummary.length}
-                </span>
-              </button>
-            )}
-          </div>
-
-          {/* Tab: Distinctive Structural Facts (default) */}
-          {activeTab === "facts" && (
-            <div className="animate-fade-in">
-              {structuralFacts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {structuralFacts.map((fact, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-2xl bg-white/90 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs flex flex-col gap-1"
-                    >
-                      <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider truncate">
-                        {fact.label}
-                      </span>
-                      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 block">
-                        {fact.value}
-                      </span>
-                      {fact.detail && (
-                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block leading-relaxed">
-                          {fact.detail}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-10 text-xs text-zinc-400">
-                  <p>No distinctive structural facts detected for this repository.</p>
-                </div>
-              )}
+              <input
+                type="text"
+                placeholder="Filter packages..."
+                value={depSearch}
+                onChange={(e) => setDepSearch(e.target.value)}
+                className="px-3 py-1.5 rounded-xl text-xs font-mono focus:outline-none max-w-xs transition-all"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  border: "1px solid var(--border-default)",
+                  color: "var(--text-primary)",
+                }}
+              />
             </div>
-          )}
 
-          {/* Tab: Dependencies */}
-          {activeTab === "dependencies" && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Declared runtime packages separated from development and build tooling.
-                </p>
-
-                <input
-                  type="text"
-                  placeholder="Filter packages..."
-                  value={depSearch}
-                  onChange={(e) => setDepSearch(e.target.value)}
-                  className="px-3 py-1 rounded-xl text-xs bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-violet-500 max-w-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Runtime Dependencies */}
-                <div className="p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-violet-500" />
-                      <span>Runtime Dependencies</span>
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      {filteredProdDeps.length}{" "}
-                      {filteredProdDeps.length === 1 ? "package" : "packages"}
-                    </span>
-                  </div>
-
-                  {filteredProdDeps.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
-                      {filteredProdDeps.map((dep) => (
-                        <span
-                          key={dep}
-                          className="font-mono text-xs px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 shadow-2xs font-medium"
-                        >
-                          {dep}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-zinc-400 italic">
-                      {depSearch
-                        ? "No matching runtime dependencies."
-                        : "No runtime dependencies declared."}
-                    </p>
-                  )}
-                </div>
-
-                {/* Dev Dependencies */}
-                <div className="p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-zinc-400" />
-                      <span>Development &amp; Build Tooling</span>
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      {filteredDevDeps.length}{" "}
-                      {filteredDevDeps.length === 1 ? "package" : "packages"}
-                    </span>
-                  </div>
-
-                  {filteredDevDeps.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
-                      {filteredDevDeps.map((dep) => (
-                        <span
-                          key={dep}
-                          className="font-mono text-xs px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border border-zinc-200/70 dark:border-zinc-700/60"
-                        >
-                          {dep}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-zinc-400 italic">
-                      {depSearch
-                        ? "No matching development packages."
-                        : "No development dependencies declared."}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab: Entrypoints & Scripts */}
-          {activeTab === "entrypoints" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
-              {/* Entrypoints */}
-              <div className="p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Runtime Dependencies */}
+              <div
+                className="p-4 rounded-2xl space-y-2.5"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  border: "1px solid var(--border-default)",
+                }}
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                    <svg
-                      className="w-3.5 h-3.5 text-violet-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                      />
-                    </svg>
-                    <span>Application Entrypoints</span>
+                  <span
+                    className="text-xs font-bold flex items-center gap-1.5"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: "var(--teal-bright)" }}
+                    />
+                    <span>Runtime Dependencies</span>
                   </span>
-                  <span className="text-[11px] font-mono text-zinc-400">
-                    {overview.entryPoints.length} found
+                  <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                    {filteredProdDeps.length}{" "}
+                    {filteredProdDeps.length === 1 ? "package" : "packages"}
                   </span>
                 </div>
 
-                {overview.entryPoints.length > 0 ? (
-                  <div className="space-y-2">
-                    {overview.entryPoints.map((ep) => {
-                      const fileUrl = `https://github.com/${repoOwner}/${repoName}/blob/${commitSha}/${ep.replace(/^\/+/, "")}`;
-                      return (
-                        <div
-                          key={ep}
-                          className="p-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-between"
-                        >
-                          <span className="font-mono text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                            {ep}
-                          </span>
-                          <a
-                            href={fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1"
-                          >
-                            <span>View on GitHub</span>
-                            <svg
-                              className="w-2.5 h-2.5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </a>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-xs text-zinc-400 italic">
-                    No conventional entrypoints detected in root.
-                  </p>
-                )}
-              </div>
-
-              {/* Scripts */}
-              <div className="p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                    <svg
-                      className="w-3.5 h-3.5 text-violet-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span>Available Scripts</span>
-                  </span>
-                  <span className="text-[11px] font-mono text-zinc-400">
-                    {overview.scripts.length} defined
-                  </span>
-                </div>
-
-                {overview.scripts.length > 0 ? (
+                {filteredProdDeps.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
-                    {overview.scripts.map((script) => (
+                    {filteredProdDeps.map((dep) => (
                       <span
-                        key={script}
-                        className="font-mono text-xs px-2.5 py-1 rounded-xl bg-violet-50/80 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/80"
+                        key={dep}
+                        className="font-mono text-xs px-2.5 py-1 rounded-lg font-medium"
+                        style={{
+                          backgroundColor: "var(--bg-workspace)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
                       >
-                        {script}
+                        {dep}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-zinc-400 italic">No manifest scripts declared.</p>
+                  <p className="text-xs italic" style={{ color: "var(--text-muted)" }}>
+                    {depSearch
+                      ? "No matching runtime dependencies."
+                      : "No runtime dependencies declared."}
+                  </p>
+                )}
+              </div>
+
+              {/* Dev Dependencies */}
+              <div
+                className="p-4 rounded-2xl space-y-2.5"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  border: "1px solid var(--border-default)",
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-xs font-bold flex items-center gap-1.5"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: "var(--accent-slate)" }}
+                    />
+                    <span>Development &amp; Build Tooling</span>
+                  </span>
+                  <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                    {filteredDevDeps.length} {filteredDevDeps.length === 1 ? "package" : "packages"}
+                  </span>
+                </div>
+
+                {filteredDevDeps.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+                    {filteredDevDeps.map((dep) => (
+                      <span
+                        key={dep}
+                        className="font-mono text-xs px-2.5 py-1 rounded-lg"
+                        style={{
+                          backgroundColor: "var(--bg-workspace)",
+                          color: "var(--text-secondary)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
+                      >
+                        {dep}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs italic" style={{ color: "var(--text-muted)" }}>
+                    {depSearch
+                      ? "No matching development packages."
+                      : "No development dependencies declared."}
+                  </p>
                 )}
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Tab: Directory Structure */}
-          {activeTab === "structure" && treeSummary.length > 0 && (
-            <div className="p-4 rounded-2xl bg-zinc-50/60 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-3 animate-fade-in">
+        {/* Tab: Entrypoints & Scripts */}
+        {activeTab === "entrypoints" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
+            {/* Entrypoints */}
+            <div
+              className="p-4 rounded-2xl space-y-3"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                  Top-Level Module Layout
+                <span
+                  className="text-xs font-bold flex items-center gap-1.5"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: "var(--teal-bright)" }}
+                  />
+                  <span>Application Entrypoints</span>
                 </span>
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {treeSummary.length} root modules
+                <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                  {overview.entryPoints.length} found
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {treeSummary.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 font-mono text-xs text-zinc-800 dark:text-zinc-200 flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5 text-zinc-400 shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    <span className="truncate">{item}</span>
-                  </div>
-                ))}
-              </div>
+              {overview.entryPoints.length > 0 ? (
+                <div className="space-y-2">
+                  {overview.entryPoints.map((ep) => {
+                    const fileUrl = `https://github.com/${repoOwner}/${repoName}/blob/${commitSha}/${ep.replace(/^\/+/, "")}`;
+                    return (
+                      <div
+                        key={ep}
+                        className="p-2.5 rounded-xl flex items-center justify-between"
+                        style={{
+                          backgroundColor: "var(--bg-workspace)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
+                      >
+                        <span
+                          className="font-mono text-xs font-semibold"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {ep}
+                        </span>
+                        <a
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-semibold hover:underline flex items-center gap-1 transition-colors"
+                          style={{ color: "var(--teal-bright)" }}
+                        >
+                          <span>View on GitHub</span>
+                          <svg
+                            className="w-2.5 h-2.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs italic" style={{ color: "var(--text-muted)" }}>
+                  No conventional entrypoints detected in root.
+                </p>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* Scripts */}
+            <div
+              className="p-4 rounded-2xl space-y-3"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-xs font-bold flex items-center gap-1.5"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: "var(--accent-orange)" }}
+                  />
+                  <span>Available Scripts</span>
+                </span>
+                <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                  {overview.scripts.length} defined
+                </span>
+              </div>
+
+              {overview.scripts.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+                  {overview.scripts.map((script) => (
+                    <span
+                      key={script}
+                      className="font-mono text-xs px-2.5 py-1 rounded-xl"
+                      style={{
+                        backgroundColor: "rgba(15,138,131,0.12)",
+                        color: "var(--teal-bright)",
+                        border: "1px solid rgba(15,138,131,0.25)",
+                      }}
+                    >
+                      {script}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs italic" style={{ color: "var(--text-muted)" }}>
+                  No manifest scripts declared.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Directory Structure */}
+        {activeTab === "structure" && treeSummary.length > 0 && (
+          <div
+            className="p-4 rounded-2xl space-y-3 animate-fade-in"
+            style={{
+              backgroundColor: "var(--bg-elevated)",
+              border: "1px solid var(--border-default)",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>
+                Top-Level Module Layout
+              </span>
+              <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                {treeSummary.length} root modules
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {treeSummary.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-2.5 rounded-xl font-mono text-xs flex items-center gap-2"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  <svg
+                    className="w-3.5 h-3.5 shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    style={{ color: "var(--teal-bright)" }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                    />
+                  </svg>
+                  <span className="truncate">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+    </div>
+  );
+
+  if (!showHeader) {
+    return <div className="w-full">{innerContent}</div>;
+  }
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-3xl border shadow-md"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        borderColor: "var(--border-default)",
+      }}
+    >
+      {/* Background Subtle Gradient Glow */}
+      <div
+        className={`absolute top-0 right-0 w-[500px] h-[300px] bg-gradient-to-bl ${categoryMeta.accent} blur-3xl pointer-events-none`}
+      />
+      {innerContent}
     </div>
   );
 }

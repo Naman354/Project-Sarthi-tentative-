@@ -13,20 +13,35 @@ export default function ProjectDescriptionSection({ brief }: ProjectDescriptionS
   return (
     <section
       aria-label="What this project is"
-      className="rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-900 p-6 sm:p-8 shadow-sm"
+      className="rounded-2xl p-6 sm:p-8 space-y-5"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        border: "1px solid var(--border-default)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+      }}
     >
       {/* Section label */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="w-6 h-6 rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center text-sm">
+      <div className="flex items-center gap-2">
+        <span
+          className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold"
+          style={{
+            backgroundColor: "rgba(15,138,131,0.15)",
+            color: "var(--teal-bright)",
+            border: "1px solid rgba(15,138,131,0.3)",
+          }}
+        >
           ◎
         </span>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+        <span
+          className="text-xs font-bold uppercase tracking-wider"
+          style={{ color: "var(--text-muted)" }}
+        >
           What this project is
         </span>
         {brief.intendedAudience && (
           <>
-            <span className="text-zinc-300 dark:text-zinc-700">·</span>
-            <span className="text-xs text-violet-600 dark:text-violet-400 font-semibold">
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span className="text-xs font-semibold" style={{ color: "var(--teal-bright)" }}>
               for {brief.intendedAudience}
             </span>
           </>
@@ -34,25 +49,40 @@ export default function ProjectDescriptionSection({ brief }: ProjectDescriptionS
       </div>
 
       {/* Purpose — prominent, large */}
-      <p className="text-lg sm:text-xl font-semibold text-zinc-900 dark:text-zinc-100 leading-snug mb-6">
+      <p
+        className="text-lg sm:text-xl font-semibold leading-relaxed"
+        style={{ color: "var(--text-primary)" }}
+      >
         {brief.purpose}
       </p>
 
       {/* Top capabilities as a readable list */}
       {capabilities.length > 0 && (
-        <div className="space-y-2">
-          <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-3">
-            Key things it can do
+        <div className="pt-4 border-t space-y-3" style={{ borderColor: "var(--border-subtle)" }}>
+          <span
+            className="text-[11px] font-bold uppercase tracking-wider block"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Key behaviors &amp; core functions
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
             {capabilities.slice(0, 6).map((cap) => (
-              <div key={cap.id} className="flex items-start gap-2">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0" />
+              <div key={cap.id} className="flex items-start gap-2.5">
+                <span
+                  className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ backgroundColor: "var(--teal-bright)" }}
+                />
                 <div>
-                  <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 block leading-snug">
+                  <span
+                    className="text-xs font-semibold block leading-snug"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {cap.name}
                   </span>
-                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
+                  <span
+                    className="text-[11px] leading-relaxed line-clamp-2"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     {cap.description}
                   </span>
                 </div>

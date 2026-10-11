@@ -96,42 +96,68 @@ export default function AdaptiveVisualModel({
   };
 
   return (
-    <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 shadow-sm p-5 sm:p-7 space-y-6">
+    <div
+      className="rounded-2xl p-5 sm:p-7 space-y-6"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        border: "1px solid var(--border-default)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+      }}
+    >
       {/* Top Header of the Central Visualization */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         <div>
-          <h3 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white flex items-center gap-2">
-            <span>Project Architecture</span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800">
+          <h3
+            className="text-base sm:text-lg font-bold flex items-center gap-2"
+            style={{ color: "var(--text-primary)" }}
+          >
+            <span>Deep Architectural Topology</span>
+            <span
+              className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.15)",
+                color: "var(--teal-bright)",
+                border: "1px solid rgba(15,138,131,0.3)",
+              }}
+            >
               {areas.length} areas
             </span>
           </h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Select any area to see its role, connections, and where to explore further
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
+            Category-specialized structural graph and layer inspection
           </p>
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold self-start sm:self-auto">
+        <div
+          className="flex items-center gap-1 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto"
+          style={{
+            backgroundColor: "var(--bg-workspace)",
+            border: "1px solid var(--border-subtle)",
+          }}
+        >
           <button
             type="button"
             onClick={() => setViewMode("adaptive")}
-            className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-              viewMode === "adaptive"
-                ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs"
-                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
-            }`}
+            className="px-3 py-1 rounded-lg transition-colors cursor-pointer"
+            style={{
+              backgroundColor: viewMode === "adaptive" ? "var(--teal-primary)" : "transparent",
+              color: viewMode === "adaptive" ? "var(--text-primary)" : "var(--text-secondary)",
+            }}
           >
             Project-Specific View
           </button>
           <button
             type="button"
             onClick={() => setViewMode("universal")}
-            className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-              viewMode === "universal"
-                ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs"
-                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
-            }`}
+            className="px-3 py-1 rounded-lg transition-colors cursor-pointer"
+            style={{
+              backgroundColor: viewMode === "universal" ? "var(--teal-primary)" : "transparent",
+              color: viewMode === "universal" ? "var(--text-primary)" : "var(--text-secondary)",
+            }}
           >
             Overview Grid
           </button>

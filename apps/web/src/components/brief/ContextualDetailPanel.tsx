@@ -54,27 +54,50 @@ export default function ContextualDetailPanel({
     : null;
 
   return (
-    <div className="rounded-2xl border border-violet-200 dark:border-violet-900/60 bg-white dark:bg-zinc-900 shadow-md p-5 space-y-4 animate-fade-in">
+    <div
+      className="rounded-2xl p-5 space-y-4 animate-fade-in"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        border: "1px solid var(--border-default)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+      }}
+    >
       {/* Top Header */}
-      <div className="flex items-start justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+      <div
+        className="flex items-start justify-between gap-3 pb-3 border-b"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300">
-              {area.category || "Building Block"}
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.15)",
+                color: "var(--teal-bright)",
+                border: "1px solid rgba(15,138,131,0.3)",
+              }}
+            >
+              {area.category || "Subsystem"}
             </span>
             {area.associatedFiles.length > 0 && (
-              <span className="text-[11px] font-mono text-zinc-400">
+              <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
                 {area.associatedFiles.length} file{area.associatedFiles.length > 1 ? "s" : ""}
               </span>
             )}
           </div>
-          <h4 className="text-base font-bold text-zinc-900 dark:text-zinc-100">{area.name}</h4>
+          <h4
+            className="text-base font-bold tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {area.name}
+          </h4>
         </div>
 
         <button
           type="button"
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+          className="p-1 rounded-lg transition-colors cursor-pointer"
+          style={{ color: "var(--text-muted)" }}
           title="Close detail panel"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,30 +113,51 @@ export default function ContextualDetailPanel({
 
       {/* Role Explanation */}
       <div className="space-y-1">
-        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+        <span
+          className="text-[11px] font-bold uppercase tracking-wider block"
+          style={{ color: "var(--text-muted)" }}
+        >
           Role in this project
         </span>
-        <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
+        <p
+          className="text-xs sm:text-sm leading-relaxed"
+          style={{ color: "var(--text-secondary)" }}
+        >
           {area.role}
         </p>
       </div>
 
       {/* Next Step Guidance Callout */}
       {area.nextStep && (
-        <div className="p-3 rounded-xl bg-violet-50/70 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-900/40 flex items-start justify-between gap-3">
+        <div
+          className="p-3 rounded-xl flex items-start justify-between gap-3"
+          style={{
+            backgroundColor: "rgba(15,138,131,0.08)",
+            border: "1px solid rgba(15,138,131,0.25)",
+          }}
+        >
           <div className="space-y-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300 flex items-center gap-1">
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
+              style={{ color: "var(--teal-bright)" }}
+            >
               <span>✦</span>
               <span>Where to explore next</span>
             </span>
-            <p className="text-xs text-violet-900 dark:text-violet-200">{area.nextStep}</p>
+            <p className="text-xs" style={{ color: "var(--text-primary)" }}>
+              {area.nextStep}
+            </p>
           </div>
 
           {nextTargetArea && (
             <button
               type="button"
               onClick={() => onSelectArea(nextTargetArea.id)}
-              className="shrink-0 px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+              className="shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+              style={{
+                backgroundColor: "var(--teal-primary)",
+                color: "var(--text-primary)",
+              }}
             >
               Explore {nextTargetArea.name} →
             </button>
@@ -124,7 +168,10 @@ export default function ContextualDetailPanel({
       {/* Connected Architecture Relationships */}
       {(outgoingRels.length > 0 || incomingRels.length > 0) && (
         <div className="space-y-2 pt-1">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+          <span
+            className="text-[11px] font-bold uppercase tracking-wider block"
+            style={{ color: "var(--text-muted)" }}
+          >
             How it connects
           </span>
 
@@ -135,19 +182,30 @@ export default function ContextualDetailPanel({
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60"
+                  className="flex items-center justify-between p-2 rounded-lg"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <span className="text-zinc-400">Calls / uses:</span>
+                    <span style={{ color: "var(--text-muted)" }}>Calls / uses:</span>
                     <button
                       type="button"
                       onClick={() => onSelectArea(target.id)}
-                      className="font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer truncate"
+                      className="font-semibold transition-colors cursor-pointer truncate"
+                      style={{ color: "var(--teal-bright)" }}
                     >
                       {target.name}
                     </button>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-500 bg-zinc-200/60 dark:bg-zinc-700/60 px-1.5 py-0.5 rounded shrink-0">
+                  <span
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded shrink-0"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
                     {rel.label}
                   </span>
                 </div>
@@ -160,19 +218,30 @@ export default function ContextualDetailPanel({
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60"
+                  className="flex items-center justify-between p-2 rounded-lg"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <span className="text-zinc-400">Called by:</span>
+                    <span style={{ color: "var(--text-muted)" }}>Called by:</span>
                     <button
                       type="button"
                       onClick={() => onSelectArea(source.id)}
-                      className="font-semibold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer truncate"
+                      className="font-semibold transition-colors cursor-pointer truncate"
+                      style={{ color: "var(--accent-orange)" }}
                     >
                       {source.name}
                     </button>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-500 bg-zinc-200/60 dark:bg-zinc-700/60 px-1.5 py-0.5 rounded shrink-0">
+                  <span
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded shrink-0"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
                     {rel.label}
                   </span>
                 </div>
@@ -182,29 +251,18 @@ export default function ContextualDetailPanel({
         </div>
       )}
 
-      {/* Verified Source Files Link (Compact & Non-dominant) */}
+      {/* Verified Source Files Link */}
       {fileTarget && (
-        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500 truncate">
-            <svg
-              className="w-3.5 h-3.5 text-zinc-400 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
+        <div
+          className="pt-2 border-t flex items-center justify-between"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
+          <div
+            className="flex items-center gap-1.5 font-mono text-[11px] truncate"
+            style={{ color: "var(--text-muted)" }}
+          >
             <span className="truncate">{fileTarget}</span>
-            {lineStart && (
-              <span className="text-violet-600 dark:text-violet-400 font-semibold">
-                :L{lineStart}
-              </span>
-            )}
+            {lineStart && <span style={{ color: "var(--teal-bright)" }}>:L{lineStart}</span>}
           </div>
 
           {githubUrl && (
@@ -212,7 +270,11 @@ export default function ContextualDetailPanel({
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/60 transition-colors shrink-0"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors shrink-0"
+              style={{
+                color: "var(--teal-bright)",
+                backgroundColor: "rgba(15,138,131,0.1)",
+              }}
             >
               <span>Inspect Code</span>
               <svg

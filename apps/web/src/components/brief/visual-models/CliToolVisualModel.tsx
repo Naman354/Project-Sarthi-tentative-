@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import type { ConceptualArea } from "../../../types/brief";
 
 interface CliToolVisualModelProps {
@@ -14,110 +14,153 @@ export default function CliToolVisualModel({
   selectedAreaId,
   onSelectArea,
 }: CliToolVisualModelProps) {
-  const stages = [
-    {
-      id: "cli-input",
-      phase: "Phase 01",
-      title: "CLI Invocations & Argument Parsing",
-      desc: "Terminal flags, options, config files, and shell environment",
-      icon: "⌨️",
-      accent: "border-amber-500/40 bg-amber-500/5",
-      badge: "Input & Flags",
-      items: areas.filter(
-        (a) =>
-          /arg|flag|input|config|env|parse|opt/i.test(a.name) ||
-          a.category === "cli" ||
-          a.category === "config"
-      ),
-    },
-    {
-      id: "cli-dispatch",
-      phase: "Phase 02",
-      title: "Command Dispatcher & Subcommands",
-      desc: "Subcommand routing, handler mapping, and command execution trees",
-      icon: "⚡",
-      accent: "border-blue-500/40 bg-blue-500/5",
-      badge: "Command Router",
-      items: areas.filter(
-        (a) =>
-          /command|dispatch|router|entry|subcommand/i.test(a.name) &&
-          !/arg|flag|input/i.test(a.name)
-      ),
-    },
-    {
-      id: "cli-engine",
-      phase: "Phase 03",
-      title: "Execution Engine & Core Operations",
-      desc: "File processing, system calls, business routines, and subprocesses",
-      icon: "⚙️",
-      accent: "border-purple-500/40 bg-purple-500/5",
-      badge: "Operations Engine",
-      items: areas.filter(
-        (a) =>
-          /engine|logic|process|service|tool|work|core/i.test(a.name) &&
-          !/command|dispatch|arg/i.test(a.name)
-      ),
-    },
-    {
-      id: "cli-output",
-      phase: "Phase 04",
-      title: "Formatted Terminal Output & Exit Codes",
-      desc: "STDOUT rendering, color formatting, JSON exports, and STDERR errors",
-      icon: "📄",
-      accent: "border-emerald-500/40 bg-emerald-500/5",
-      badge: "STDOUT / STDERR",
-      items: areas.filter((a) => /output|format|render|log|result|view|print|exit/i.test(a.name)),
-    },
-  ];
+  const stages = useMemo(() => {
+    const rawStages = [
+      {
+        id: "cli-input",
+        phase: "Phase 01",
+        title: "CLI Invocations & Flags",
+        desc: "Terminal flags, options, configuration files, and shell environment",
+        icon: "⌨️",
+        color: "var(--accent-amber)",
+        bg: "rgba(244,176,79,0.12)",
+        border: "rgba(244,176,79,0.35)",
+        badge: "Input & Flags",
+        items: areas.filter(
+          (a) =>
+            /arg|flag|input|config|env|parse|opt/i.test(a.name) ||
+            a.category === "cli" ||
+            a.category === "config"
+        ),
+      },
+      {
+        id: "cli-dispatch",
+        phase: "Phase 02",
+        title: "Command Dispatcher",
+        desc: "Subcommand routing, handler mapping, and command execution trees",
+        icon: "⚡",
+        color: "var(--accent-blue)",
+        bg: "rgba(77,159,216,0.12)",
+        border: "rgba(77,159,216,0.35)",
+        badge: "Command Router",
+        items: areas.filter(
+          (a) =>
+            /command|dispatch|router|entry|subcommand/i.test(a.name) &&
+            !/arg|flag|input/i.test(a.name)
+        ),
+      },
+      {
+        id: "cli-engine",
+        phase: "Phase 03",
+        title: "Operations & Execution Engine",
+        desc: "File processing, system routines, core algorithms, and operations",
+        icon: "⚙️",
+        color: "var(--accent-purple)",
+        bg: "rgba(144,100,217,0.12)",
+        border: "rgba(144,100,217,0.35)",
+        badge: "Core Operations",
+        items: areas.filter(
+          (a) =>
+            /engine|logic|process|service|tool|work|core/i.test(a.name) &&
+            !/command|dispatch|arg/i.test(a.name)
+        ),
+      },
+      {
+        id: "cli-output",
+        phase: "Phase 04",
+        title: "Terminal Output & Reports",
+        desc: "STDOUT rendering, color formatting, JSON exports, and errors",
+        icon: "📄",
+        color: "var(--accent-green)",
+        bg: "rgba(85,184,121,0.12)",
+        border: "rgba(85,184,121,0.35)",
+        badge: "STDOUT / Output",
+        items: areas.filter((a) => /output|format|render|log|result|view|print|exit/i.test(a.name)),
+      },
+    ];
 
-  // Distribute unassigned areas
-  const assignedIds = new Set(stages.flatMap((s) => s.items.map((i) => i.id)));
-  const unassigned = areas.filter((a) => !assignedIds.has(a.id));
-  unassigned.forEach((area, index) => {
-    const targetIndex = (index + 1) % stages.length;
-    stages[targetIndex]?.items.push(area);
-  });
+    // Gather unassigned areas into engine phase only if unassigned
+    const assignedIds = new Set(rawStages.flatMap((s) => s.items.map((i) => i.id)));
+    const unassigned = areas.filter((a) => !assignedIds.has(a.id));
+    if (unassigned.length > 0) {
+      const engineStage = rawStages.find((s) => s.id === "cli-engine");
+      if (engineStage) {
+        engineStage.items.push(...unassigned);
+      }
+    }
 
-  const activeStages = stages.filter((s) => s.items.length > 0);
+    return rawStages.filter((s) => s.items.length > 0);
+  }, [areas]);
 
   return (
-    <div className="space-y-4 font-sans">
+    <div className="space-y-4 animate-fade-in font-sans">
       {/* Visual Terminal Execution Banner */}
-      <div className="p-3.5 rounded-2xl bg-zinc-950 text-zinc-100 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
-        <div className="flex items-center gap-2 font-mono text-xs text-amber-400">
-          <span className="text-zinc-500">$</span>
-          <span className="font-bold">cli-tool [subcommand] --options</span>
-          <span className="text-zinc-500">➔</span>
-          <span className="text-zinc-400 text-[11px]">Terminal Pipeline Flow</span>
+      <div
+        className="p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          border: "1px solid var(--border-default)",
+        }}
+      >
+        <div className="flex items-center gap-2 font-mono text-xs">
+          <span style={{ color: "var(--teal-bright)" }}>$</span>
+          <span className="font-bold" style={{ color: "var(--text-primary)" }}>
+            cli-tool [subcommand] --options
+          </span>
+          <span style={{ color: "var(--text-muted)" }}>➔</span>
+          <span className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+            Command Execution Pipeline
+          </span>
         </div>
-        <span className="text-[10px] font-mono text-zinc-400">
-          Invocations ➔ Command Dispatch ➔ Engine Operations ➔ Formatted Output
+        <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>
+          Invocations ➔ Command Dispatch ➔ Engine Operations ➔ Output
         </span>
       </div>
 
       {/* Execution Pipeline Steps Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 relative">
-        {activeStages.map((stage, idx) => (
+        {stages.map((stage) => (
           <div
             key={stage.id}
-            className={`p-4 rounded-2xl border ${stage.accent} bg-white dark:bg-zinc-900 shadow-2xs flex flex-col justify-between space-y-3`}
+            className="p-4 rounded-2xl flex flex-col justify-between space-y-3 transition-all"
+            style={{
+              backgroundColor: "var(--bg-elevated)",
+              border: `1px solid ${stage.border}`,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+            }}
           >
             <div>
               {/* Stage Header */}
-              <div className="flex items-center justify-between border-b border-zinc-200/80 dark:border-zinc-800 pb-2 mb-2.5">
-                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200">
+              <div
+                className="flex items-center justify-between pb-2 mb-2.5 border-b"
+                style={{ borderColor: "var(--border-subtle)" }}
+              >
+                <div
+                  className="flex items-center gap-1.5 font-mono text-xs font-bold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   <span>{stage.icon}</span>
                   <span>{stage.phase}</span>
                 </div>
-                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <span
+                  className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: stage.bg,
+                    color: stage.color,
+                    border: `1px solid ${stage.border}`,
+                  }}
+                >
                   {stage.badge}
                 </span>
               </div>
 
-              <h5 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 mb-0.5">
+              <h5 className="text-xs font-bold mb-0.5" style={{ color: "var(--text-primary)" }}>
                 {stage.title}
               </h5>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight mb-3">
+              <p
+                className="text-[11px] leading-tight mb-3"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 {stage.desc}
               </p>
 
@@ -130,21 +173,42 @@ export default function CliToolVisualModel({
                       key={item.id}
                       type="button"
                       onClick={() => onSelectArea(item.id)}
-                      className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer ${
-                        isSelected
-                          ? "border-amber-500 bg-amber-50/50 dark:bg-amber-950/40 text-zinc-950 dark:text-zinc-100 shadow-xs ring-1 ring-amber-500/30 font-semibold"
-                          : "border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-800/90 hover:border-zinc-300 dark:hover:border-zinc-700"
-                      }`}
+                      className="w-full text-left p-2.5 rounded-xl transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: isSelected ? "var(--bg-hover)" : "var(--bg-workspace)",
+                        border: isSelected
+                          ? "1px solid var(--teal-bright)"
+                          : "1px solid var(--border-subtle)",
+                        boxShadow: isSelected
+                          ? "0 0 14px rgba(53,208,195,0.25)"
+                          : "0 2px 6px rgba(0,0,0,0.2)",
+                      }}
                     >
                       <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold truncate">{item.name}</span>
+                        <span
+                          className="text-xs font-bold truncate"
+                          style={{
+                            color: isSelected ? "var(--teal-bright)" : "var(--text-primary)",
+                          }}
+                        >
+                          {item.name}
+                        </span>
                         {item.associatedFiles.length > 0 && (
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-700 text-zinc-500">
+                          <span
+                            className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+                            style={{
+                              backgroundColor: "var(--bg-elevated)",
+                              color: "var(--text-muted)",
+                            }}
+                          >
                             {item.associatedFiles.length}f
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                      <p
+                        className="text-[10px] line-clamp-2 leading-relaxed"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
                         {item.role}
                       </p>
                     </button>
@@ -152,12 +216,6 @@ export default function CliToolVisualModel({
                 })}
               </div>
             </div>
-
-            {idx < activeStages.length - 1 && (
-              <div className="hidden lg:flex justify-end pt-2 text-zinc-400 font-mono text-xs">
-                <span>➔ Next Phase</span>
-              </div>
-            )}
           </div>
         ))}
       </div>

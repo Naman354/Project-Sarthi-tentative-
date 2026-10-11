@@ -316,6 +316,67 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 
 ---
 
-## 9. Immediate next action
+## 9. Implemented Design Direction — Dark Codebase Explorer Workbench (October 2026)
 
-**Implement Phase 3: UX reset.** Do not start a new backend or architecture milestone. Review the current running UI and existing analysis payload, decide which navigation and content genuinely earn their place, and redesign the experience around the information that best helps users understand an unfamiliar repository. Put Distinctive Structural Facts first in the hero tabs, remove Repository Composition and all source-evidence UI, give project purpose a prominent separate section, make capabilities concrete, and simplify or remove the ineffective Projects/Overview destinations. Antigravity owns the detailed UI decisions and may iterate on styling later; this pass is judged primarily by clear user purpose, better information hierarchy, distinctiveness, and usefulness. Preserve backend evidence validation internally.
+**Design status:** Implemented in frontend workbench  
+**Visual reference:** Dark Codebase Map concept (`docs/a_widescreen_dark_themed_ui_screenshot_of_a_softwa.png`)
+
+### Implemented Architecture & UI System:
+
+1. **Dark Engineering-Workbench Aesthetic**:
+   - Primary palette: Graphite base (`#080F12`), Navigation/Sidebar (`#0B171A`), Workspace (`#0D1B1F`), Elevated surfaces (`#122326`), Borders (`#203538`), Primary Teal interactions (`#0F8A83`), and Bright Teal accents (`#35D0C3`).
+   - Semantic module category accents: Core/Warm (`#F28C45`), Routing/Amber (`#F4B04F`), Middleware (`#4D9FD8`), View Engine/UI (`#55B879`), Utilities (`#9064D9`), and Support/Other (`#819196`).
+   - Subtle depth, canvas grid textures, and restrained lighting rather than superficial gradients or neon glow.
+
+2. **Flagship 3-Pane Workbench (`CodebaseMapWorkbench.tsx`)**:
+   - **Left Sidebar**: Repository identity, quick navigation across workbench sections, and multi-dimensional view filters (`By Feature`, `By Directory`, `By Layer`, `By Dependency`).
+   - **Center Spatial Codebase Map**: Interactive isometric 2.5D module islands representing architecture clusters, module blocks with active highlighting, animated glowing connection traces, zoom/3D tilt controls, and minimap.
+   - **Right Contextual Inspector**: Instant inspector displaying file breadcrumbs, role details, 4-metric statistics (Lines, Functions, Imports, Exports), tabbed views (Overview, Files, Connections, Used By), key responsibilities checklist, and direct GitHub source permalinks.
+   - **Key Insights Row**: 4 grounded architectural pattern cards (Central Core Module, Widely Connected, Stable Architecture, Common Extension Point).
+
+3. **Language Distribution Donut Chart (`LanguageDonutChart.tsx`)**:
+   - Replaced horizontal stacked bar with an interactive SVG Donut Chart.
+   - 100% accounted file-count measurement explicitly distinguishing file counts from disk size/SLOC.
+   - Center callout with total verified file count and hover-reactive language stats.
+   - Structured legend grid with exact file counts, percentages, and color swatches.
+
+4. **Recognizable Technology Stack & Toolchain Branding (`TechIcons.tsx`)**:
+   - Clean, lightweight SVG logos for recognized ecosystems, frameworks, runtimes, and tools (Node.js, Express, React, Next.js, Python, Flask, FastAPI, Rust, Go, Docker, Tailwind, Prisma, Git, etc.).
+
+5. **Functional Continuity**:
+   - Preserved all existing capabilities: public repository exploration, Technical Overview with all 4 tabs (Distinctive Facts, Dependencies, Entrypoints & Scripts, Directory Structure), project purpose, concrete capabilities, newcomer guided tour, and deterministic fallback.
+
+---
+
+## 10. Unified Explorer Experience & Visual Refinement (October 2026)
+
+**Status:** Completed & Deployed  
+**Goal:** Transform the redesigned components into a single, cohesive, information-rich repository exploration experience with the Codebase Map as its defining visual centerpiece.
+
+### Delivered Enhancements:
+
+1. **Unified Explorer Hero with Integrated Modes**:
+   - **Compact Context Header**: Features repository identity with direct GitHub permalinks, concise repository-specific purpose statement, ecosystem/project type badge with confidence level, restrained metrics row (Files, Dirs, Deps), and recognizable tech stack logos (`TechLogo`).
+   - **Integrated Explorer Mode Switcher**: Seamless view switcher between `Codebase Map` (default) and `Technical Overview`. Switching modes updates the workbench canvas without scrolling away or fragmenting the page.
+   - **Embedded Technical Overview**: Directly integrates `TechnicalOverviewHero` into the workbench without duplicating headers, featuring the 100% accounted language donut chart, stack logos strip, and 4 specification tabs (Distinctive Structural Facts, Dependencies, Entrypoints & Scripts, Directory Structure).
+
+2. **Refined Codebase Map Mode**:
+   - Truthful, dynamic relationship connections: Replaced arbitrary static SVG curves with live connection highlighting (`→ Target` and `← Caller` indicators) when modules are selected.
+   - Auto-fit cluster islands sized to content, eliminating oversized empty containers.
+   - Interactive controls: multi-dimensional perspectives (`By Feature`, `By Directory`, `By Layer`), zoom (+, -, reset, 3D isometric toggle), search filter, minimap, and instant inspector updates.
+
+3. **Editorial Capabilities Index (`CapabilityIndex.tsx`)**:
+   - Replaced generic card grids with an editorial capability index grouped by functional domains (Routing & Dispatch, Middleware & Extensibility, Rendering & Views, Data & Storage, CLI, Core Lifecycle).
+   - "Inspect in Map →" direct navigation: Capabilities that map to known conceptual areas allow users to explore that part of the codebase directly in the map hero with synchronized module selection and smooth scrolling.
+
+4. **Connected Reading Timeline (`GuidedReadingTimeline.tsx`)**:
+   - Sequential reading progression with numbered step badges, purpose pills, emphasized target file indicators, and direct GitHub source permalinks.
+
+5. **Disciplined Deep Architectural Topology**:
+   - Project-type correctness: Removed fictitious "Client Ingress" when frontend areas are absent.
+   - Library-specific architecture (`LibraryVisualModel`): Foregrounded public API surface, middleware pipeline, internal core engine, and test harness without arbitrary array slicing.
+   - Web system architecture (`WebSystemVisualModel`): Disciplined request flow with truthful layers only.
+
+6. **Consolidated Visual System & Information Hierarchy**:
+   - 100% audit of legacy surfaces to the centralized dark teal palette (`#080F12`, `#0B171A`, `#0D1B1F`, `#122326`, `#193033`, `#203538`, `#ECF3F2`, `#9AA9AC`, `#0F8A83`, `#35D0C3`).
+   - Established strict page hierarchy: (1) Status bar + Unified Explorer Hero, (2) Capabilities Index, (3) Guided Reading Timeline, (4) Deep Architectural Topology, (5) Gaps & Limitations.

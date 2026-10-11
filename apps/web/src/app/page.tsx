@@ -20,6 +20,41 @@ const EXAMPLE_REPOS = [
   { label: "mdBook", url: "https://github.com/rust-lang/mdBook", tech: "Rust" },
 ];
 
+const PILLARS = [
+  {
+    icon: SparklesIcon,
+    color: "var(--teal-bright)",
+    bg: "rgba(15,138,131,0.12)",
+    border: "rgba(15,138,131,0.25)",
+    title: "Technical Overview",
+    desc: "Ecosystem facts, detected stack, language breakdown, and structural characteristics grounded in the actual repository manifests.",
+  },
+  {
+    icon: TargetIcon,
+    color: "var(--accent-orange)",
+    bg: "rgba(242,140,69,0.12)",
+    border: "rgba(242,140,69,0.25)",
+    title: "Concrete Capabilities",
+    desc: "What you can actually accomplish with this project — specific behaviors, jobs, and value it delivers.",
+  },
+  {
+    icon: NetworkGraphIcon,
+    color: "var(--accent-blue)",
+    bg: "rgba(77,159,216,0.12)",
+    border: "rgba(77,159,216,0.25)",
+    title: "Architecture Map",
+    desc: "A visual model adapted to the project type showing how major components relate, grounded in detected structure.",
+  },
+  {
+    icon: ShieldCheckIcon,
+    color: "var(--accent-purple)",
+    bg: "rgba(144,100,217,0.12)",
+    border: "rgba(144,100,217,0.25)",
+    title: "No Account Needed",
+    desc: "Paste any public GitHub URL and get results. Free to use, powered by Groq's free tier, with no signup required.",
+  },
+];
+
 export default function Home() {
   const [repoUrl, setRepoUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +92,6 @@ export default function Home() {
 
       setExploreData(res.data);
 
-      // Save to recent repositories in localStorage
       const brief = res.data.brief;
       saveRecentRepo({
         repoUrl: brief.repoUrl,
@@ -89,13 +123,16 @@ export default function Home() {
     setErrorMessage(null);
   };
 
-  // If a Project Brief is active, show the Project Brief View
+  // If a Project Brief is active
   if (exploreData) {
     return (
-      <div className="flex flex-col flex-1 items-center px-4 py-8 sm:py-12 relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl pointer-events-none" />
-        <main className="w-full relative z-10">
+      <div
+        className="flex flex-col flex-1 relative"
+        style={{ backgroundColor: "var(--bg-workspace)" }}
+      >
+        {/* Subtle canvas texture */}
+        <div className="absolute inset-0 canvas-texture opacity-40 pointer-events-none" />
+        <main className="w-full relative z-10 px-4 py-6">
           <ProjectBriefView
             brief={exploreData.brief}
             evidenceSummary={exploreData.evidenceSummary}
@@ -108,48 +145,77 @@ export default function Home() {
     );
   }
 
-  // Otherwise, render the initial landing exploration journey
+  // Landing / exploration page
   return (
-    <div className="flex flex-col flex-1 items-center px-4 py-12 sm:py-20 relative overflow-hidden">
-      {/* Background radial glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/15 via-purple-500/10 to-transparent blur-3xl pointer-events-none" />
+    <div
+      className="flex flex-col flex-1 relative overflow-hidden"
+      style={{ backgroundColor: "var(--bg-workspace)" }}
+    >
+      {/* Canvas texture background */}
+      <div className="absolute inset-0 canvas-texture opacity-30 pointer-events-none" />
 
-      <main className="w-full max-w-5xl flex flex-col items-center relative z-10 space-y-12">
+      {/* Subtle atmospheric radial glow */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center top, rgba(15,138,131,0.08) 0%, transparent 70%)",
+        }}
+      />
+
+      <main className="w-full max-w-4xl mx-auto flex flex-col items-center relative z-10 px-4 py-16 sm:py-24 space-y-14">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-200 dark:border-violet-800 bg-violet-50/80 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 text-xs font-semibold backdrop-blur-sm shadow-xs">
-            <SparklesIcon className="w-4 h-4 text-violet-500 animate-pulse" />
-            <span>Instant Repository Explorer • No Account Required</span>
+          {/* Pill badge */}
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
+            style={{
+              backgroundColor: "rgba(15,138,131,0.1)",
+              border: "1px solid rgba(15,138,131,0.25)",
+              color: "var(--teal-bright)",
+            }}
+          >
+            <SparklesIcon className="w-3.5 h-3.5" />
+            <span>Instant Repository Explorer · No Account Required</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.15]">
-            Understand Any Codebase in{" "}
-            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Five Minutes
-            </span>
+          <h1
+            className="text-4xl sm:text-[3.25rem] font-extrabold tracking-tight leading-[1.12]"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Understand Any Codebase <span style={{ color: "var(--teal-bright)" }}>in Minutes</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+          <p
+            className="text-base sm:text-lg leading-relaxed max-w-2xl mx-auto"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Paste a public GitHub repository to get an evidence-backed{" "}
-            <span className="text-zinc-900 dark:text-zinc-200 font-semibold">Project Brief</span>:
+            <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>Project Brief</span>:
             understand its purpose, discover capabilities, navigate its conceptual structure, and
             verify claims through source permalinks.
           </p>
 
-          {/* Repository Exploration Input Bar */}
+          {/* Repository Exploration Input */}
           <div className="w-full max-w-2xl mx-auto pt-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleExplore();
               }}
-              className="relative flex flex-col sm:flex-row items-center gap-2 p-1.5 rounded-2xl border-2 border-violet-500/30 hover:border-violet-500/60 focus-within:border-violet-500 bg-white dark:bg-zinc-900 shadow-xl shadow-violet-500/10 transition-all"
+              className="relative flex flex-col sm:flex-row items-center gap-2 p-1.5 rounded-xl"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "0 0 0 1px rgba(15,138,131,0.15), 0 4px 24px rgba(0,0,0,0.4)",
+              }}
             >
               <div className="flex items-center gap-2.5 flex-1 w-full pl-3 pr-2 py-2 sm:py-0">
+                {/* GitHub icon */}
                 <svg
-                  className="w-5 h-5 text-zinc-400 shrink-0"
+                  className="w-4 h-4 shrink-0"
                   fill="currentColor"
                   viewBox="0 0 24 24"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <path
                     fillRule="evenodd"
@@ -157,21 +223,23 @@ export default function Home() {
                     d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
                   />
                 </svg>
-
                 <input
                   type="text"
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
                   placeholder="https://github.com/owner/repository"
                   disabled={isLoading}
-                  className="w-full bg-transparent text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-hidden font-mono"
+                  className="w-full bg-transparent text-sm font-mono focus:outline-none"
+                  style={{ color: "var(--text-primary)" }}
                 />
               </div>
 
               <button
                 type="submit"
+                onClick={() => handleExplore()}
                 disabled={isLoading}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-violet-400 text-white font-semibold text-xs transition-all shadow-md shadow-violet-600/25 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+                style={{ backgroundColor: "var(--teal-primary)", color: "var(--text-primary)" }}
               >
                 {isLoading ? (
                   <>
@@ -198,8 +266,13 @@ export default function Home() {
             </form>
 
             {/* Quick Example Links */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs text-zinc-500">
-              <span className="text-[11px] font-semibold text-zinc-400">Quick Examples:</span>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs">
+              <span
+                className="text-[11px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Try:
+              </span>
               {EXAMPLE_REPOS.map((ex) => (
                 <button
                   key={ex.label}
@@ -208,21 +281,30 @@ export default function Home() {
                     setRepoUrl(ex.url);
                     handleExplore(ex.url);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 text-zinc-600 dark:text-zinc-300 transition-colors font-medium cursor-pointer"
+                  className="px-2.5 py-1 rounded-md font-mono font-medium transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: "var(--bg-elevated)",
+                    border: "1px solid var(--border-default)",
+                    color: "var(--text-secondary)",
+                  }}
                 >
-                  {ex.label} <span className="opacity-60 text-[10px]">({ex.tech})</span>
+                  {ex.label}{" "}
+                  <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>({ex.tech})</span>
                 </button>
               ))}
             </div>
 
-            {/* Live Progress State */}
+            {/* Loading State */}
             {isLoading && loadingStep && (
-              <div className="mt-4 p-4 rounded-xl border border-violet-200 dark:border-violet-900 bg-violet-50/50 dark:bg-violet-950/30 text-xs text-violet-700 dark:text-violet-300 flex items-center justify-center gap-3 animate-fade-in">
-                <svg
-                  className="w-4 h-4 animate-spin text-indigo-600 shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+              <div
+                className="mt-4 p-3.5 rounded-lg flex items-center gap-3 text-xs animate-fade-in"
+                style={{
+                  backgroundColor: "rgba(15,138,131,0.08)",
+                  border: "1px solid rgba(15,138,131,0.2)",
+                  color: "var(--teal-bright)",
+                }}
+              >
+                <svg className="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -239,9 +321,16 @@ export default function Home() {
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="mt-4 p-4 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/30 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2.5 animate-fade-in">
+              <div
+                className="mt-4 p-3.5 rounded-lg flex items-center gap-2.5 text-xs animate-fade-in"
+                style={{
+                  backgroundColor: "rgba(224,92,92,0.08)",
+                  border: "1px solid rgba(224,92,92,0.25)",
+                  color: "#e88080",
+                }}
+              >
                 <svg
-                  className="w-4 h-4 text-rose-600 shrink-0"
+                  className="w-4 h-4 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -259,7 +348,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recently Explored Repositories from localStorage */}
+        {/* Recent Repositories */}
         <RecentRepositoriesBar
           onSelectRepo={(url) => {
             setRepoUrl(url);
@@ -267,84 +356,63 @@ export default function Home() {
           }}
         />
 
-        {/* 4 Pillars of Project Sarthi */}
-        <div className="w-full pt-4 space-y-4">
-          <div className="text-center space-y-1">
-            <h2 className="text-xl font-bold text-zinc-950 dark:text-white">
+        {/* 4 Pillars — horizontal compact strip */}
+        <div className="w-full space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1" style={{ backgroundColor: "var(--border-default)" }} />
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: "var(--text-muted)" }}
+            >
               What Project Sarthi shows you
-            </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              A clear, evidence-grounded overview of any public repository in minutes
-            </p>
+            </span>
+            <div className="h-px flex-1" style={{ backgroundColor: "var(--border-default)" }} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-            {/* Pillar 1 */}
-            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-3">
-                <SparklesIcon className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Technical Overview
-              </h3>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Ecosystem facts, detected stack, language breakdown, and structural characteristics
-                grounded in the actual repository manifests.
-              </p>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
-                <TargetIcon className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Concrete Capabilities
-              </h3>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                What you can actually accomplish with this project: specific behaviors, jobs, and
-                value it delivers.
-              </p>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
-                <NetworkGraphIcon className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                Project Architecture Map
-              </h3>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                A visual model adapted to the project type showing how major components relate,
-                grounded in detected structure.
-              </p>
-            </div>
-
-            {/* Pillar 4 */}
-            <div className="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-                <ShieldCheckIcon className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1.5">
-                No Account Needed
-              </h3>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Paste any public GitHub URL and get results. Free to use, powered by Groq&apos;s
-                free tier, with no signup required.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {PILLARS.map((pillar) => {
+              const Icon = pillar.icon;
+              return (
+                <div
+                  key={pillar.title}
+                  className="p-4 rounded-xl flex flex-col gap-3"
+                  style={{
+                    backgroundColor: "var(--bg-elevated)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: pillar.bg, border: `1px solid ${pillar.border}` }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: pillar.color }} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold mb-1" style={{ color: "var(--text-primary)" }}>
+                      {pillar.title}
+                    </h3>
+                    <p
+                      className="text-xs leading-relaxed"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {pillar.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Existing Authenticated Workspace Link */}
-        <div className="pt-4 flex items-center justify-center gap-4 text-xs text-zinc-500">
+        {/* Workspace link */}
+        <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
           <span>Looking for the authenticated private workspace?</span>
           <Link
             href="/projects"
-            className="text-violet-600 dark:text-violet-400 hover:underline font-semibold"
+            className="font-semibold transition-colors"
+            style={{ color: "var(--teal-bright)" }}
           >
-            Go to Projects Workspace →
+            Go to Projects →
           </Link>
         </div>
       </main>

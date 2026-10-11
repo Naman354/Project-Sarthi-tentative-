@@ -2,103 +2,159 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { NetworkGraphIcon, LogOutIcon } from "./Icons";
 
 export default function Navbar() {
   const { user, logout, isLoading } = useAuth();
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header
+      className="sticky top-0 z-50 w-full border-b"
+      style={{
+        backgroundColor: "var(--bg-sidebar)",
+        borderColor: "var(--border-default)",
+        boxShadow: "0 1px 0 rgba(0,0,0,0.3)",
+      }}
+    >
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
         <Link
           href="/"
           id="navbar-brand-link"
-          className="flex items-center gap-3 group focus:outline-none"
+          className="flex items-center gap-2.5 group focus:outline-none shrink-0"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-md shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow">
-            <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center text-white">
-              <NetworkGraphIcon className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
-            </div>
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: "var(--teal-dim)", border: "1px solid var(--teal-primary)" }}
+          >
+            <NetworkGraphIcon
+              className="w-4 h-4 transition-transform group-hover:scale-110"
+              style={{ color: "var(--teal-bright)" }}
+            />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight text-zinc-900 dark:text-zinc-100">
-                Project Sarthi
-              </span>
-              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/80 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
-                Beta
-              </span>
-            </div>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden sm:inline">
-              Understand any repository
+          <div className="flex items-center gap-2">
+            <span
+              className="font-bold text-sm tracking-tight"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Project Sarthi
+            </span>
+            <span
+              className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.15)",
+                color: "var(--teal-bright)",
+                border: "1px solid rgba(15,138,131,0.3)",
+              }}
+            >
+              Beta
             </span>
           </div>
         </Link>
 
         {/* Navigation Items */}
-        <nav className="flex items-center gap-3 sm:gap-4">
-          <Link
-            href="/"
-            id="nav-link-explore"
-            className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
-          >
-            Explore
-          </Link>
-          <Link
-            href="/projects"
-            id="nav-link-projects"
-            className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
-          >
-            Projects
-          </Link>
+        <nav className="flex items-center gap-1">
+          {[
+            { href: "/", label: "Explore" },
+            { href: "/projects", label: "Projects" },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              id={`nav-link-${label.toLowerCase()}`}
+              className="text-xs font-medium px-3 py-1.5 rounded-md transition-all"
+              style={{
+                color: isActive(href) ? "var(--teal-bright)" : "var(--text-secondary)",
+                backgroundColor: isActive(href) ? "rgba(15,138,131,0.12)" : "transparent",
+              }}
+            >
+              {label}
+            </Link>
+          ))}
 
-          {/* Dynamic Auth Section */}
+          {/* Auth Section */}
           {isLoading ? (
-            <div className="h-9 w-24 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+            <div
+              className="h-7 w-20 rounded-md animate-pulse"
+              style={{ backgroundColor: "var(--bg-elevated)" }}
+            />
           ) : user ? (
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* User Chip */}
+            <div className="flex items-center gap-1.5 ml-2">
+              {/* User chip */}
               <div
                 id="user-profile-badge"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-md"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  border: "1px solid var(--border-default)",
+                }}
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-violet-500 to-purple-500 text-white flex items-center justify-center text-xs font-bold">
+                <div
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
+                  style={{ backgroundColor: "var(--teal-dim)", color: "var(--teal-bright)" }}
+                >
                   {user.name.charAt(0).toUpperCase()}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 max-w-[120px] truncate">
-                    {user.name}
-                  </span>
-                </div>
+                <span
+                  className="text-xs font-medium max-w-[100px] truncate hidden sm:block"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {user.name}
+                </span>
               </div>
 
-              {/* Logout Button */}
+              {/* Logout */}
               <button
                 type="button"
                 id="navbar-logout-btn"
                 onClick={() => logout()}
-                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
-                title="Sign out of your session"
+                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md transition-all cursor-pointer"
+                style={{
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border-default)",
+                  backgroundColor: "transparent",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "#e05c5c";
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    "rgba(224,92,92,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+                }}
+                title="Sign out"
               >
                 <LogOutIcon className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Sign Out</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 ml-2">
               <Link
                 href="/login"
                 id="navbar-login-link"
-                className="text-xs sm:text-sm font-medium px-3 py-1.5 rounded-lg text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors"
+                className="text-xs font-medium px-3 py-1.5 rounded-md transition-all"
+                style={{ color: "var(--text-secondary)" }}
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
                 id="navbar-register-link"
-                className="text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 shadow-sm transition-all"
+                className="text-xs font-semibold px-3 py-1.5 rounded-md transition-all"
+                style={{
+                  backgroundColor: "var(--teal-primary)",
+                  color: "var(--text-primary)",
+                }}
               >
                 Create Account
               </Link>
