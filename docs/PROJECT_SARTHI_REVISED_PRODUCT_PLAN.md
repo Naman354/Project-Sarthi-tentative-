@@ -380,3 +380,54 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 6. **Consolidated Visual System & Information Hierarchy**:
    - 100% audit of legacy surfaces to the centralized dark teal palette (`#080F12`, `#0B171A`, `#0D1B1F`, `#122326`, `#193033`, `#203538`, `#ECF3F2`, `#9AA9AC`, `#0F8A83`, `#35D0C3`).
    - Established strict page hierarchy: (1) Status bar + Unified Explorer Hero, (2) Capabilities Index, (3) Guided Reading Timeline, (4) Deep Architectural Topology, (5) Gaps & Limitations.
+
+---
+
+## 11. Product Cohesion, Architecture Health & Visual Hierarchy (October 2026)
+
+**Status:** Completed & Validated  
+**Goal:** Establish clear page hierarchy, default the hero to Technical Overview, restore a mathematically honest Architecture Health feature, elevate typography and icon sizing, and redesign the Projects section to unify with the dark workbench system.
+
+### Delivered Enhancements:
+
+1. **Unambiguous Page Hierarchy**:
+   - **Level 1 — Unified Repository Hero**: Defaults to `Technical Overview` with `Codebase Map` available as a seamless alternate view inside the same hero container.
+   - **Level 2 — What This Project Is About (`ProjectDescriptionSection.tsx`)**: Prominent editorial layout highlighting purpose statement (`text-xl sm:text-2xl`), intended audience badge, category rationale, and top distinctive capabilities with "Inspect in Codebase Map" links.
+   - **Level 3 — Where to Start Reading Code (`GuidedReadingTimeline.tsx`)**: Directional progression guide with numbered step pills (`Step 1 of N`), enlarged file/directory icons, monospace paths, and direct GitHub permalinks.
+   - **Level 4 — Architecture Health Assessment (`ArchitectureHealthSection.tsx`)**: Restored architectural health feature using verified codebase analysis data.
+   - **Level 5 — Repository Capabilities Index (`CapabilityIndex.tsx`)**: Domain-grouped capability matrix with evidence grounding badges.
+   - **Level 6 — Deep Architectural Topology (`AdaptiveVisualModel.tsx`)**: Disciplined, type-aware structural visualization.
+   - **Level 7 — Evidence Grounding & Known Gaps (`GapsLimitationsSection.tsx`)**: Transparent accounting of unverified capabilities and analysis boundaries.
+
+2. **Technical Overview as Default Hero View**:
+   - Defaulted `explorerMode` to `"overview"` in `CodebaseMapWorkbench.tsx`.
+   - Placed "Technical Overview" first in top toolbar view switcher.
+   - Selected "Distinctive Structural Facts" by default within the overview tab set.
+   - Brightened `LanguageDonutChart` color palette (`#388BFD`, `#F7B955`, `#00E5FF`, `#FF7A45`, `#A855F7`) with enlarged center callout, legible file counts, and verified file-count measurement disclaimer.
+   - Seamless toggling between Technical Overview and Codebase Map preserving active repository context and inspector state.
+
+3. **Restored Transparent Architecture Health Assessment**:
+   - Evaluates 5 grounded signals using actual repository analysis evidence:
+     - **Documentation Coverage**: Doc files count relative to repository scale + verified capabilities.
+     - **Dependency Complexity**: Inter-module connection degree & external package burden.
+     - **Module Balance & Size**: File distribution variance & god-module dominance detection.
+     - **Circular Dependencies**: Graph cycle detection across conceptual relationships using DFS traversal.
+     - **Architecture Connectivity**: Orphan subsystem detection.
+   - Defensible status vocabulary (`Healthy`, `Needs Attention`, `Insufficient Data`) rather than arbitrary 100% scores.
+   - Expandable "Architectural Findings Breakdown" panel detailing specific findings and linking directly to topology exploration.
+
+4. **Typography & Icon Upgrades**:
+   - Scaled up typography across headers, body, metadata, and controls for high legibility against dark surfaces.
+   - Standardized icon sizing by role (`w-5 h-5` for section headings, `w-4 h-4` for action controls and steps).
+
+5. **Surface Contrast & Card Distinction**:
+   - Added centralized surface hierarchy tokens in `globals.css` (`--bg-workspace`, `--bg-elevated`, `--bg-surface`, `--bg-card`, `--bg-card-hover`).
+   - Replaced noisy borders with disciplined contrast, elevation, and restrained semantic accents.
+
+6. **Redesigned Projects Hub & Shared Application Shell**:
+   - Rebuilt `/projects` into a unified Workspace Hub featuring "Saved Projects" and "Recently Explored" tabs.
+   - Integrated search filtering, clean empty states, and guest user support.
+   - Redesigned `ProjectCard` with language icons, status pills, in-place deletion confirmation, and direct "Open in Explorer" (`/?repo=...`) action.
+   - Added query param support (`/?repo=...`) in `app/page.tsx` for seamless navigation between Projects and Explore.
+   - Upgraded `Navbar.tsx` height (`h-14`), branding typography, and active indicator treatments.
+

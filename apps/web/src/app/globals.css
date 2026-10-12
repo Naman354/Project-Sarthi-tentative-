@@ -10,7 +10,9 @@
   --bg-sidebar: #0b171a;
   --bg-workspace: #0d1b1f;
   --bg-elevated: #122326;
+  --bg-card: #14272a;
   --bg-hover: #193033;
+  --bg-card-hover: #1c363a;
 
   /* Borders */
   --border-default: #203538;
@@ -20,8 +22,8 @@
   /* Text */
   --text-primary: #ecf3f2;
   --text-secondary: #9aa9ac;
-  --text-muted: #5a7073;
-  --text-faint: #3a5055;
+  --text-muted: #668084;
+  --text-faint: #3d565b;
 
   /* Primary Interaction — Teal */
   --teal-primary: #0f8a83;
@@ -42,6 +44,20 @@
   --warning: #f4b04f;
   --danger: #e05c5c;
   --info: #4d9fd8;
+
+  /* Architecture Health Signals */
+  --health-healthy: #35d0c3;
+  --health-healthy-bg: rgba(53, 208, 195, 0.12);
+  --health-healthy-border: rgba(53, 208, 195, 0.35);
+  --health-warning: #f4b04f;
+  --health-warning-bg: rgba(244, 176, 79, 0.12);
+  --health-warning-border: rgba(244, 176, 79, 0.35);
+  --health-critical: #f43f5e;
+  --health-critical-bg: rgba(244, 63, 94, 0.12);
+  --health-critical-border: rgba(244, 63, 94, 0.35);
+  --health-insufficient: #819196;
+  --health-insufficient-bg: rgba(129, 145, 150, 0.12);
+  --health-insufficient-border: rgba(129, 145, 150, 0.3);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);

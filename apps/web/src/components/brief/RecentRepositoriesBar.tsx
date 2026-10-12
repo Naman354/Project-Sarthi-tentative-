@@ -61,16 +61,25 @@ export function saveRecentRepo(item: RecentRepositoryItem): void {
   }
 }
 
+export function useRecentRepos(): RecentRepositoryItem[] {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+export function clearRecentRepos(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(RECENT_REPOS_STORAGE_KEY);
+    window.dispatchEvent(new Event(RECENT_REPOS_EVENT));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export default function RecentRepositoriesBar({ onSelectRepo }: RecentRepositoriesBarProps) {
-  const recentRepos = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const recentRepos = useRecentRepos();
 
   const handleClear = () => {
-    try {
-      localStorage.removeItem(RECENT_REPOS_STORAGE_KEY);
-      window.dispatchEvent(new Event(RECENT_REPOS_EVENT));
-    } catch {
-      // Ignore storage errors
-    }
+    clearRecentRepos();
   };
 
   if (recentRepos.length === 0) {
@@ -79,14 +88,18 @@ export default function RecentRepositoriesBar({ onSelectRepo }: RecentRepositori
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-6">
-      <div className="flex items-center justify-between gap-2 mb-2.5 px-1">
-        <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+      <div className="flex items-center justify-between gap-2 mb-3 px-1">
+        <span
+          className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+          style={{ color: "var(--text-muted)" }}
+        >
           <svg
-            className="w-3.5 h-3.5 text-zinc-400"
+            className="w-4 h-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
             strokeWidth={2}
+            style={{ color: "var(--teal-bright)" }}
           >
             <path
               strokeLinecap="round"
@@ -99,29 +112,47 @@ export default function RecentRepositoriesBar({ onSelectRepo }: RecentRepositori
         <button
           type="button"
           onClick={handleClear}
-          className="text-[11px] text-zinc-400 hover:text-rose-500 transition-colors cursor-pointer"
+          className="text-xs transition-colors cursor-pointer hover:text-rose-400"
+          style={{ color: "var(--text-muted)" }}
         >
           Clear history
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {recentRepos.map((item) => (
           <button
             key={item.repoUrl}
             type="button"
             onClick={() => onSelectRepo(item.repoUrl)}
-            className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white/80 dark:bg-zinc-900/80 hover:border-violet-500/50 hover:bg-violet-50/20 dark:hover:bg-violet-950/20 text-left transition-all cursor-pointer group shadow-2xs"
+            className="p-3.5 rounded-xl text-left transition-all cursor-pointer group shadow-xs"
+            style={{
+              backgroundColor: "var(--bg-elevated)",
+              border: "1px solid var(--border-default)",
+            }}
           >
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-violet-600 dark:group-hover:text-violet-400 truncate">
+            <div className="flex items-center justify-between gap-1 mb-1.5">
+              <span
+                className="text-xs sm:text-sm font-bold truncate group-hover:text-[var(--teal-bright)] transition-colors"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {item.owner}/{item.repo}
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 shrink-0">
+              <span
+                className="text-[10px] font-mono px-2 py-0.5 rounded font-semibold shrink-0"
+                style={{
+                  backgroundColor: "var(--bg-workspace)",
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border-subtle)",
+                }}
+              >
                 {item.primaryLanguage}
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1 leading-normal">
+            <p
+              className="text-xs line-clamp-1 leading-normal"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {item.purpose}
             </p>
           </button>

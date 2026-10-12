@@ -22,25 +22,23 @@ export default function GuidedReadingTimeline({
   return (
     <section
       id="tour-section"
-      className="rounded-2xl p-6 sm:p-7 space-y-6"
+      aria-label="Where to Start Reading Code"
+      className="rounded-2xl p-6 sm:p-8 space-y-6 animate-fade-in"
       style={{
         backgroundColor: "var(--bg-elevated)",
         border: "1px solid var(--border-default)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.35)",
+        boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
       }}
     >
       {/* Section Header */}
       <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b"
         style={{ borderColor: "var(--border-subtle)" }}
       >
-        <div>
-          <h3
-            className="text-base sm:text-lg font-bold flex items-center gap-2"
-            style={{ color: "var(--text-primary)" }}
-          >
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
             <span
-              className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
               style={{
                 backgroundColor: "rgba(15,138,131,0.15)",
                 color: "var(--teal-bright)",
@@ -49,93 +47,121 @@ export default function GuidedReadingTimeline({
             >
               ✦
             </span>
-            <span>Where to Start Reading</span>
-          </h3>
-          <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-            Recommended sequential reading order grounded in actual repository source files
+            <h2
+              className="text-lg sm:text-xl font-extrabold tracking-tight"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Where to Start Reading Code
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>
+            A guided sequential path through important files to build an accurate mental model of this repository.
           </p>
         </div>
 
-        <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-          {steps.length} sequential steps
+        <span
+          className="text-xs font-mono font-medium px-3 py-1 rounded-md shrink-0 self-start sm:self-auto"
+          style={{
+            backgroundColor: "var(--bg-workspace)",
+            color: "var(--teal-bright)",
+            border: "1px solid var(--border-subtle)",
+          }}
+        >
+          {steps.length} ordered steps
         </span>
       </div>
 
       {/* Connected Progression Timeline */}
       <div className="relative">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Subtle Horizontal Progression Line on Desktop */}
+        <div
+          className="hidden md:block absolute top-7 left-8 right-8 h-0.5 z-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(15,138,131,0.4) 0%, rgba(53,208,195,0.6) 50%, rgba(15,138,131,0.4) 100%)",
+          }}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
           {steps.map((step, idx) => {
             const targetUrl = step.targetFile
               ? `https://github.com/${owner}/${repo}/blob/${commitSha}/${step.targetFile.replace(/^\/+/, "")}`
               : null;
             const fileName = step.targetFile ? step.targetFile.split("/").pop() : null;
+            const fileDir = step.targetFile
+              ? step.targetFile.split("/").slice(0, -1).join("/")
+              : "";
 
             return (
               <div
                 key={step.step || idx}
-                className="p-5 rounded-xl flex flex-col justify-between relative group transition-all"
+                className="p-5 sm:p-6 rounded-2xl flex flex-col justify-between relative group transition-all"
                 style={{
                   backgroundColor: "var(--bg-workspace)",
-                  border: "1px solid var(--border-subtle)",
+                  border: "1px solid var(--border-default)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
                 }}
               >
-                <div>
+                <div className="space-y-3">
                   {/* Step Sequence Badge & Target Action */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
                       <span
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold"
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-mono font-bold shadow-sm"
                         style={{
-                          backgroundColor: "rgba(15,138,131,0.2)",
-                          color: "var(--teal-bright)",
-                          border: "1px solid rgba(53,208,195,0.4)",
+                          backgroundColor: "var(--teal-primary)",
+                          color: "var(--text-primary)",
+                          border: "1.5px solid var(--teal-bright)",
                         }}
                       >
                         {step.step || idx + 1}
                       </span>
                       <span
-                        className="text-[10px] font-bold uppercase tracking-wider"
+                        className="text-xs font-bold uppercase tracking-wider"
                         style={{ color: "var(--text-muted)" }}
                       >
                         Step {step.step || idx + 1} of {steps.length}
                       </span>
                     </div>
 
-                    {targetUrl && (
-                      <a
-                        href={targetUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[11px] font-semibold inline-flex items-center gap-1 transition-colors group-hover:text-white"
-                        style={{ color: "var(--teal-bright)" }}
-                        title="Open file in GitHub"
-                      >
-                        <span>Inspect</span>
-                        <ExternalLinkIcon className="w-3 h-3" />
-                      </a>
-                    )}
+                    <span
+                      className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: "rgba(15,138,131,0.12)",
+                        color: "var(--teal-bright)",
+                        border: "1px solid rgba(15,138,131,0.25)",
+                      }}
+                    >
+                      {idx === 0 ? "Entrypoint" : idx === 1 ? "Core Flow" : "Extension"}
+                    </span>
                   </div>
 
                   {/* Step Title */}
-                  <h4 className="text-sm font-bold mb-1.5" style={{ color: "var(--text-primary)" }}>
+                  <h3
+                    className="text-base sm:text-lg font-bold tracking-tight pt-1"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {step.title}
-                  </h4>
+                  </h3>
 
                   {/* Step Description */}
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                  <p
+                    className="text-xs sm:text-sm leading-relaxed"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     {step.description}
                   </p>
                 </div>
 
-                {/* Emphasized Recommended Target File Pill */}
+                {/* Target File Container & Action Button */}
                 {step.targetFile && (
                   <div
-                    className="mt-4 pt-3 border-t flex items-center justify-between gap-2"
+                    className="mt-5 pt-4 border-t space-y-2.5"
                     style={{ borderColor: "var(--border-subtle)" }}
                   >
-                    <div className="flex items-center gap-2 truncate">
+                    <div className="flex items-center gap-2.5 text-xs font-mono truncate">
                       <svg
-                        className="w-3.5 h-3.5 shrink-0"
+                        className="w-4 h-4 shrink-0"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -148,24 +174,36 @@ export default function GuidedReadingTimeline({
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                       </svg>
-                      <span
-                        className="font-mono text-xs truncate font-medium"
-                        style={{ color: "var(--text-primary)" }}
-                        title={step.targetFile}
-                      >
-                        {fileName}
-                      </span>
+                      <div className="truncate">
+                        {fileDir && (
+                          <span style={{ color: "var(--text-muted)" }}>{fileDir}/</span>
+                        )}
+                        <span
+                          className="font-bold font-mono"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {fileName}
+                        </span>
+                      </div>
                     </div>
 
-                    <span
-                      className="font-mono text-[10px] px-1.5 py-0.5 rounded"
-                      style={{
-                        backgroundColor: "var(--bg-elevated)",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      start here
-                    </span>
+                    {targetUrl && (
+                      <a
+                        href={targetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer group-hover:shadow-md"
+                        style={{
+                          backgroundColor: "rgba(15,138,131,0.15)",
+                          color: "var(--teal-bright)",
+                          border: "1px solid rgba(53,208,195,0.3)",
+                        }}
+                        title={`Open ${step.targetFile} on GitHub at commit ${commitSha.substring(0, 7)}`}
+                      >
+                        <span>Inspect in GitHub</span>
+                        <ExternalLinkIcon className="w-3.5 h-3.5" />
+                      </a>
+                    )}
                   </div>
                 )}
               </div>

@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
 import CodebaseMapWorkbench from "./CodebaseMapWorkbench";
-import CapabilityIndex from "./CapabilityIndex";
+import ProjectDescriptionSection from "./ProjectDescriptionSection";
 import GuidedReadingTimeline from "./GuidedReadingTimeline";
+import ArchitectureHealthSection from "./ArchitectureHealthSection";
+import CapabilityIndex from "./CapabilityIndex";
 import AdaptiveVisualModel from "./visual-models/AdaptiveVisualModel";
 import { ExternalLinkIcon } from "../Icons";
 
@@ -23,7 +25,7 @@ export default function ProjectBriefView({
   onReset,
   isRefreshing = false,
 }: ProjectBriefViewProps) {
-  const [activeNavSection, setActiveNavSection] = useState("map");
+  const [activeNavSection, setActiveNavSection] = useState("overview");
   const [focusedAreaId, setFocusedAreaId] = useState<string | null>(null);
 
   const commitShort = brief.commitSha ? brief.commitSha.substring(0, 7) : "HEAD";
@@ -58,7 +60,7 @@ export default function ProjectBriefView({
   };
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-8 animate-fade-in pb-20">
+    <div className="w-full max-w-[1600px] mx-auto space-y-10 animate-fade-in pb-24">
       {/* =========================================================
           1. SLIM WORKBENCH STATUS & SNAPSHOT BAR
           ========================================================= */}
@@ -73,6 +75,7 @@ export default function ProjectBriefView({
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
+            id="brief-explore-another-btn"
             onClick={onReset}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer hover:text-white"
             style={{
@@ -109,7 +112,7 @@ export default function ProjectBriefView({
             href={commitUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-mono transition-colors"
             style={{
               backgroundColor: "var(--bg-workspace)",
               color: "var(--text-secondary)",
@@ -126,22 +129,24 @@ export default function ProjectBriefView({
         <div className="flex flex-wrap items-center gap-2">
           {brief.cached && (
             <span
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
               style={{
                 backgroundColor: "rgba(85,184,121,0.12)",
                 color: "var(--accent-green)",
                 border: "1px solid rgba(85,184,121,0.25)",
               }}
             >
-              ● Cached Snapshot
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>Cached Snapshot</span>
             </span>
           )}
 
           <button
             type="button"
+            id="brief-refresh-btn"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 hover:text-white"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 hover:text-white"
             style={{
               backgroundColor: "var(--bg-workspace)",
               color: "var(--text-primary)",
@@ -191,7 +196,8 @@ export default function ProjectBriefView({
       )}
 
       {/* =========================================================
-          2. UNIFIED EXPLORER HERO (Codebase Map & Technical Overview)
+          LEVEL 1: UNIFIED REPOSITORY HERO
+          Technical Overview (Default) + Codebase Map (Alternate View)
           ========================================================= */}
       <section id="map-section" aria-label="Repository Explorer Workbench">
         <CodebaseMapWorkbench
@@ -206,18 +212,18 @@ export default function ProjectBriefView({
       </section>
 
       {/* =========================================================
-          3. EDITORIAL CAPABILITIES INDEX (What This Project Does)
+          LEVEL 2: WHAT THIS PROJECT IS ABOUT
+          Editorial description of purpose, audience, and core behaviors
           ========================================================= */}
-      {brief.capabilities.length > 0 && (
-        <CapabilityIndex
-          capabilities={brief.capabilities}
-          areas={brief.conceptualMap.areas}
-          onInspectArea={handleInspectAreaInMap}
-        />
-      )}
+      <ProjectDescriptionSection
+        brief={brief}
+        onExploreCapabilities={() => handleSelectNavSection("capabilities")}
+        onInspectArea={handleInspectAreaInMap}
+      />
 
       {/* =========================================================
-          4. GUIDED READING TIMELINE (Where to Start Reading)
+          LEVEL 3: WHERE TO START READING CODE
+          Sequential guided reading timeline through entrypoints & core files
           ========================================================= */}
       {brief.guidedTour.length > 0 && (
         <GuidedReadingTimeline
@@ -229,7 +235,30 @@ export default function ProjectBriefView({
       )}
 
       {/* =========================================================
-          5. DEEP ARCHITECTURAL TOPOLOGY (Secondary Structural Inspection)
+          LEVEL 4: ARCHITECTURE HEALTH ASSESSMENT
+          Rigorous calculated signals: Docs, Coupling, Balance, Cycles, Connectivity
+          ========================================================= */}
+      <ArchitectureHealthSection
+        brief={brief}
+        evidenceSummary={evidenceSummary}
+        onNavigateToTopology={() => handleSelectNavSection("topology")}
+      />
+
+      {/* =========================================================
+          LEVEL 5: CONCRETE CAPABILITIES INDEX
+          Domain-grouped capabilities with evidence badges
+          ========================================================= */}
+      {brief.capabilities.length > 0 && (
+        <CapabilityIndex
+          capabilities={brief.capabilities}
+          areas={brief.conceptualMap.areas}
+          onInspectArea={handleInspectAreaInMap}
+        />
+      )}
+
+      {/* =========================================================
+          LEVEL 6: DEEP ARCHITECTURAL TOPOLOGY
+          Deep structural topology adapted to repository category
           ========================================================= */}
       <section id="topology-section" aria-label="Deep Architectural Topology">
         <AdaptiveVisualModel
@@ -244,24 +273,24 @@ export default function ProjectBriefView({
       </section>
 
       {/* =========================================================
-          6. LIMITATIONS & GAPS
+          LEVEL 7: ANALYSIS GAPS & KNOWN LIMITATIONS
           ========================================================= */}
       {brief.limitationsAndGaps.length > 0 && brief.generatedBy !== "deterministic-fallback" && (
         <section
-          className="rounded-xl p-4 sm:p-5 space-y-2"
+          className="rounded-2xl p-5 sm:p-6 space-y-2.5"
           style={{
-            backgroundColor: "rgba(244,176,79,0.06)",
+            backgroundColor: "rgba(244,176,79,0.05)",
             border: "1px solid rgba(244,176,79,0.25)",
           }}
         >
-          <h4
-            className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+          <h3
+            className="text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2"
             style={{ color: "var(--accent-amber)" }}
           >
             <span>Analysis Gaps &amp; Known Limitations</span>
-          </h4>
+          </h3>
           <ul
-            className="list-disc list-inside space-y-1 text-xs leading-relaxed"
+            className="list-disc list-inside space-y-1.5 text-xs sm:text-sm leading-relaxed"
             style={{ color: "var(--text-secondary)" }}
           >
             {brief.limitationsAndGaps.map((gap, i) => (

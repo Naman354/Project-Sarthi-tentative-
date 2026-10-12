@@ -17,38 +17,40 @@ export default function Navbar() {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b"
+      className="sticky top-0 z-50 w-full border-b backdrop-blur-md"
       style={{
-        backgroundColor: "var(--bg-sidebar)",
+        backgroundColor: "rgba(11, 23, 26, 0.92)",
         borderColor: "var(--border-default)",
-        boxShadow: "0 1px 0 rgba(0,0,0,0.3)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
       }}
     >
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
         <Link
           href="/"
           id="navbar-brand-link"
-          className="flex items-center gap-2.5 group focus:outline-none shrink-0"
+          className="flex items-center gap-3 group focus:outline-none shrink-0"
         >
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: "var(--teal-dim)", border: "1px solid var(--teal-primary)" }}
+            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all group-hover:scale-105"
+            style={{
+              backgroundColor: "rgba(15,138,131,0.18)",
+              border: "1.5px solid var(--teal-primary)",
+              boxShadow: "0 2px 8px rgba(15,138,131,0.25)",
+              color: "var(--teal-bright)",
+            }}
           >
-            <NetworkGraphIcon
-              className="w-4 h-4 transition-transform group-hover:scale-110"
-              style={{ color: "var(--teal-bright)" }}
-            />
+            <NetworkGraphIcon className="w-4.5 h-4.5" />
           </div>
           <div className="flex items-center gap-2">
             <span
-              className="font-bold text-sm tracking-tight"
+              className="font-bold text-sm sm:text-base tracking-tight"
               style={{ color: "var(--text-primary)" }}
             >
               Project Sarthi
             </span>
             <span
-              className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded"
+              className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: "rgba(15,138,131,0.15)",
                 color: "var(--teal-bright)",
@@ -61,29 +63,35 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation Items */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-2">
           {[
             { href: "/", label: "Explore" },
             { href: "/projects", label: "Projects" },
-          ].map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              id={`nav-link-${label.toLowerCase()}`}
-              className="text-xs font-medium px-3 py-1.5 rounded-md transition-all"
-              style={{
-                color: isActive(href) ? "var(--teal-bright)" : "var(--text-secondary)",
-                backgroundColor: isActive(href) ? "rgba(15,138,131,0.12)" : "transparent",
-              }}
-            >
-              {label}
-            </Link>
-          ))}
+          ].map(({ href, label }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                id={`nav-link-${label.toLowerCase()}`}
+                className="text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                style={{
+                  color: active ? "var(--teal-bright)" : "var(--text-secondary)",
+                  backgroundColor: active ? "rgba(15,138,131,0.14)" : "transparent",
+                  border: active
+                    ? "1px solid rgba(53,208,195,0.35)"
+                    : "1px solid transparent",
+                }}
+              >
+                <span>{label}</span>
+              </Link>
+            );
+          })}
 
           {/* Auth Section */}
           {isLoading ? (
             <div
-              className="h-7 w-20 rounded-md animate-pulse"
+              className="h-8 w-24 rounded-lg animate-pulse"
               style={{ backgroundColor: "var(--bg-elevated)" }}
             />
           ) : user ? (

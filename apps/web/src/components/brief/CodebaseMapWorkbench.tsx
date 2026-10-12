@@ -117,8 +117,8 @@ export default function CodebaseMapWorkbench({
     [brief.conceptualMap.relationships]
   );
 
-  // Explorer mode inside the unified hero: "map" (default) or "overview"
-  const [explorerMode, setExplorerMode] = useState<"map" | "overview">("map");
+  // Explorer mode inside the unified hero: "overview" (default) or "map" (alternate view)
+  const [explorerMode, setExplorerMode] = useState<"overview" | "map">("overview");
 
   // Grouping & view filters
   const [groupBy, setGroupBy] = useState<"feature" | "directory" | "layer">("feature");
@@ -372,28 +372,12 @@ export default function CodebaseMapWorkbench({
             >
               <button
                 type="button"
-                onClick={() => {
-                  setExplorerMode("map");
-                  onSelectNavSection("map");
-                }}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
-                style={{
-                  backgroundColor: explorerMode === "map" ? "var(--teal-primary)" : "transparent",
-                  color: explorerMode === "map" ? "var(--text-primary)" : "var(--text-secondary)",
-                  boxShadow: explorerMode === "map" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
-                }}
-              >
-                <NetworkGraphIcon className="w-3.5 h-3.5" />
-                <span>Codebase Map</span>
-              </button>
-
-              <button
-                type="button"
+                id="hero-view-overview-btn"
                 onClick={() => {
                   setExplorerMode("overview");
                   onSelectNavSection("overview");
                 }}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
                 style={{
                   backgroundColor:
                     explorerMode === "overview" ? "var(--teal-primary)" : "transparent",
@@ -403,8 +387,26 @@ export default function CodebaseMapWorkbench({
                     explorerMode === "overview" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
                 }}
               >
-                <SparklesIcon className="w-3.5 h-3.5" />
+                <SparklesIcon className="w-4 h-4" />
                 <span>Technical Overview</span>
+              </button>
+
+              <button
+                type="button"
+                id="hero-view-map-btn"
+                onClick={() => {
+                  setExplorerMode("map");
+                  onSelectNavSection("map");
+                }}
+                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
+                style={{
+                  backgroundColor: explorerMode === "map" ? "var(--teal-primary)" : "transparent",
+                  color: explorerMode === "map" ? "var(--text-primary)" : "var(--text-secondary)",
+                  boxShadow: explorerMode === "map" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
+                }}
+              >
+                <NetworkGraphIcon className="w-4 h-4" />
+                <span>Codebase Map</span>
               </button>
             </div>
 
@@ -568,11 +570,13 @@ export default function CodebaseMapWorkbench({
               </span>
 
               {[
-                { id: "map", label: "Codebase Map", icon: NetworkGraphIcon, isMode: true },
                 { id: "overview", label: "Technical Overview", icon: SparklesIcon, isMode: true },
-                { id: "capabilities", label: "What It Does", icon: null, isMode: false },
-                { id: "tour", label: "Guided Tour", icon: null, isMode: false },
-                { id: "topology", label: "Architectural Topology", icon: null, isMode: false },
+                { id: "map", label: "Codebase Map", icon: NetworkGraphIcon, isMode: true },
+                { id: "about", label: "What It Is About", icon: null, isMode: false },
+                { id: "tour", label: "Where to Start Reading", icon: null, isMode: false },
+                { id: "health", label: "Architecture Health", icon: null, isMode: false },
+                { id: "capabilities", label: "Capabilities", icon: null, isMode: false },
+                { id: "topology", label: "Deep Topology", icon: null, isMode: false },
               ].map((item) => {
                 const isActive = item.isMode
                   ? explorerMode === item.id
@@ -591,7 +595,7 @@ export default function CodebaseMapWorkbench({
                         onSelectNavSection(item.id);
                       }
                     }}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition-all cursor-pointer"
+                    className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between transition-all cursor-pointer"
                     style={{
                       backgroundColor: isActive ? "var(--bg-hover)" : "transparent",
                       color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
@@ -600,23 +604,25 @@ export default function CodebaseMapWorkbench({
                   >
                     <div className="flex items-center gap-2.5">
                       {Icon ? (
-                        <Icon
-                          className="w-3.5 h-3.5"
+                        <span
+                          className="shrink-0 flex items-center"
                           style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
-                        />
+                        >
+                          <Icon className="w-4 h-4 shrink-0" />
+                        </span>
                       ) : (
                         <span
-                          className="w-1.5 h-1.5 rounded-full"
+                          className="w-2 h-2 rounded-full shrink-0"
                           style={{
                             backgroundColor: isActive ? "var(--teal-bright)" : "var(--text-muted)",
                           }}
                         />
                       )}
-                      <span>{item.label}</span>
+                      <span className="truncate">{item.label}</span>
                     </div>
                     {isActive && (
                       <span
-                        className="w-1.5 h-1.5 rounded-full"
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ backgroundColor: "var(--teal-bright)" }}
                       />
                     )}
@@ -1328,7 +1334,7 @@ export default function CodebaseMapWorkbench({
                                     </span>
                                   </div>
                                   <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                                    {rel.relationshipType}
+                                    {rel.label}
                                   </span>
                                 </button>
                               );
@@ -1404,14 +1410,9 @@ export default function CodebaseMapWorkbench({
                                       color: "var(--teal-bright)",
                                     }}
                                   >
-                                    {rel.relationshipType}
+                                    {rel.label}
                                   </span>
                                 </div>
-                                {rel.description && (
-                                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                                    {rel.description}
-                                  </p>
-                                )}
                               </div>
                             );
                           })}
@@ -1459,14 +1460,9 @@ export default function CodebaseMapWorkbench({
                                       color: "var(--accent-orange)",
                                     }}
                                   >
-                                    {rel.relationshipType}
+                                    {rel.label}
                                   </span>
                                 </div>
-                                {rel.description && (
-                                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                                    {rel.description}
-                                  </p>
-                                )}
                               </div>
                             );
                           })}

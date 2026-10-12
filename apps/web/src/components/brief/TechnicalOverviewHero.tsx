@@ -268,22 +268,22 @@ export default function TechnicalOverviewHero({
           </div>
 
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
             <div
-              className="p-3 rounded-2xl text-center min-w-[90px]"
+              className="p-3.5 rounded-2xl text-center min-w-[100px]"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 border: "1px solid var(--border-default)",
               }}
             >
               <span
-                className="text-[10px] font-semibold uppercase tracking-wider block"
+                className="text-xs font-bold uppercase tracking-wider block"
                 style={{ color: "var(--text-muted)" }}
               >
                 Files
               </span>
               <span
-                className="text-xl font-extrabold font-mono mt-0.5 block"
+                className="text-2xl font-black font-mono mt-1 block"
                 style={{ color: "var(--text-primary)" }}
               >
                 {totalAnalyzedFiles}
@@ -291,20 +291,20 @@ export default function TechnicalOverviewHero({
             </div>
 
             <div
-              className="p-3 rounded-2xl text-center min-w-[90px]"
+              className="p-3.5 rounded-2xl text-center min-w-[100px]"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 border: "1px solid var(--border-default)",
               }}
             >
               <span
-                className="text-[10px] font-semibold uppercase tracking-wider block"
+                className="text-xs font-bold uppercase tracking-wider block"
                 style={{ color: "var(--text-muted)" }}
               >
                 Directories
               </span>
               <span
-                className="text-xl font-extrabold font-mono mt-0.5 block"
+                className="text-2xl font-black font-mono mt-1 block"
                 style={{ color: "var(--text-primary)" }}
               >
                 {overview.totalDirectories}
@@ -312,20 +312,20 @@ export default function TechnicalOverviewHero({
             </div>
 
             <div
-              className="p-3 rounded-2xl text-center min-w-[90px]"
+              className="p-3.5 rounded-2xl text-center min-w-[100px]"
               style={{
                 backgroundColor: "var(--bg-elevated)",
                 border: "1px solid var(--border-default)",
               }}
             >
               <span
-                className="text-[10px] font-semibold uppercase tracking-wider block"
+                className="text-xs font-bold uppercase tracking-wider block"
                 style={{ color: "var(--text-muted)" }}
               >
                 Dependencies
               </span>
               <span
-                className="text-xl font-extrabold font-mono mt-0.5 block"
+                className="text-2xl font-black font-mono mt-1 block"
                 style={{ color: "var(--teal-bright)" }}
               >
                 {prodDeps.length + devDeps.length}
@@ -420,7 +420,7 @@ export default function TechnicalOverviewHero({
             <button
               type="button"
               onClick={() => setActiveTab("facts")}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
               style={{
                 backgroundColor:
                   activeTab === "facts" ? "var(--teal-primary)" : "var(--bg-workspace)",
@@ -433,7 +433,7 @@ export default function TechnicalOverviewHero({
             >
               <span>What Makes It Distinctive</span>
               <span
-                className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+                className="px-2 py-0.5 rounded-full text-xs font-mono font-bold"
                 style={{
                   backgroundColor:
                     activeTab === "facts" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
@@ -449,7 +449,7 @@ export default function TechnicalOverviewHero({
           <button
             type="button"
             onClick={() => setActiveTab("dependencies")}
-            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
             style={{
               backgroundColor:
                 activeTab === "dependencies" ? "var(--teal-primary)" : "var(--bg-workspace)",
@@ -462,7 +462,7 @@ export default function TechnicalOverviewHero({
           >
             <span>Dependencies</span>
             <span
-              className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+              className="px-2 py-0.5 rounded-full text-xs font-mono font-bold"
               style={{
                 backgroundColor:
                   activeTab === "dependencies" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
@@ -477,7 +477,7 @@ export default function TechnicalOverviewHero({
           <button
             type="button"
             onClick={() => setActiveTab("entrypoints")}
-            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
             style={{
               backgroundColor:
                 activeTab === "entrypoints" ? "var(--teal-primary)" : "var(--bg-workspace)",
@@ -490,7 +490,7 @@ export default function TechnicalOverviewHero({
           >
             <span>Entrypoints &amp; Scripts</span>
             <span
-              className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+              className="px-2 py-0.5 rounded-full text-xs font-mono font-bold"
               style={{
                 backgroundColor:
                   activeTab === "entrypoints" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
@@ -506,7 +506,7 @@ export default function TechnicalOverviewHero({
             <button
               type="button"
               onClick={() => setActiveTab("structure")}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
               style={{
                 backgroundColor:
                   activeTab === "structure" ? "var(--teal-primary)" : "var(--bg-workspace)",
@@ -519,7 +519,7 @@ export default function TechnicalOverviewHero({
             >
               <span>Directory Structure</span>
               <span
-                className="px-1.5 py-0.5 rounded-full text-[10px] font-mono"
+                className="px-2 py-0.5 rounded-full text-xs font-mono font-bold"
                 style={{
                   backgroundColor:
                     activeTab === "structure" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
@@ -536,31 +536,32 @@ export default function TechnicalOverviewHero({
         {activeTab === "facts" && (
           <div className="animate-fade-in">
             {structuralFacts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {structuralFacts.map((fact, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-xl flex flex-col gap-1 transition-all"
+                    className="p-5 rounded-2xl flex flex-col gap-1.5 transition-all"
                     style={{
                       backgroundColor: "var(--bg-elevated)",
                       border: "1px solid var(--border-default)",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
                     }}
                   >
                     <span
-                      className="text-[10px] font-bold uppercase tracking-wider truncate"
-                      style={{ color: "var(--text-muted)" }}
+                      className="text-xs font-bold uppercase tracking-wider truncate"
+                      style={{ color: "var(--teal-bright)" }}
                     >
                       {fact.label}
                     </span>
                     <span
-                      className="text-sm font-bold block"
+                      className="text-base sm:text-lg font-extrabold block tracking-tight"
                       style={{ color: "var(--text-primary)" }}
                     >
                       {fact.value}
                     </span>
                     {fact.detail && (
                       <span
-                        className="text-[11px] block leading-relaxed"
+                        className="text-xs sm:text-sm block leading-relaxed"
                         style={{ color: "var(--text-secondary)" }}
                       >
                         {fact.detail}
@@ -570,7 +571,7 @@ export default function TechnicalOverviewHero({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 text-xs" style={{ color: "var(--text-muted)" }}>
+              <div className="text-center py-10 text-sm" style={{ color: "var(--text-muted)" }}>
                 <p>No distinctive structural facts detected for this repository.</p>
               </div>
             )}

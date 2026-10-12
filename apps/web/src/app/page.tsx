@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { api } from "../lib/api";
 import type { ExploreResponse } from "../types/brief";
 import ProjectBriefView from "../components/brief/ProjectBriefView";
@@ -55,7 +56,8 @@ const PILLARS = [
   },
 ];
 
-export default function Home() {
+function HomeContent() {
+  const searchParams = useSearchParams();
   const [repoUrl, setRepoUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>("");
@@ -122,6 +124,20 @@ export default function Home() {
     setRepoUrl("");
     setErrorMessage(null);
   };
+
+  const handledRepoRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const repoParam = searchParams.get("repo");
+    if (repoParam && !exploreData && !isLoading && handledRepoRef.current !== repoParam) {
+      handledRepoRef.current = repoParam;
+      const timer = setTimeout(() => {
+        setRepoUrl(repoParam);
+        void handleExplore(repoParam);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, exploreData, isLoading]);
 
   // If a Project Brief is active
   if (exploreData) {
@@ -383,9 +399,9 @@ export default function Home() {
                 >
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: pillar.bg, border: `1px solid ${pillar.border}` }}
+                    style={{ backgroundColor: pillar.bg, border: `1px solid ${pillar.border}`, color: pillar.color }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: pillar.color }} />
+                    <Icon className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold mb-1" style={{ color: "var(--text-primary)" }}>
@@ -406,16 +422,33 @@ export default function Home() {
 
         {/* Workspace link */}
         <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
-          <span>Looking for the authenticated private workspace?</span>
+          <span>Looking for saved repositories and workspace management?</span>
           <Link
             href="/projects"
-            className="font-semibold transition-colors"
+            className="font-semibold transition-colors hover:underline"
             style={{ color: "var(--teal-bright)" }}
           >
-            Go to Projects →
+            Go to Projects Hub →
           </Link>
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="flex-1 flex items-center justify-center p-16"
+          style={{ backgroundColor: "var(--bg-app)" }}
+        >
+          <div className="w-8 h-8 border-2 border-[var(--teal-primary)] border-t-[var(--teal-bright)] rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }

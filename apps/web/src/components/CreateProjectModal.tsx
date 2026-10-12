@@ -76,32 +76,55 @@ export default function CreateProjectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
       <div
-        className="w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden relative"
+        className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          border: "1px solid var(--border-default)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/50">
+        <div
+          className="flex items-center justify-between px-6 py-5 border-b"
+          style={{
+            backgroundColor: "var(--bg-sidebar)",
+            borderColor: "var(--border-default)",
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.15)",
+                border: "1px solid rgba(53,208,195,0.3)",
+                color: "var(--teal-bright)",
+              }}
+            >
               <FolderIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 id="modal-title" className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              <h2
+                id="modal-title"
+                className="text-base font-bold tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Connect GitHub Repository
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Add a new software project for analysis
+              <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                Add a new software project for architecture analysis
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-lg transition-colors cursor-pointer hover:text-white"
+            style={{ color: "var(--text-muted)" }}
             aria-label="Close modal"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -111,8 +134,15 @@ export default function CreateProjectModal({
         {/* Content Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5 text-xs text-rose-600 dark:text-rose-400">
-              <AlertCircleIcon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div
+              className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs"
+              style={{
+                backgroundColor: "rgba(224,92,92,0.1)",
+                border: "1px solid rgba(224,92,92,0.3)",
+                color: "var(--danger)",
+              }}
+            >
+              <AlertCircleIcon className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
@@ -121,9 +151,10 @@ export default function CreateProjectModal({
           <div>
             <label
               htmlFor="create-project-name"
-              className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5"
+              className="block text-xs font-semibold mb-1.5"
+              style={{ color: "var(--text-secondary)" }}
             >
-              Project Name <span className="text-rose-500">*</span>
+              Project Name <span style={{ color: "var(--danger)" }}>*</span>
             </label>
             <input
               id="create-project-name"
@@ -132,7 +163,12 @@ export default function CreateProjectModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Sarthi Core API"
-              className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-900 dark:text-zinc-100 text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              className="w-full px-3.5 py-2 rounded-xl text-sm placeholder-zinc-500 focus:outline-none transition-all"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                border: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+              }}
             />
           </div>
 
@@ -141,14 +177,15 @@ export default function CreateProjectModal({
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="create-project-github-url"
-                className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
+                className="block text-xs font-semibold"
+                style={{ color: "var(--text-secondary)" }}
               >
-                GitHub Repository URL <span className="text-rose-500">*</span>
+                GitHub Repository URL <span style={{ color: "var(--danger)" }}>*</span>
               </label>
               {githubUrl && (
                 <span
                   className={`text-[11px] flex items-center gap-1 ${
-                    isUrlValid ? "text-emerald-500 font-medium" : "text-amber-500"
+                    isUrlValid ? "text-[var(--accent-green)] font-medium" : "text-[var(--accent-amber)]"
                   }`}
                 >
                   {isUrlValid ? (
@@ -168,7 +205,12 @@ export default function CreateProjectModal({
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
               placeholder="https://github.com/facebook/react"
-              className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-900 dark:text-zinc-100 text-sm placeholder-zinc-400 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              className="w-full px-3.5 py-2 rounded-xl text-xs font-mono placeholder-zinc-500 focus:outline-none transition-all"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                border: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+              }}
             />
           </div>
 
@@ -177,12 +219,16 @@ export default function CreateProjectModal({
             <div className="sm:col-span-1">
               <label
                 htmlFor="create-project-branch"
-                className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5"
+                className="block text-xs font-semibold mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
                 Default Branch
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                <div
+                  className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   <GitBranchIcon className="w-3.5 h-3.5" />
                 </div>
                 <input
@@ -191,7 +237,12 @@ export default function CreateProjectModal({
                   value={defaultBranch}
                   onChange={(e) => setDefaultBranch(e.target.value)}
                   placeholder="main"
-                  className="w-full pl-8 pr-3 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-900 dark:text-zinc-100 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                  className="w-full pl-8 pr-3 py-2 rounded-xl text-xs font-mono focus:outline-none transition-all"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-default)",
+                    color: "var(--text-primary)",
+                  }}
                 />
               </div>
             </div>
@@ -199,9 +250,10 @@ export default function CreateProjectModal({
             <div className="sm:col-span-2">
               <label
                 htmlFor="create-project-desc"
-                className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5"
+                className="block text-xs font-semibold mb-1.5"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Description <span className="text-zinc-400 font-normal">(optional)</span>
+                Description <span style={{ color: "var(--text-muted)", fontWeight: "normal" }}>(optional)</span>
               </label>
               <input
                 id="create-project-desc"
@@ -209,18 +261,31 @@ export default function CreateProjectModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief project context..."
-                className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950/50 text-zinc-900 dark:text-zinc-100 text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                className="w-full px-3.5 py-2 rounded-xl text-sm placeholder-zinc-500 focus:outline-none transition-all"
+                style={{
+                  backgroundColor: "var(--bg-workspace)",
+                  border: "1px solid var(--border-default)",
+                  color: "var(--text-primary)",
+                }}
               />
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-200/80 dark:border-zinc-800/80">
+          <div
+            className="pt-4 flex items-center justify-end gap-3 border-t"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border-default)",
+              }}
             >
               Cancel
             </button>
@@ -228,7 +293,11 @@ export default function CreateProjectModal({
               id="create-project-submit-btn"
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md"
+              style={{
+                backgroundColor: "var(--teal-primary)",
+                color: "var(--text-primary)",
+              }}
             >
               {isSubmitting ? (
                 <>
