@@ -399,7 +399,11 @@ function HomeContent() {
                 >
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: pillar.bg, border: `1px solid ${pillar.border}`, color: pillar.color }}
+                    style={{
+                      backgroundColor: pillar.bg,
+                      border: `1px solid ${pillar.border}`,
+                      color: pillar.color,
+                    }}
                   >
                     <Icon className="w-4 h-4" />
                   </div>

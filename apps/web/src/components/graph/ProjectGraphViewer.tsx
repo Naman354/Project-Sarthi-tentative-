@@ -329,55 +329,77 @@ export function ProjectGraphViewer({
   }, [visibleNodes, searchQuery]);
 
   return (
-    <div className="relative w-full h-[720px] rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-950 overflow-hidden select-none flex flex-col shadow-inner">
+    <div
+      className="relative w-full h-[720px] rounded-2xl border overflow-hidden select-none flex flex-col shadow-inner"
+      style={{
+        backgroundColor: "var(--bg-workspace)",
+        borderColor: "var(--border-default)",
+      }}
+    >
       {/* Top Toolbar */}
-      <div className="z-10 flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 bg-zinc-900/90 backdrop-blur-md border-b border-zinc-800">
+      <div
+        className="z-10 flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 backdrop-blur-md border-b"
+        style={{
+          backgroundColor: "rgba(10, 15, 29, 0.95)",
+          borderColor: "var(--border-subtle)",
+        }}
+      >
         {/* Modes Toggle */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-xs">
+        <div
+          className="flex items-center gap-1.5 p-1 rounded-xl border text-xs"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
           <button
             type="button"
             onClick={() => {
               setMode("module");
               setFilterPreset("all");
             }}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              mode === "module"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
+            className="px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: mode === "module" ? "var(--teal-primary)" : "transparent",
+              color: mode === "module" ? "#0a0f1d" : "var(--text-secondary)",
+              boxShadow: mode === "module" ? "0 2px 8px rgba(0, 194, 203, 0.3)" : "none",
+            }}
           >
             Modules ({modules.length})
           </button>
           <button
             type="button"
             onClick={() => setMode("flow")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              mode === "flow"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
+            className="px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: mode === "flow" ? "var(--teal-primary)" : "transparent",
+              color: mode === "flow" ? "#0a0f1d" : "var(--text-secondary)",
+              boxShadow: mode === "flow" ? "0 2px 8px rgba(0, 194, 203, 0.3)" : "none",
+            }}
           >
             Request Flow
           </button>
           <button
             type="button"
             onClick={() => setMode("dependency")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              mode === "dependency"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
+            className="px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: mode === "dependency" ? "var(--teal-primary)" : "transparent",
+              color: mode === "dependency" ? "#0a0f1d" : "var(--text-secondary)",
+              boxShadow: mode === "dependency" ? "0 2px 8px rgba(0, 194, 203, 0.3)" : "none",
+            }}
           >
             Components
           </button>
           <button
             type="button"
             onClick={() => setMode("health")}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              mode === "health"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
-            }`}
+            className="px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: mode === "health" ? "var(--teal-primary)" : "transparent",
+              color: mode === "health" ? "#0a0f1d" : "var(--text-secondary)",
+              boxShadow: mode === "health" ? "0 2px 8px rgba(0, 194, 203, 0.3)" : "none",
+            }}
           >
             Health &amp; Risks
           </button>
@@ -385,16 +407,22 @@ export function ProjectGraphViewer({
 
         {/* Search & Presets */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Preset Filters (Milestone 9) */}
+          {/* Preset Filters */}
           {mode !== "module" && (
-            <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-800/90 border border-zinc-700/70 text-[11px]">
+            <div
+              className="flex items-center gap-1 p-0.5 rounded-lg border text-[11px]"
+              style={{
+                backgroundColor: "var(--bg-surface)",
+                borderColor: "var(--border-subtle)",
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setFilterPreset("all")}
                 className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                   filterPreset === "all"
                     ? "bg-zinc-700 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-muted)] hover:text-white"
                 }`}
               >
                 All
@@ -405,7 +433,7 @@ export function ProjectGraphViewer({
                 className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                   filterPreset === "api"
                     ? "bg-blue-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-muted)] hover:text-white"
                 }`}
               >
                 API Flow
@@ -416,7 +444,7 @@ export function ProjectGraphViewer({
                 className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                   filterPreset === "database"
                     ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-muted)] hover:text-white"
                 }`}
               >
                 Database
@@ -427,7 +455,7 @@ export function ProjectGraphViewer({
                 className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                   filterPreset === "frontend"
                     ? "bg-amber-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-muted)] hover:text-white"
                 }`}
               >
                 Frontend
@@ -438,7 +466,7 @@ export function ProjectGraphViewer({
                 className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
                   filterPreset === "risks"
                     ? "bg-rose-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-[var(--text-muted)] hover:text-white"
                 }`}
               >
                 At Risk
@@ -448,18 +476,30 @@ export function ProjectGraphViewer({
 
           {/* Quick Search */}
           <div className="relative">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-xs text-zinc-300">
-              <SearchIcon className="w-3.5 h-3.5 text-zinc-400" />
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs"
+              style={{
+                backgroundColor: "var(--bg-surface)",
+                borderColor: "var(--border-subtle)",
+              }}
+            >
+              <SearchIcon className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               <input
                 type="text"
                 placeholder="Find node..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs text-zinc-200 placeholder:text-zinc-500 w-24 sm:w-32"
+                className="bg-transparent border-none outline-none text-xs text-white placeholder:text-[var(--text-muted)] w-24 sm:w-32"
               />
             </div>
             {searchResults.length > 0 && (
-              <div className="absolute top-full left-0 mt-1 w-56 rounded-xl bg-zinc-900 border border-zinc-700 shadow-2xl p-1 z-30 space-y-1">
+              <div
+                className="absolute top-full left-0 mt-1 w-56 rounded-xl border shadow-2xl p-1 z-30 space-y-1"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  borderColor: "var(--border-default)",
+                }}
+              >
                 {searchResults.map((res) => (
                   <button
                     key={res.id}
@@ -468,10 +508,10 @@ export function ProjectGraphViewer({
                       handleSearchSelect(res.id);
                       setSearchQuery("");
                     }}
-                    className="w-full text-left p-2 rounded-lg hover:bg-zinc-800 text-xs flex items-center justify-between text-zinc-200"
+                    className="w-full text-left p-2 rounded-lg hover:bg-[var(--bg-surface)] text-xs flex items-center justify-between text-white"
                   >
                     <span className="truncate font-medium">{res.name}</span>
-                    <span className="text-[10px] text-zinc-500 uppercase">{res.nodeType}</span>
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-mono">{res.nodeType}</span>
                   </button>
                 ))}
               </div>
@@ -480,7 +520,7 @@ export function ProjectGraphViewer({
 
           {/* Type filters (in non-module mode) */}
           {mode !== "module" && (
-            <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-400">
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
               <button
                 type="button"
                 onClick={() => setShowRoutes(!showRoutes)}
@@ -530,28 +570,44 @@ export function ProjectGraphViewer({
         </div>
       </div>
 
-      {/* Breadcrumb / Location Bar (Milestone 9) */}
+      {/* Breadcrumb / Location Bar */}
       {selectedNode && (
-        <div className="z-10 flex items-center justify-between px-4 py-2 bg-zinc-900/60 border-b border-zinc-800/80 text-xs text-zinc-400">
+        <div
+          className="z-10 flex items-center justify-between px-4 py-2 border-b text-xs text-[var(--text-secondary)]"
+          style={{
+            backgroundColor: "rgba(10, 15, 29, 0.8)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
           <div className="flex items-center gap-1.5 truncate">
-            <span className="text-zinc-500">Project</span>
+            <span className="text-[var(--text-muted)]">Project</span>
             <span className="text-zinc-600">/</span>
-            <span className="text-zinc-400 font-medium uppercase text-[10px] tracking-wider">
+            <span className="font-mono uppercase text-[10px] tracking-wider text-[var(--text-muted)]">
               {selectedNode.nodeType}
             </span>
             <span className="text-zinc-600">/</span>
-            <span className="text-indigo-400 font-bold truncate">{selectedNode.name}</span>
+            <span className="font-bold truncate text-[var(--teal-bright)]">{selectedNode.name}</span>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               type="button"
               onClick={() => handleToggleFocus(selectedNode.id)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
-                isFocusMode && focusedNodeId === selectedNode.id
-                  ? "bg-purple-600 text-white border-purple-500 shadow-sm shadow-purple-600/30"
-                  : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-purple-500/30"
-              }`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer"
+              style={{
+                backgroundColor:
+                  isFocusMode && focusedNodeId === selectedNode.id
+                    ? "var(--accent-purple)"
+                    : "rgba(168, 85, 247, 0.12)",
+                borderColor:
+                  isFocusMode && focusedNodeId === selectedNode.id
+                    ? "var(--accent-purple)"
+                    : "rgba(168, 85, 247, 0.3)",
+                color:
+                  isFocusMode && focusedNodeId === selectedNode.id
+                    ? "#ffffff"
+                    : "#d8b4fe",
+              }}
             >
               <TargetIcon className="w-3.5 h-3.5" />
               <span>
@@ -571,22 +627,33 @@ export function ProjectGraphViewer({
         onWheel={handleWheel}
         className={`relative flex-1 overflow-hidden cursor-${isPanning ? "grabbing" : "grab"}`}
         style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, rgba(0, 194, 203, 0.1) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
         }}
       >
-        {/* Floating Focus Mode Banner (Milestone 9) */}
+        {/* Floating Focus Mode Banner */}
         {isFocusMode && focusedNode && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full bg-purple-950/90 border border-purple-500/60 shadow-2xl backdrop-blur-md animate-fade-in text-white text-xs">
-            <TargetIcon className="w-4 h-4 text-purple-400 animate-pulse" />
+          <div
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full border shadow-2xl backdrop-blur-md animate-fade-in text-white text-xs"
+            style={{
+              backgroundColor: "rgba(10, 15, 29, 0.95)",
+              borderColor: "var(--teal-primary)",
+            }}
+          >
+            <TargetIcon className="w-4 h-4 text-[var(--teal-bright)] animate-pulse" />
             <span>
-              Focus Mode: <strong className="text-purple-200">{focusedNode.name}</strong> • Showing{" "}
+              Focus Mode: <strong className="text-[var(--teal-bright)]">{focusedNode.name}</strong> • Showing{" "}
               {visibleNodes.length} related entities
             </span>
             <button
               type="button"
               onClick={handleExitFocus}
-              className="ml-2 px-2.5 py-0.5 rounded-full bg-purple-800 hover:bg-purple-700 text-[11px] font-semibold border border-purple-400/40 text-purple-100 transition-colors cursor-pointer"
+              className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer"
+              style={{
+                backgroundColor: "rgba(0, 194, 203, 0.15)",
+                borderColor: "rgba(0, 194, 203, 0.4)",
+                color: "var(--teal-bright)",
+              }}
             >
               Exit Focus
             </button>
@@ -613,7 +680,7 @@ export function ProjectGraphViewer({
                 refY="3"
                 orient="auto"
               >
-                <polygon points="0 0, 8 3, 0 6" fill="#6366f1" opacity="0.6" />
+                <polygon points="0 0, 8 3, 0 6" fill="#00c2cb" opacity="0.6" />
               </marker>
               <marker
                 id="arrowhead-active"
@@ -623,7 +690,7 @@ export function ProjectGraphViewer({
                 refY="3.5"
                 orient="auto"
               >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#a855f7" />
+                <polygon points="0 0, 9 3.5, 0 7" fill="#00e5ff" />
               </marker>
             </defs>
 
@@ -651,7 +718,7 @@ export function ProjectGraphViewer({
                   <path
                     d={pathData}
                     fill="none"
-                    stroke={isHighlighted ? "#a855f7" : "#4f46e5"}
+                    stroke={isHighlighted ? "#00e5ff" : "rgba(0, 194, 203, 0.45)"}
                     strokeWidth={isHighlighted ? 3 : 1.5}
                     strokeOpacity={isHighlighted ? 1 : selectedNodeId ? 0.15 : 0.5}
                     strokeDasharray={isHighlighted ? "6 3" : undefined}
@@ -681,10 +748,10 @@ export function ProjectGraphViewer({
                 }}
                 className={`graph-node absolute rounded-2xl cursor-pointer transition-all duration-200 border p-3.5 flex flex-col justify-between ${
                   isSelected
-                    ? "bg-zinc-900 border-indigo-500 shadow-2xl ring-2 ring-indigo-500/50 scale-105 z-20"
+                    ? "bg-zinc-900 border-[var(--teal-bright)] shadow-2xl ring-2 ring-[var(--teal-primary)]/50 scale-105 z-20"
                     : isConnected
-                      ? "bg-zinc-900/90 border-purple-500/80 shadow-lg z-10"
-                      : "bg-zinc-900/80 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-850"
+                      ? "bg-zinc-900/90 border-[var(--teal-primary)]/80 shadow-lg z-10"
+                      : "bg-zinc-900/80 border-zinc-800 hover:border-[var(--teal-primary)]/40 hover:bg-zinc-850"
                 } ${isDimmed ? "opacity-25" : "opacity-100"}`}
                 style={{
                   left: `${node.x}px`,
@@ -733,22 +800,28 @@ export function ProjectGraphViewer({
         </div>
 
         {/* Floating Zoom & Controls Widget */}
-        <div className="graph-ctrl absolute bottom-4 left-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-zinc-800 shadow-xl text-zinc-300">
+        <div
+          className="graph-ctrl absolute bottom-4 left-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl backdrop-blur-md border shadow-xl text-zinc-300"
+          style={{
+            backgroundColor: "rgba(10, 15, 29, 0.95)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
           <button
             type="button"
             onClick={handleZoomIn}
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
             title="Zoom In"
           >
             <ZoomInIcon className="w-4 h-4" />
           </button>
-          <span className="text-[11px] font-mono px-2 text-zinc-400">
+          <span className="text-[11px] font-mono px-2 text-[var(--text-muted)]">
             {Math.round(zoom * 100)}%
           </span>
           <button
             type="button"
             onClick={handleZoomOut}
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
             title="Zoom Out"
           >
             <ZoomOutIcon className="w-4 h-4" />
@@ -757,7 +830,7 @@ export function ProjectGraphViewer({
           <button
             type="button"
             onClick={handleReset}
-            className="p-1.5 rounded-lg hover:bg-zinc-800 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
             title="Reset View"
           >
             <ResetIcon className="w-4 h-4" />
@@ -765,16 +838,28 @@ export function ProjectGraphViewer({
         </div>
 
         {/* Mini-map Widget */}
-        <div className="hidden sm:block absolute bottom-4 right-4 z-20 w-36 h-28 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-zinc-800 p-2 shadow-xl pointer-events-none">
-          <div className="text-[9px] uppercase tracking-wider font-bold text-zinc-500 mb-1">
+        <div
+          className="hidden sm:block absolute bottom-4 right-4 z-20 w-36 h-28 rounded-xl backdrop-blur-md border p-2 shadow-xl pointer-events-none"
+          style={{
+            backgroundColor: "rgba(10, 15, 29, 0.95)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
+          <div className="text-[9px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">
             Overview Minimap
           </div>
-          <div className="relative w-full h-[76px] bg-zinc-950/80 rounded-lg border border-zinc-800/80 overflow-hidden">
+          <div
+            className="relative w-full h-[76px] rounded-lg border overflow-hidden"
+            style={{
+              backgroundColor: "rgba(6, 9, 19, 0.8)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
             {layoutNodes.map((n) => (
               <div
                 key={n.id}
                 className={`absolute w-1.5 h-1 rounded-sm ${
-                  selectedNodeId === n.id ? "bg-indigo-400" : "bg-zinc-600"
+                  selectedNodeId === n.id ? "bg-[var(--teal-bright)]" : "bg-zinc-600"
                 }`}
                 style={{
                   left: `${(n.x / 2500) * 100}%`,

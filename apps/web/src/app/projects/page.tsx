@@ -7,10 +7,7 @@ import { fetchProjects, deleteProject } from "../../lib/project";
 import type { Project } from "../../types/project";
 import ProjectCard from "../../components/ProjectCard";
 import CreateProjectModal from "../../components/CreateProjectModal";
-import {
-  useRecentRepos,
-  clearRecentRepos,
-} from "../../components/brief/RecentRepositoriesBar";
+import { useRecentRepos, clearRecentRepos } from "../../components/brief/RecentRepositoriesBar";
 import { TechLogo } from "../../components/TechIcons";
 import {
   FolderIcon,
@@ -146,7 +143,8 @@ export default function ProjectsPage() {
           }}
         >
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
               style={{
                 backgroundColor: "rgba(15,138,131,0.12)",
                 color: "var(--teal-bright)",
@@ -168,8 +166,8 @@ export default function ProjectsPage() {
               className="text-xs sm:text-sm leading-relaxed"
               style={{ color: "var(--text-secondary)" }}
             >
-              Revisit codebases you have previously analyzed in Sarthi, manage connected repositories,
-              and jump straight back into the interactive explorer.
+              Revisit codebases you have previously analyzed in Sarthi, manage connected
+              repositories, and jump straight back into the interactive explorer.
             </p>
           </div>
 
@@ -296,9 +294,7 @@ export default function ProjectsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
-                activeTab === "saved"
-                  ? "Search saved projects..."
-                  : "Search recent repositories..."
+                activeTab === "saved" ? "Search saved projects..." : "Search recent repositories..."
               }
               className="w-full pl-10 pr-4 py-2 rounded-xl text-xs sm:text-sm focus:outline-none transition-all"
               style={{
@@ -335,8 +331,8 @@ export default function ProjectsPage() {
                 </h2>
                 <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   Your recently explored repositories are preserved locally on this device. Create a
-                  free account to persist projects across devices, track architecture changes over time,
-                  and trigger automated re-syncs.
+                  free account to persist projects across devices, track architecture changes over
+                  time, and trigger automated re-syncs.
                 </p>
               </div>
             </div>
@@ -518,8 +514,8 @@ export default function ProjectsPage() {
                     No Repositories Explored Yet
                   </h2>
                   <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>
-                    Paste any public GitHub repository on the Explore page to inspect its architecture,
-                    modules, and technical overview.
+                    Paste any public GitHub repository on the Explore page to inspect its
+                    architecture, modules, and technical overview.
                   </p>
                 </div>
                 <Link
@@ -583,10 +579,7 @@ export default function ProjectsPage() {
                                 sha: {item.commitSha ? item.commitSha.substring(0, 7) : "HEAD"}
                               </span>
                               <span style={{ color: "var(--border-strong)" }}>•</span>
-                              <span
-                                className="text-xs"
-                                style={{ color: "var(--text-muted)" }}
-                              >
+                              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                                 {new Date(item.analyzedAt).toLocaleDateString()}
                               </span>
                             </div>
@@ -594,36 +587,40 @@ export default function ProjectsPage() {
                         </div>
                       </div>
 
-                      {/* Purpose */}
-                      <p
-                        className="text-xs sm:text-sm leading-relaxed line-clamp-2 min-h-[36px]"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
-                        {item.purpose}
-                      </p>
+                      {/* Purpose - natural height without bloated min-height */}
+                      {item.purpose && (
+                        <p
+                          className="text-xs sm:text-sm leading-relaxed line-clamp-2"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
+                          {item.purpose}
+                        </p>
+                      )}
 
                       {/* GitHub Link */}
-                      <div>
+                      <div className="pt-0.5">
                         <a
                           href={item.repoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-lg transition-colors truncate max-w-full"
+                          className="inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded-lg transition-colors truncate max-w-full group/link"
                           style={{
                             backgroundColor: "var(--bg-workspace)",
                             border: "1px solid var(--border-subtle)",
                             color: "var(--text-secondary)",
                           }}
                         >
-                          <span className="truncate">{item.owner}/{item.repo}</span>
-                          <ExternalLinkIcon className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                          <span className="truncate group-hover/link:text-white">
+                            {item.owner}/{item.repo}
+                          </span>
+                          <ExternalLinkIcon className="w-3.5 h-3.5 shrink-0 opacity-60 group-hover/link:opacity-100" />
                         </a>
                       </div>
                     </div>
 
                     {/* Footer Actions */}
                     <div
-                      className="pt-4 mt-5 border-t flex items-center justify-between gap-3"
+                      className="pt-3.5 mt-4 border-t flex items-center justify-between gap-3"
                       style={{ borderColor: "var(--border-subtle)" }}
                     >
                       <span
@@ -639,13 +636,13 @@ export default function ProjectsPage() {
 
                       <Link
                         href={`/?repo=${encodeURIComponent(item.repoUrl)}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs hover:brightness-110"
                         style={{
                           backgroundColor: "var(--teal-primary)",
                           color: "var(--text-primary)",
                         }}
                       >
-                        <SparklesIcon className="w-3.5 h-3.5" />
+                        <SparklesIcon className="w-4 h-4" />
                         <span>Open in Explorer</span>
                       </Link>
                     </div>

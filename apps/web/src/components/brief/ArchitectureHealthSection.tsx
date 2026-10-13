@@ -2,12 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
-import {
-  ShieldCheckIcon,
-  ArrowRightIcon,
-  NetworkGraphIcon,
-  SparklesIcon,
-} from "../Icons";
+import { ShieldCheckIcon, ArrowRightIcon, NetworkGraphIcon, SparklesIcon } from "../Icons";
 
 interface ArchitectureHealthSectionProps {
   brief: ProjectBrief;
@@ -94,8 +89,7 @@ export default function ArchitectureHealthSection({
   const evaluation = useMemo(() => {
     const areas = brief.conceptualMap.areas || [];
     const relationships = brief.conceptualMap.relationships || [];
-    const totalFiles =
-      evidenceSummary?.totalFiles || brief.technicalOverview.totalFiles || 0;
+    const totalFiles = evidenceSummary?.totalFiles || brief.technicalOverview.totalFiles || 0;
     const capabilities = brief.capabilities || [];
 
     // 1. Documentation Coverage
@@ -111,11 +105,13 @@ export default function ArchitectureHealthSection({
 
     if (totalFiles === 0 && totalCaps === 0) {
       docStatus = "insufficient-data";
-      docExplanation = "Repository analysis did not catalog files or capabilities for documentation checking.";
+      docExplanation =
+        "Repository analysis did not catalog files or capabilities for documentation checking.";
     } else if (docFilesCount === 0 && documentedCaps === 0) {
       docScore = 0;
       docStatus = "needs-attention";
-      docExplanation = "No dedicated documentation files (README or docs/) or verified documented capabilities detected.";
+      docExplanation =
+        "No dedicated documentation files (README or docs/) or verified documented capabilities detected.";
     } else {
       const capRatio = totalCaps > 0 ? (documentedCaps / totalCaps) * 60 : 30;
       const docFileRatio = docFilesCount > 0 ? 40 : 10;
@@ -150,9 +146,7 @@ export default function ArchitectureHealthSection({
     let complexityStatus: HealthSignalStatus = "insufficient-data";
     let complexityExplanation = "";
     const avgDegree =
-      areas.length > 0
-        ? Math.round((relationships.length / areas.length) * 10) / 10
-        : 0;
+      areas.length > 0 ? Math.round((relationships.length / areas.length) * 10) / 10 : 0;
     const totalExternalDeps =
       (brief.technicalOverview.dependencies?.length || 0) +
       (brief.technicalOverview.devDependencies?.length || 0);
@@ -335,21 +329,14 @@ export default function ArchitectureHealthSection({
           : connectivityStatus === "needs-attention"
             ? "Needs Attention"
             : "Insufficient Data",
-      metricLabel:
-        connectivityScore !== null ? `${connectivityScore}%` : "Insufficient Data",
+      metricLabel: connectivityScore !== null ? `${connectivityScore}%` : "Insufficient Data",
       explanation: connectivityExplanation,
       whyItMatters:
         "Integrated modules ensure the system behaves as a cohesive application rather than disjointed scripts.",
       details: { totalAreas: areas.length },
     };
 
-    const signals = [
-      docSignal,
-      complexitySignal,
-      balanceSignal,
-      cycleSignal,
-      connectivitySignal,
-    ];
+    const signals = [docSignal, complexitySignal, balanceSignal, cycleSignal, connectivitySignal];
 
     // Compute Overall Composite Score
     const scoredSignals = signals.filter((s) => s.score !== null);
@@ -358,15 +345,10 @@ export default function ArchitectureHealthSection({
 
     if (scoredSignals.length >= 2) {
       overallScore = Math.round(
-        scoredSignals.reduce((acc, s) => acc + (s.score as number), 0) /
-          scoredSignals.length
+        scoredSignals.reduce((acc, s) => acc + (s.score as number), 0) / scoredSignals.length
       );
       overallStatus =
-        overallScore >= 75
-          ? "healthy"
-          : overallScore >= 45
-            ? "needs-attention"
-            : "needs-attention";
+        overallScore >= 75 ? "healthy" : overallScore >= 45 ? "needs-attention" : "needs-attention";
     }
 
     return {
@@ -441,7 +423,8 @@ export default function ArchitectureHealthSection({
             </h3>
           </div>
           <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>
-            Calculated architectural signals evaluating documentation, inter-module coupling, balance, acyclicity, and connectivity.
+            Calculated architectural signals evaluating documentation, inter-module coupling,
+            balance, acyclicity, and connectivity.
           </p>
         </div>
 
@@ -514,7 +497,9 @@ export default function ArchitectureHealthSection({
                       cy="50"
                       r="40"
                       fill="transparent"
-                      stroke={overallStatus === "healthy" ? "var(--teal-bright)" : "var(--accent-amber)"}
+                      stroke={
+                        overallStatus === "healthy" ? "var(--teal-bright)" : "var(--accent-amber)"
+                      }
                       strokeWidth="8"
                       strokeDasharray={251.32}
                       strokeDashoffset={251.32 - (251.32 * overallScore) / 100}
@@ -656,12 +641,18 @@ export default function ArchitectureHealthSection({
             borderColor: "var(--border-default)",
           }}
         >
-          <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+          <div
+            className="flex items-center justify-between pb-3 border-b"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
             <div className="flex items-center gap-2">
               <span style={{ color: "var(--teal-bright)" }}>
                 <SparklesIcon className="w-4 h-4" />
               </span>
-              <h4 className="text-sm sm:text-base font-bold" style={{ color: "var(--text-primary)" }}>
+              <h4
+                className="text-sm sm:text-base font-bold"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Architectural Findings Breakdown
               </h4>
             </div>
@@ -687,12 +678,16 @@ export default function ArchitectureHealthSection({
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <span className="font-bold uppercase tracking-wider text-[11px] block" style={{ color: "var(--text-muted)" }}>
+              <span
+                className="font-bold uppercase tracking-wider text-[11px] block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Dependency Graph Cycles
               </span>
               {detectedCycles.length === 0 ? (
                 <p className="leading-relaxed" style={{ color: "var(--accent-green)" }}>
-                  ✓ No circular dependency paths detected. Module invocation graph is directed and acyclic.
+                  ✓ No circular dependency paths detected. Module invocation graph is directed and
+                  acyclic.
                 </p>
               ) : (
                 <div className="space-y-1.5">
@@ -718,12 +713,16 @@ export default function ArchitectureHealthSection({
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <span className="font-bold uppercase tracking-wider text-[11px] block" style={{ color: "var(--text-muted)" }}>
+              <span
+                className="font-bold uppercase tracking-wider text-[11px] block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Subsystems &amp; File Boundaries
               </span>
               <p className="leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                 {brief.conceptualMap.areas.length} functional areas identified across{" "}
-                {evidenceSummary?.totalFiles || brief.technicalOverview.totalFiles || "repository"} files.
+                {evidenceSummary?.totalFiles || brief.technicalOverview.totalFiles || "repository"}{" "}
+                files.
               </p>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {brief.conceptualMap.areas.slice(0, 6).map((a) => (

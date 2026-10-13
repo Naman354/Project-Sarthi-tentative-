@@ -61,37 +61,37 @@ export function ContextPanel({
   const getNodeIcon = (type: string) => {
     switch (type) {
       case "module":
-        return <LayersIcon className="w-4 h-4 text-purple-500" />;
+        return <LayersIcon className="w-4 h-4 text-purple-400" />;
       case "route":
-        return <RouteIcon className="w-4 h-4 text-blue-500" />;
+        return <RouteIcon className="w-4 h-4 text-blue-400" />;
       case "model":
-        return <DatabaseIcon className="w-4 h-4 text-emerald-500" />;
+        return <DatabaseIcon className="w-4 h-4 text-emerald-400" />;
       case "service":
       case "controller":
       case "component":
-        return <CodeIcon className="w-4 h-4 text-amber-500" />;
+        return <CodeIcon className="w-4 h-4 text-amber-400" />;
       case "doc":
-        return <FileTextIcon className="w-4 h-4 text-cyan-500" />;
+        return <FileTextIcon className="w-4 h-4 text-cyan-400" />;
       default:
-        return <CompassIcon className="w-4 h-4 text-indigo-500" />;
+        return <CompassIcon className="w-4 h-4 text-[var(--teal-bright)]" />;
     }
   };
 
   const getNodeBadgeClass = (type: string) => {
     switch (type) {
       case "module":
-        return "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
+        return "bg-purple-500/10 text-purple-400 border-purple-500/30";
       case "route":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+        return "bg-blue-500/10 text-blue-400 border-blue-500/30";
       case "model":
-        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
       case "service":
       case "controller":
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
       case "doc":
-        return "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20";
+        return "bg-cyan-500/10 text-cyan-400 border-cyan-500/30";
       default:
-        return "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20";
+        return "bg-teal-500/10 text-teal-400 border-teal-500/30";
     }
   };
 
@@ -100,29 +100,44 @@ export function ContextPanel({
   const httpMethod = (metadata["httpMethod"] as string) || (metadata["method"] as string) || null;
 
   return (
-    <aside className="w-80 sm:w-96 flex flex-col h-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-l border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden transition-all duration-300">
+    <aside
+      className="w-80 sm:w-96 flex flex-col h-full border-l shadow-2xl overflow-hidden transition-all duration-300"
+      style={{
+        backgroundColor: "var(--bg-elevated)",
+        borderColor: "var(--border-default)",
+      }}
+    >
       {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 flex items-start justify-between gap-3">
+      <div
+        className="p-4 sm:p-5 border-b flex items-start justify-between gap-3"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         <div className="flex items-start gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div
+            className="w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 mt-0.5"
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
             {getNodeIcon(node.nodeType)}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span
-                className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${getNodeBadgeClass(
+                className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full border ${getNodeBadgeClass(
                   node.nodeType
                 )}`}
               >
                 {node.nodeType}
               </span>
               {httpMethod && (
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
                   {httpMethod}
                 </span>
               )}
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-zinc-900 dark:text-zinc-100 truncate">
+            <h3 className="text-sm sm:text-base font-extrabold text-white truncate">
               {node.name}
             </h3>
           </div>
@@ -131,7 +146,7 @@ export function ContextPanel({
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-surface)] transition-colors cursor-pointer"
           title="Close panel"
         >
           <XIcon className="w-4 h-4" />
@@ -143,10 +158,16 @@ export function ContextPanel({
         {/* File Path / Location */}
         {filePath && (
           <div>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">
               Source Location
             </span>
-            <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200/60 dark:border-zinc-800/80 font-mono text-xs text-zinc-700 dark:text-zinc-300 break-all select-all">
+            <div
+              className="p-2.5 rounded-xl border font-mono text-xs text-[var(--text-secondary)] break-all select-all"
+              style={{
+                backgroundColor: "var(--bg-surface)",
+                borderColor: "var(--border-subtle)",
+              }}
+            >
               {filePath}
             </div>
           </div>
@@ -154,19 +175,31 @@ export function ContextPanel({
 
         {/* Graph Degree Metrics */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-800/80 text-center">
-            <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-0.5">
+          <div
+            className="p-3 rounded-xl border text-center"
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-0.5">
               Inbound Edges
             </span>
-            <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">
+            <span className="text-xl font-mono font-black text-[var(--teal-bright)]">
               {incomingEdges.length}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-100 dark:border-zinc-800/80 text-center">
-            <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-0.5">
+          <div
+            className="p-3 rounded-xl border text-center"
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border-subtle)",
+            }}
+          >
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-0.5">
               Outbound Edges
             </span>
-            <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">
+            <span className="text-xl font-mono font-black text-[var(--teal-bright)]">
               {outgoingEdges.length}
             </span>
           </div>
@@ -177,11 +210,17 @@ export function ContextPanel({
           <button
             type="button"
             onClick={() => onToggleFocus(node.id)}
-            className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
-              isFocused
-                ? "bg-purple-600 hover:bg-purple-500 text-white border-purple-500 shadow-md shadow-purple-600/30"
-                : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20"
-            }`}
+            className="w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer"
+            style={{
+              backgroundColor: isFocused
+                ? "var(--accent-purple)"
+                : "rgba(168, 85, 247, 0.12)",
+              borderColor: isFocused
+                ? "var(--accent-purple)"
+                : "rgba(168, 85, 247, 0.3)",
+              color: isFocused ? "#ffffff" : "#d8b4fe",
+              boxShadow: isFocused ? "0 0 15px rgba(168, 85, 247, 0.3)" : "none",
+            }}
           >
             <TargetIcon className="w-4 h-4" />
             <span>{isFocused ? "Exit Focus Mode" : "Focus on this Node & Neighbors"}</span>
@@ -192,8 +231,8 @@ export function ContextPanel({
         {nodeInsights.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                <AlertCircleIcon className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-1.5">
+                <AlertCircleIcon className="w-3.5 h-3.5 text-amber-400" />
                 Architectural Signals ({nodeInsights.length})
               </span>
             </div>
@@ -201,21 +240,36 @@ export function ContextPanel({
               {nodeInsights.map((insight) => (
                 <div
                   key={insight.id}
-                  className={`p-3 rounded-xl border text-xs ${
-                    insight.severity === "critical"
-                      ? "bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300"
-                      : insight.severity === "high"
-                        ? "bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-300"
-                        : "bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-300"
-                  }`}
+                  className="p-3 rounded-xl border text-xs"
+                  style={{
+                    backgroundColor: "var(--bg-surface)",
+                    borderColor:
+                      insight.severity === "critical"
+                        ? "rgba(244, 63, 94, 0.4)"
+                        : insight.severity === "high"
+                          ? "rgba(249, 115, 22, 0.4)"
+                          : "rgba(245, 158, 11, 0.4)",
+                  }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold">{insight.title}</span>
-                    <span className="text-[10px] uppercase font-mono font-bold tracking-wider">
+                    <span className="font-bold text-white">{insight.title}</span>
+                    <span
+                      className="text-[10px] uppercase font-mono font-bold tracking-wider px-1.5 py-0.2 rounded"
+                      style={{
+                        color:
+                          insight.severity === "critical"
+                            ? "#f87171"
+                            : insight.severity === "high"
+                              ? "#fb923c"
+                              : "#fbbf24",
+                      }}
+                    >
                       {insight.severity}
                     </span>
                   </div>
-                  <p className="text-[11px] opacity-90 leading-relaxed">{insight.description}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                    {insight.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -224,11 +278,11 @@ export function ContextPanel({
 
         {/* Outbound Relationships */}
         <div>
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-2">
             Outgoing Dependencies ({outgoingNodes.length})
           </span>
           {outgoingNodes.length === 0 ? (
-            <p className="text-xs text-zinc-400 italic">No outgoing dependencies</p>
+            <p className="text-xs text-[var(--text-muted)] italic py-1">No outgoing dependencies</p>
           ) : (
             <div className="space-y-1.5">
               {outgoingNodes.map(({ edge, node: targetNode }) => (
@@ -236,16 +290,27 @@ export function ContextPanel({
                   key={edge.id}
                   type="button"
                   onClick={() => onSelectNode(targetNode)}
-                  className="w-full flex items-center justify-between p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/40 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-indigo-500/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all text-left group"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl border transition-all text-left group cursor-pointer"
+                  style={{
+                    backgroundColor: "var(--bg-surface)",
+                    borderColor: "var(--border-subtle)",
+                  }}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     {getNodeIcon(targetNode.nodeType)}
-                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    <span className="text-xs font-semibold text-white truncate group-hover:text-[var(--teal-bright)]">
                       {targetNode.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0 text-zinc-400 group-hover:text-indigo-500">
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
+                  <div className="flex items-center gap-1.5 flex-shrink-0 text-[var(--text-muted)] group-hover:text-[var(--teal-bright)]">
+                    <span
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded border"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-subtle)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
                       {edge.relationshipType}
                     </span>
                     <ArrowRightIcon className="w-3.5 h-3.5" />
@@ -258,11 +323,11 @@ export function ContextPanel({
 
         {/* Inbound Relationships */}
         <div>
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-2">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-2">
             Inbound Consumers ({incomingNodes.length})
           </span>
           {incomingNodes.length === 0 ? (
-            <p className="text-xs text-zinc-400 italic">No inbound consumers</p>
+            <p className="text-xs text-[var(--text-muted)] italic py-1">No inbound consumers</p>
           ) : (
             <div className="space-y-1.5">
               {incomingNodes.map(({ edge, node: sourceNode }) => (
@@ -270,16 +335,27 @@ export function ContextPanel({
                   key={edge.id}
                   type="button"
                   onClick={() => onSelectNode(sourceNode)}
-                  className="w-full flex items-center justify-between p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/40 border border-zinc-200/50 dark:border-zinc-800/60 hover:border-indigo-500/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 transition-all text-left group"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl border transition-all text-left group cursor-pointer"
+                  style={{
+                    backgroundColor: "var(--bg-surface)",
+                    borderColor: "var(--border-subtle)",
+                  }}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     {getNodeIcon(sourceNode.nodeType)}
-                    <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                    <span className="text-xs font-semibold text-white truncate group-hover:text-[var(--teal-bright)]">
                       {sourceNode.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0 text-zinc-400 group-hover:text-indigo-500">
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
+                  <div className="flex items-center gap-1.5 flex-shrink-0 text-[var(--text-muted)] group-hover:text-[var(--teal-bright)]">
+                    <span
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded border"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-subtle)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
                       {edge.relationshipType}
                     </span>
                     <ArrowRightIcon className="w-3.5 h-3.5" />

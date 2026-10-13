@@ -99,7 +99,10 @@ export default function LanguageDonutChart({ languages, totalFiles }: LanguageDo
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: "var(--teal-bright)" }}
             />
-            <span className="text-sm sm:text-base font-bold" style={{ color: "var(--text-primary)" }}>
+            <span
+              className="text-sm sm:text-base font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
               Language Distribution
             </span>
           </div>
@@ -189,7 +192,10 @@ export default function LanguageDonutChart({ languages, totalFiles }: LanguageDo
                 >
                   {activeItem.language}
                 </span>
-                <span className="text-[11px] font-mono block" style={{ color: "var(--text-muted)" }}>
+                <span
+                  className="text-[11px] font-mono block"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   {activeItem.fileCount} {activeItem.fileCount === 1 ? "file" : "files"}
                 </span>
               </div>

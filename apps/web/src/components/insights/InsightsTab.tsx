@@ -41,18 +41,59 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
   return (
     <div className="space-y-6 animate-fade-in">
       {health && (
-        <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheckIcon className="w-5 h-5 text-indigo-500" />
-            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Evaluated Health Score:{" "}
-              <strong className="text-zinc-900 dark:text-zinc-100">
-                {health.overallScore}/100
-              </strong>{" "}
-              ({health.status})
-            </span>
+        <div
+          className="p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          style={{
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-default)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                backgroundColor: "rgba(0, 194, 203, 0.12)",
+                border: "1px solid rgba(0, 194, 203, 0.3)",
+                color: "var(--teal-bright)",
+              }}
+            >
+              <ShieldCheckIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-semibold text-[var(--text-secondary)]">
+                Evaluated Health Score:{" "}
+                <strong className="text-white font-mono text-sm ml-1">
+                  {health.overallScore}/100
+                </strong>
+              </span>
+              <span
+                className="ml-2.5 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor:
+                    health.status === "healthy"
+                      ? "rgba(16, 185, 129, 0.1)"
+                      : health.status === "warning"
+                        ? "rgba(245, 158, 11, 0.1)"
+                        : "rgba(244, 63, 94, 0.1)",
+                  borderColor:
+                    health.status === "healthy"
+                      ? "rgba(16, 185, 129, 0.3)"
+                      : health.status === "warning"
+                        ? "rgba(245, 158, 11, 0.3)"
+                        : "rgba(244, 63, 94, 0.3)",
+                  color:
+                    health.status === "healthy"
+                      ? "var(--accent-green)"
+                      : health.status === "warning"
+                        ? "var(--accent-amber)"
+                        : "var(--danger)",
+                }}
+              >
+                {health.status}
+              </span>
+            </div>
           </div>
-          <span className="text-[11px] text-zinc-400">
+          <span className="text-xs font-mono text-[var(--text-muted)]">
             {health.metrics.length} architectural signals evaluated
           </span>
         </div>
@@ -63,124 +104,193 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
         <button
           type="button"
           onClick={() => setSeverityFilter(severityFilter === "critical" ? "all" : "critical")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
-            severityFilter === "critical"
-              ? "bg-rose-500/10 border-rose-500 shadow-sm ring-1 ring-rose-500"
-              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-rose-500/50"
-          }`}
+          className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              severityFilter === "critical"
+                ? "rgba(244, 63, 94, 0.12)"
+                : "var(--bg-elevated)",
+            borderColor:
+              severityFilter === "critical"
+                ? "var(--danger)"
+                : "var(--border-default)",
+            boxShadow:
+              severityFilter === "critical"
+                ? "0 0 15px rgba(244, 63, 94, 0.2)"
+                : "none",
+          }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400">
               Critical
             </span>
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50" />
           </div>
-          <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
-            {counts.critical}
-          </div>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">Immediate action</span>
+          <div className="text-2xl font-mono font-black text-white">{counts.critical}</div>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Immediate action</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSeverityFilter(severityFilter === "high" ? "all" : "high")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
-            severityFilter === "high"
-              ? "bg-orange-500/10 border-orange-500 shadow-sm ring-1 ring-orange-500"
-              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-orange-500/50"
-          }`}
+          className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              severityFilter === "high"
+                ? "rgba(249, 115, 22, 0.12)"
+                : "var(--bg-elevated)",
+            borderColor:
+              severityFilter === "high"
+                ? "rgb(249, 115, 22)"
+                : "var(--border-default)",
+            boxShadow:
+              severityFilter === "high"
+                ? "0 0 15px rgba(249, 115, 22, 0.2)"
+                : "none",
+          }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-400">
               High Risk
             </span>
-            <span className="w-2 h-2 rounded-full bg-orange-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
           </div>
-          <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">{counts.high}</div>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">Cycles &amp; coupling</span>
+          <div className="text-2xl font-mono font-black text-white">{counts.high}</div>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Cycles &amp; coupling</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSeverityFilter(severityFilter === "medium" ? "all" : "medium")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
-            severityFilter === "medium"
-              ? "bg-amber-500/10 border-amber-500 shadow-sm ring-1 ring-amber-500"
-              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-amber-500/50"
-          }`}
+          className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              severityFilter === "medium"
+                ? "rgba(245, 158, 11, 0.12)"
+                : "var(--bg-elevated)",
+            borderColor:
+              severityFilter === "medium"
+                ? "var(--accent-amber)"
+                : "var(--border-default)",
+            boxShadow:
+              severityFilter === "medium"
+                ? "0 0 15px rgba(245, 158, 11, 0.2)"
+                : "none",
+          }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
               Medium
             </span>
-            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
           </div>
-          <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
-            {counts.medium}
-          </div>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">Docs &amp; balance</span>
+          <div className="text-2xl font-mono font-black text-white">{counts.medium}</div>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Docs &amp; balance</span>
         </button>
 
         <button
           type="button"
           onClick={() => setSeverityFilter(severityFilter === "low" ? "all" : "low")}
-          className={`p-4 rounded-2xl border text-left transition-all ${
-            severityFilter === "low"
-              ? "bg-blue-500/10 border-blue-500 shadow-sm ring-1 ring-blue-500"
-              : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-blue-500/50"
-          }`}
+          className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              severityFilter === "low"
+                ? "rgba(59, 130, 246, 0.12)"
+                : "var(--bg-elevated)",
+            borderColor:
+              severityFilter === "low"
+                ? "rgb(59, 130, 246)"
+                : "var(--border-default)",
+            boxShadow:
+              severityFilter === "low"
+                ? "0 0 15px rgba(59, 130, 246, 0.2)"
+                : "none",
+          }}
         >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
               Low / Info
             </span>
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
           </div>
-          <div className="text-2xl font-black text-zinc-900 dark:text-zinc-100">{counts.low}</div>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">Minor observations</span>
+          <div className="text-2xl font-mono font-black text-white">{counts.low}</div>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Minor observations</span>
         </button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border shadow-sm"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          borderColor: "var(--border-default)",
+        }}
+      >
         <div className="flex items-center gap-2 flex-wrap">
-          <FilterIcon className="w-4 h-4 text-zinc-400 mr-1" />
-          {["all", "critical", "high", "medium", "low"].map((sev) => (
-            <button
-              key={sev}
-              type="button"
-              onClick={() => setSeverityFilter(sev)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
-                severityFilter === sev
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-              }`}
-            >
-              {sev === "all" ? "All Severities" : sev}
-            </button>
-          ))}
+          <FilterIcon className="w-4 h-4 text-[var(--text-muted)] mr-1" />
+          {["all", "critical", "high", "medium", "low"].map((sev) => {
+            const isActive = severityFilter === sev;
+            return (
+              <button
+                key={sev}
+                type="button"
+                onClick={() => setSeverityFilter(sev)}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer border"
+                style={{
+                  backgroundColor: isActive
+                    ? "var(--teal-primary)"
+                    : "var(--bg-surface)",
+                  borderColor: isActive
+                    ? "var(--teal-bright)"
+                    : "var(--border-subtle)",
+                  color: isActive ? "#0a0f1d" : "var(--text-secondary)",
+                }}
+              >
+                {sev === "all" ? "All Severities" : sev}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs w-full sm:w-64">
-          <SearchIcon className="w-3.5 h-3.5 text-zinc-400" />
+        <div
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs w-full sm:w-64"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
+          <SearchIcon className="w-3.5 h-3.5 text-[var(--text-muted)]" />
           <input
             type="text"
             placeholder="Search insights..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 w-full"
+            className="bg-transparent border-none outline-none text-xs text-white placeholder:text-[var(--text-muted)] w-full"
           />
         </div>
       </div>
 
       {/* Insights Cards List */}
       {filteredInsights.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-          <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
-            No Insights Found
-          </h3>
-          <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+        <div
+          className="p-12 text-center rounded-2xl border"
+          style={{
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-default)",
+          }}
+        >
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+            style={{
+              backgroundColor: "rgba(16, 185, 129, 0.1)",
+              border: "1px solid rgba(16, 185, 129, 0.25)",
+              color: "var(--accent-green)",
+            }}
+          >
+            <ShieldCheckIcon className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-white">No Insights Found</h3>
+          <p className="text-xs text-[var(--text-muted)] mt-1.5 max-w-sm mx-auto">
             {searchQuery || severityFilter !== "all"
               ? "No insights match your selected filters."
               : "Repository adheres cleanly to architectural patterns with zero detected anomalies."}
@@ -188,64 +298,105 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredInsights.map((insight) => (
-            <div
-              key={insight.id}
-              className={`p-5 rounded-2xl border transition-all ${
-                insight.severity === "critical"
-                  ? "bg-rose-500/5 border-rose-500/20"
-                  : insight.severity === "high"
-                    ? "bg-orange-500/5 border-orange-500/20"
-                    : insight.severity === "medium"
-                      ? "bg-amber-500/5 border-amber-500/20"
-                      : "bg-blue-500/5 border-blue-500/20"
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                        insight.severity === "critical"
-                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                          : insight.severity === "high"
-                            ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
-                            : insight.severity === "medium"
-                              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                              : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-                      }`}
-                    >
-                      {insight.severity}
-                    </span>
-                    {insight.relatedModule && (
-                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                        Module: {insight.relatedModule}
-                      </span>
-                    )}
-                  </div>
-                  <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100">
-                    {insight.title}
-                  </h4>
-                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed pt-1">
-                    {insight.description}
-                  </p>
-                </div>
+          {filteredInsights.map((insight) => {
+            const isCritical = insight.severity === "critical";
+            const isHigh = insight.severity === "high";
+            const isMedium = insight.severity === "medium";
 
-                <div className="flex items-center gap-2 self-start flex-shrink-0 pt-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onLocateInGraph(insight.relatedNodeId || insight.relatedModule || "")
-                    }
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:border-indigo-500 transition-colors cursor-pointer"
-                  >
-                    <span>Locate Node</span>
-                    <ArrowRightIcon className="w-3.5 h-3.5" />
-                  </button>
+            const badgeBg = isCritical
+              ? "rgba(244, 63, 94, 0.1)"
+              : isHigh
+                ? "rgba(249, 115, 22, 0.1)"
+                : isMedium
+                  ? "rgba(245, 158, 11, 0.1)"
+                  : "rgba(59, 130, 246, 0.1)";
+
+            const badgeBorder = isCritical
+              ? "rgba(244, 63, 94, 0.3)"
+              : isHigh
+                ? "rgba(249, 115, 22, 0.3)"
+                : isMedium
+                  ? "rgba(245, 158, 11, 0.3)"
+                  : "rgba(59, 130, 246, 0.3)";
+
+            const badgeColor = isCritical
+              ? "#f87171"
+              : isHigh
+                ? "#fb923c"
+                : isMedium
+                  ? "#fbbf24"
+                  : "#60a5fa";
+
+            return (
+              <div
+                key={insight.id}
+                className="p-5 rounded-2xl border transition-all"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  borderColor: isCritical
+                    ? "rgba(244, 63, 94, 0.35)"
+                    : isHigh
+                      ? "rgba(249, 115, 22, 0.35)"
+                      : isMedium
+                        ? "rgba(245, 158, 11, 0.35)"
+                        : "var(--border-default)",
+                }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span
+                        className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border"
+                        style={{
+                          backgroundColor: badgeBg,
+                          borderColor: badgeBorder,
+                          color: badgeColor,
+                        }}
+                      >
+                        {insight.severity}
+                      </span>
+                      {insight.relatedModule && (
+                        <span
+                          className="text-[10px] font-mono font-medium px-2 py-0.5 rounded border"
+                          style={{
+                            backgroundColor: "var(--bg-surface)",
+                            borderColor: "var(--border-subtle)",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Module: {insight.relatedModule}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-sm sm:text-base font-bold text-white">
+                      {insight.title}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-0.5">
+                      {insight.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-start flex-shrink-0 pt-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onLocateInGraph(insight.relatedNodeId || insight.relatedModule || "")
+                      }
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--bg-surface)",
+                        borderColor: "var(--border-subtle)",
+                        color: "var(--teal-bright)",
+                      }}
+                    >
+                      <span>Locate Node</span>
+                      <ArrowRightIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

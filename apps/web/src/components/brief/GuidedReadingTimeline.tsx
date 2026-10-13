@@ -55,7 +55,8 @@ export default function GuidedReadingTimeline({
             </h2>
           </div>
           <p className="text-xs sm:text-sm" style={{ color: "var(--text-secondary)" }}>
-            A guided sequential path through important files to build an accurate mental model of this repository.
+            A guided sequential path through important files to build an accurate mental model of
+            this repository.
           </p>
         </div>
 
@@ -175,9 +176,7 @@ export default function GuidedReadingTimeline({
                         />
                       </svg>
                       <div className="truncate">
-                        {fileDir && (
-                          <span style={{ color: "var(--text-muted)" }}>{fileDir}/</span>
-                        )}
+                        {fileDir && <span style={{ color: "var(--text-muted)" }}>{fileDir}/</span>}
                         <span
                           className="font-bold font-mono"
                           style={{ color: "var(--text-primary)" }}

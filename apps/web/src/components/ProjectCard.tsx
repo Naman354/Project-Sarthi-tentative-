@@ -139,21 +139,23 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
           </div>
         </div>
 
-        {/* Description */}
-        <p
-          className="text-xs sm:text-sm leading-relaxed line-clamp-2 min-h-[36px]"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          {project.description || "No project description provided."}
-        </p>
+        {/* Description - natural height without bloated min-height */}
+        {project.description && (
+          <p
+            className="text-xs sm:text-sm leading-relaxed line-clamp-2"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {project.description}
+          </p>
+        )}
 
         {/* Repository Permalink */}
-        <div>
+        <div className="pt-0.5">
           <a
             href={project.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-lg transition-colors truncate max-w-full group/link"
+            className="inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded-lg transition-colors truncate max-w-full group/link"
             style={{
               backgroundColor: "var(--bg-workspace)",
               border: "1px solid var(--border-subtle)",
@@ -168,13 +170,13 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
 
       {/* Footer Controls & Distinct Navigation Actions */}
       <div
-        className="pt-4 mt-5 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        className="pt-3.5 mt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
         style={{ borderColor: "var(--border-subtle)" }}
       >
         <div className="flex items-center gap-2 flex-wrap">
           {project.lastAnalysis ? (
             <span
-              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-bold px-2.5 py-0.5 rounded-full"
+              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-bold px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: "rgba(85,184,121,0.12)",
                 color: "var(--accent-green)",
@@ -186,7 +188,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-bold px-2.5 py-0.5 rounded-full"
+              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-bold px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: "rgba(244,176,79,0.12)",
                 color: "var(--accent-amber)",
@@ -215,26 +217,27 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
           {/* Action 1: Reopen in Explorer */}
           <Link
             href={`/?repo=${encodeURIComponent(project.githubUrl)}`}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs hover:brightness-110"
             style={{
               backgroundColor: "var(--teal-primary)",
               color: "var(--text-primary)",
             }}
             title="Open in repository explorer"
           >
-            <SparklesIcon className="w-3.5 h-3.5" />
+            <SparklesIcon className="w-4 h-4" />
             <span>Open in Explorer</span>
           </Link>
 
-          {/* Action 2: View Project Details */}
+          {/* Action 2: View Project Deep Analysis */}
           <Link
             href={`/projects/${project.id}`}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:text-white"
             style={{
               backgroundColor: "var(--bg-workspace)",
               color: "var(--text-secondary)",
-              border: "1px solid var(--border-subtle)",
+              border: "1px solid var(--border-default)",
             }}
+            title="Deep architectural analysis and graph"
           >
             <span>Details</span>
             <ArrowRightIcon className="w-3.5 h-3.5" />

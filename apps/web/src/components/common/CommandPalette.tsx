@@ -354,12 +354,22 @@ export function CommandPalette({
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-2xl rounded-2xl border border-zinc-700/80 bg-zinc-900 shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-scale-in"
+        className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-scale-in"
+        style={{
+          backgroundColor: "var(--bg-elevated)",
+          borderColor: "var(--border-default)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-800 bg-zinc-900/90">
-          <SearchIcon className="w-5 h-5 text-indigo-400 flex-shrink-0" />
+        <div
+          className="flex items-center gap-3 px-4 py-3.5 border-b"
+          style={{
+            backgroundColor: "rgba(10, 15, 29, 0.95)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
+          <SearchIcon className="w-5 h-5 text-[var(--teal-bright)] flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -370,7 +380,7 @@ export function CommandPalette({
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search modules, routes, models, insights, or actions..."
-            className="flex-1 bg-transparent border-none outline-none text-sm text-zinc-100 placeholder:text-zinc-500"
+            className="flex-1 bg-transparent border-none outline-none text-sm text-white placeholder:text-[var(--text-muted)]"
           />
           {query && (
             <button
@@ -379,12 +389,19 @@ export function CommandPalette({
                 setQuery("");
                 setSelectedIndex(0);
               }}
-              className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+              className="p-1 rounded-md text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-surface)] transition-colors cursor-pointer"
             >
               <XIcon className="w-4 h-4" />
             </button>
           )}
-          <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">
+          <div
+            className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border"
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border-subtle)",
+              color: "var(--text-muted)",
+            }}
+          >
             ESC
           </div>
         </div>
@@ -396,11 +413,17 @@ export function CommandPalette({
         >
           {filteredItems.length === 0 ? (
             <div className="py-12 px-4 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-800 text-zinc-500 flex items-center justify-center mx-auto mb-3">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                style={{
+                  backgroundColor: "rgba(0, 194, 203, 0.1)",
+                  color: "var(--teal-bright)",
+                }}
+              >
                 <SearchIcon className="w-6 h-6" />
               </div>
-              <div className="text-sm font-semibold text-zinc-300">No matching concepts found</div>
-              <div className="text-xs text-zinc-500 mt-1">
+              <div className="text-sm font-semibold text-white">No matching concepts found</div>
+              <div className="text-xs text-[var(--text-muted)] mt-1">
                 Try searching for route paths, model names, components, or modules.
               </div>
             </div>
@@ -413,23 +436,35 @@ export function CommandPalette({
                   data-index={idx}
                   onClick={item.onSelect}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
-                    isSelected
-                      ? "bg-indigo-600/20 text-white border border-indigo-500/40"
-                      : "text-zinc-300 hover:bg-zinc-800/60"
-                  }`}
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-all border"
+                  style={{
+                    backgroundColor: isSelected
+                      ? "rgba(0, 194, 203, 0.12)"
+                      : "transparent",
+                    borderColor: isSelected
+                      ? "var(--teal-primary)"
+                      : "transparent",
+                    color: isSelected ? "white" : "var(--text-secondary)",
+                    boxShadow: isSelected
+                      ? "0 0 12px rgba(0, 194, 203, 0.12)"
+                      : "none",
+                  }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`p-2 rounded-xl flex-shrink-0 ${
-                        isSelected ? "bg-indigo-600 text-white" : "bg-zinc-800 text-zinc-400"
-                      }`}
+                      className="p-2 rounded-xl flex-shrink-0"
+                      style={{
+                        backgroundColor: isSelected
+                          ? "var(--teal-primary)"
+                          : "var(--bg-surface)",
+                        color: isSelected ? "#0a0f1d" : "var(--text-muted)",
+                      }}
                     >
                       {item.icon}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-zinc-100 truncate">
+                        <span className="text-xs font-semibold text-white truncate">
                           {item.title}
                         </span>
                         {item.badge && (
@@ -443,7 +478,7 @@ export function CommandPalette({
                         )}
                       </div>
                       {item.subtitle && (
-                        <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                        <div className="text-[11px] text-[var(--text-muted)] truncate mt-0.5">
                           {item.subtitle}
                         </div>
                       )}
@@ -451,12 +486,12 @@ export function CommandPalette({
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[10px] text-zinc-500 hidden sm:inline">
+                    <span className="text-[10px] text-[var(--text-muted)] hidden sm:inline">
                       {item.category}
                     </span>
                     <ArrowRightIcon
                       className={`w-3.5 h-3.5 transition-transform ${
-                        isSelected ? "text-indigo-400 translate-x-0.5" : "text-zinc-600"
+                        isSelected ? "text-[var(--teal-bright)] translate-x-0.5" : "text-zinc-600"
                       }`}
                     />
                   </div>
@@ -467,28 +502,58 @@ export function CommandPalette({
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-4 py-2.5 bg-zinc-950 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-500">
+        <div
+          className="px-4 py-2.5 border-t flex items-center justify-between text-[11px]"
+          style={{
+            backgroundColor: "rgba(6, 9, 19, 0.95)",
+            borderColor: "var(--border-subtle)",
+            color: "var(--text-muted)",
+          }}
+        >
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono text-[10px]">
+              <kbd
+                className="px-1 py-0.5 rounded font-mono text-[10px] border"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  borderColor: "var(--border-subtle)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 ↑↓
               </kbd>{" "}
               Navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono text-[10px]">
+              <kbd
+                className="px-1 py-0.5 rounded font-mono text-[10px] border"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  borderColor: "var(--border-subtle)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 ↵
               </kbd>{" "}
               Select
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono text-[10px]">
+              <kbd
+                className="px-1 py-0.5 rounded font-mono text-[10px] border"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  borderColor: "var(--border-subtle)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 ESC
               </kbd>{" "}
               Close
             </span>
           </div>
-          <div className="text-[10px] font-mono text-indigo-400">Project Sarthi Omnibar</div>
+          <div className="text-[10px] font-mono font-bold text-[var(--teal-bright)]">
+            Project Sarthi Omnibar
+          </div>
         </div>
       </div>
     </div>

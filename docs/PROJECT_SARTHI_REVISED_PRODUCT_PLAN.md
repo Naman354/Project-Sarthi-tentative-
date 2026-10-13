@@ -430,4 +430,3 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
    - Redesigned `ProjectCard` with language icons, status pills, in-place deletion confirmation, and direct "Open in Explorer" (`/?repo=...`) action.
    - Added query param support (`/?repo=...`) in `app/page.tsx` for seamless navigation between Projects and Explore.
    - Upgraded `Navbar.tsx` height (`h-14`), branding typography, and active indicator treatments.
-

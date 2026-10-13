@@ -78,9 +78,7 @@ export default function Navbar() {
                 style={{
                   color: active ? "var(--teal-bright)" : "var(--text-secondary)",
                   backgroundColor: active ? "rgba(15,138,131,0.14)" : "transparent",
-                  border: active
-                    ? "1px solid rgba(53,208,195,0.35)"
-                    : "1px solid transparent",
+                  border: active ? "1px solid rgba(53,208,195,0.35)" : "1px solid transparent",
                 }}
               >
                 <span>{label}</span>

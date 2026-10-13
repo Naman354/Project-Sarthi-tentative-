@@ -87,10 +87,7 @@ export default function ProjectDescriptionSection({
 
       {/* Concrete Distinctive Capabilities Highlight */}
       {topCapabilities.length > 0 && (
-        <div
-          className="pt-6 border-t space-y-4"
-          style={{ borderColor: "var(--border-subtle)" }}
-        >
+        <div className="pt-6 border-t space-y-4" style={{ borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between">
             <span
               className="text-xs font-bold uppercase tracking-wider block"

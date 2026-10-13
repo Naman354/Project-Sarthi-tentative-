@@ -185,7 +185,9 @@ export default function CreateProjectModal({
               {githubUrl && (
                 <span
                   className={`text-[11px] flex items-center gap-1 ${
-                    isUrlValid ? "text-[var(--accent-green)] font-medium" : "text-[var(--accent-amber)]"
+                    isUrlValid
+                      ? "text-[var(--accent-green)] font-medium"
+                      : "text-[var(--accent-amber)]"
                   }`}
                 >
                   {isUrlValid ? (
@@ -253,7 +255,8 @@ export default function CreateProjectModal({
                 className="block text-xs font-semibold mb-1.5"
                 style={{ color: "var(--text-secondary)" }}
               >
-                Description <span style={{ color: "var(--text-muted)", fontWeight: "normal" }}>(optional)</span>
+                Description{" "}
+                <span style={{ color: "var(--text-muted)", fontWeight: "normal" }}>(optional)</span>
               </label>
               <input
                 id="create-project-desc"
