@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "../lib/api";
 import {
   fetchProjectStatus,
@@ -12,6 +12,8 @@ import {
   fetchProjectInsights,
   fetchResumeSession,
   fetchProjectEntities,
+  triggerProjectAnalysis,
+  deleteProject,
 } from "../lib/project";
 import type {
   Project,
@@ -77,8 +79,10 @@ const PILLARS = [
 
 function HomeContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [repoUrl, setRepoUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exploreData, setExploreData] = useState<{
@@ -296,6 +300,24 @@ function HomeContent() {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
+      const repoFromUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("repo")
+          : null;
+      if (
+        repoFromUrl &&
+        (msg.includes("Authorization") ||
+          msg.includes("UNAUTHORIZED") ||
+          msg.includes("not found") ||
+          msg.includes("Failed to load"))
+      ) {
+        console.warn(
+          "Could not load saved project directly, falling back to public exploration:",
+          msg
+        );
+        void handleExplore(repoFromUrl);
+        return;
+      }
       setErrorMessage(msg);
     } finally {
       setIsLoading(false);
@@ -308,6 +330,39 @@ function HomeContent() {
       void handleLoadSavedProject(savedProjectContext.project.id);
     } else if (exploreData?.brief?.repoUrl) {
       void handleExplore(exploreData.brief.repoUrl, true);
+    }
+  };
+
+  const handleReanalyzeProject = async () => {
+    if (!savedProjectContext?.project?.id) return;
+    setIsAnalyzing(true);
+    setLoadingStep("Triggering fresh repository analysis...");
+    try {
+      const res = await triggerProjectAnalysis(savedProjectContext.project.id);
+      if (res.success) {
+        await handleLoadSavedProject(savedProjectContext.project.id);
+      } else {
+        setErrorMessage(res.message || "Repository analysis failed");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Analysis request failed");
+    } finally {
+      setIsAnalyzing(false);
+      setLoadingStep("");
+    }
+  };
+
+  const handleDeleteSavedProject = async () => {
+    if (!savedProjectContext?.project?.id) return;
+    try {
+      const res = await deleteProject(savedProjectContext.project.id);
+      if (res.success) {
+        router.push("/projects");
+      } else {
+        alert(res.message || "Failed to delete project");
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete project");
     }
   };
 
@@ -382,6 +437,9 @@ function HomeContent() {
             insights={savedProjectContext?.insights}
             resume={savedProjectContext?.resume}
             entities={savedProjectContext?.entities}
+            onReanalyze={handleReanalyzeProject}
+            onDelete={handleDeleteSavedProject}
+            isAnalyzing={isAnalyzing}
           />
         </main>
       </div>

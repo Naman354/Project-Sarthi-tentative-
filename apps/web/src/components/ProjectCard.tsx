@@ -9,7 +9,6 @@ import {
   ExternalLinkIcon,
   TrashIcon,
   CalendarIcon,
-  ArrowRightIcon,
   SparklesIcon,
 } from "./Icons";
 import { TechLogo } from "./TechIcons";
@@ -214,33 +213,17 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          {/* Action 1: Reopen in Explorer */}
           <Link
             href={`/?project=${encodeURIComponent(project.id)}&repo=${encodeURIComponent(project.githubUrl)}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs hover:brightness-110"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs hover:brightness-110"
             style={{
               backgroundColor: "var(--teal-primary)",
               color: "var(--text-primary)",
             }}
-            title="Open in repository explorer"
+            title="Open repository in unified explorer"
           >
             <SparklesIcon className="w-4 h-4" />
             <span>Open in Explorer</span>
-          </Link>
-
-          {/* Action 2: View Project Deep Analysis */}
-          <Link
-            href={`/projects/${project.id}`}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:text-white"
-            style={{
-              backgroundColor: "var(--bg-workspace)",
-              color: "var(--text-secondary)",
-              border: "1px solid var(--border-default)",
-            }}
-            title="Deep architectural analysis and graph"
-          >
-            <span>Details</span>
-            <ArrowRightIcon className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>

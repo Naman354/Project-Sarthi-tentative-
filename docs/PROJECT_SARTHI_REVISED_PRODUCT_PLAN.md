@@ -468,4 +468,36 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 ### 3. Known Limitations & Remaining Differences
 
 - **AST Parsing Depth**: Anonymous public quick exploration generates evidence records and conceptual maps from repository manifests, documentation, and shallow source catalogs; fine-grained AST graph nodes and normalized entities require saving and running the multi-language parser pipeline on the repository.
-- **Legacy Route Retained**: The classic `/projects/[id]` page retains its tabbed layout as an alternative view for users accustomed to the previous interface, with reciprocal navigation ("Open in Explorer" / "Classic Details") linking the two seamlessly.
+
+---
+
+## 13. Retirement of Legacy Details UI & Finalized Workspace Consolidation (October 2026)
+
+**Status:** Completed & Verified  
+**Goal:** Complete full workspace consolidation by retiring the older `/projects/[id]` monolithic UI and routing all entry points (Projects cards, bookmarks, direct links) to the unified canonical engineering workbench with 100% feature parity, preserved project management operations, and zero redundant AI runs.
+
+### 1. Parity Audit & Native Project-Management Operations
+
+- **Full Parity Verified**: All legacy analysis capabilities (Interactive Graph, Module Explorer with route/model/import details, Architecture Health with circular score gauge, actionable diagnostic findings with "Locate in Graph" triggers, Developer Briefing with architectural rationale, and Raw AST Entities Explorer) are accessible through the canonical engineering workbench.
+- **Project-Management Operations Integrated**:
+  - **Re-run Analysis**: Saved projects in the canonical workspace can trigger a fresh repository re-analysis (`onReanalyze`), re-parsing AST entities and updating stored health scores and insights without losing workspace context.
+  - **Delete Saved Project**: Saved projects can be deleted directly from the workspace header (`onDelete`) with in-place confirmation, safely routing the user back to the Projects Hub upon completion.
+- **Zero Redundant Analysis**: Opening a saved project continues to load persisted AST graphs, modules, health scores, and entities directly from the database without triggering fresh parser runs or AI requests.
+
+### 2. Consolidated Project Card Actions
+
+- **Single Primary Action**: Retired the redundant dual-button layout ("Open in Explorer" + "Details") on `ProjectCard.tsx`.
+- **Convergent Workflow**: The primary action "Open in Explorer" opens the canonical workspace with both `project` and `repo` query parameters synchronized, preserving project identity and stored analysis.
+- **Preserved Management Actions**: Distinct project actions like in-place deletion confirmation remain accessible directly on each card.
+
+### 3. Lightweight Compatibility Redirect Route
+
+- **Retired Monolithic Page**: Replaced the 910-line legacy details page at `/projects/[id]/page.tsx` with a lightweight Next.js redirect component wrapped in `Suspense`.
+- **Bookmark & Tab Preservation**: Legacy tab parameters are automatically mapped to the canonical workspace's destinations and sub-modes:
+  - `?tab=graph` → `&section=explorer&mode=graph`
+  - `?tab=modules` → `&section=explorer&mode=modules`
+  - `?tab=insights` → `&section=health`
+  - `?tab=entities` → `&section=entities`
+  - `?tab=overview` → `&section=overview`
+- **Clean History Replacement**: Uses `router.replace` with resolved repository identity (`githubUrl`) to ensure clean browser history without redirect loops.
+- **Preserved Shared Components**: No shared components (`ProjectGraphViewer`, `ModuleExplorerTab`, `OverviewTab`, `InsightsTab`, `AnalysisProgressModal`) or backend services were deleted during UI retirement.

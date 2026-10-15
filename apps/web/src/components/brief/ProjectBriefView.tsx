@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Link from "next/link";
 import type { ProjectBrief, EvidenceSummary, ProjectCategory } from "../../types/brief";
 import type {
   Project,
@@ -37,6 +36,7 @@ import {
   CodeIcon,
   ArrowRightIcon,
   SearchIcon,
+  TrashIcon,
 } from "../Icons";
 import { TechLogo } from "../TechIcons";
 
@@ -54,6 +54,10 @@ interface ProjectBriefViewProps {
   insights?: InsightItem[];
   resume?: ResumeSessionBriefing | null;
   entities?: NormalizedEntity[];
+  // Project management operations for saved projects
+  onReanalyze?: () => Promise<void>;
+  onDelete?: () => Promise<void>;
+  isAnalyzing?: boolean;
 }
 
 const CATEGORY_STYLES: Record<ProjectCategory, { label: string; icon: string; badge: string }> = {
@@ -162,7 +166,13 @@ export default function ProjectBriefView({
   insights = [],
   resume,
   entities = [],
+  onReanalyze,
+  onDelete,
+  isAnalyzing = false,
 }: ProjectBriefViewProps) {
+  // Project management in-place confirmation states
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   // Parse initial section from URL with legacy alias support
   const [activeNavSection, setActiveNavSection] = useState<DestinationId>(() => {
     if (typeof window !== "undefined") {
@@ -518,38 +528,98 @@ export default function ProjectBriefView({
               </kbd>
             </button>
 
-            {project?.id && (
-              <Link
-                href={`/projects/${project.id}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:text-white"
+            {/* Saved Project Management: Re-run Analysis */}
+            {project?.id && onReanalyze && (
+              <button
+                type="button"
+                id="brief-reanalyze-btn"
+                onClick={onReanalyze}
+                disabled={isAnalyzing || isRefreshing}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
                 style={{
-                  backgroundColor: "var(--bg-workspace)",
-                  color: "var(--text-secondary)",
-                  border: "1px solid var(--border-default)",
+                  backgroundColor: "rgba(15,138,131,0.15)",
+                  border: "1px solid rgba(53,208,195,0.3)",
+                  color: "var(--teal-bright)",
                 }}
-                title="View deep project details and legacy dashboard"
+                title="Trigger full repository re-analysis"
               >
-                <span>Classic Details</span>
-                <ArrowRightIcon className="w-3.5 h-3.5" />
-              </Link>
+                <RefreshIcon className={`w-3.5 h-3.5 ${isAnalyzing ? "animate-spin" : ""}`} />
+                <span>{isAnalyzing ? "Analyzing..." : "Re-run Analysis"}</span>
+              </button>
             )}
+
+            {/* Saved Project Management: Delete with In-place Confirmation */}
+            {project?.id && onDelete && (
+              <div className="relative shrink-0">
+                {confirmDelete ? (
+                  <div className="flex items-center gap-1.5 animate-fade-in">
+                    <button
+                      type="button"
+                      disabled={isDeleting}
+                      onClick={async () => {
+                        setIsDeleting(true);
+                        try {
+                          await onDelete();
+                        } finally {
+                          setIsDeleting(false);
+                          setConfirmDelete(false);
+                        }
+                      }}
+                      className="text-xs font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                      style={{ backgroundColor: "var(--danger)", color: "#fff" }}
+                    >
+                      {isDeleting ? "Deleting..." : "Confirm"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(false)}
+                      className="text-xs px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--bg-workspace)",
+                        color: "var(--text-secondary)",
+                        border: "1px solid var(--border-default)",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    className="p-1.5 rounded-xl transition-colors cursor-pointer hover:text-rose-400"
+                    style={{
+                      backgroundColor: "var(--bg-workspace)",
+                      border: "1px solid var(--border-default)",
+                      color: "var(--text-muted)",
+                    }}
+                    title="Delete saved project"
+                    aria-label="Delete saved project"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Refresh Cached View */}
             <button
               type="button"
               id="brief-refresh-btn"
               onClick={onRefresh}
-              disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 hover:text-white"
+              disabled={isRefreshing || isAnalyzing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 hover:text-white"
               style={{
                 backgroundColor: "var(--bg-workspace)",
-                color: "var(--text-primary)",
+                color: "var(--text-secondary)",
                 border: "1px solid var(--border-default)",
               }}
-              title="Re-run analysis and refresh"
+              title="Refresh repository view"
             >
               <RefreshIcon
-                className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[var(--teal-bright)]" : ""}`}
+                className={`w-3.5 h-3.5 ${isRefreshing && !isAnalyzing ? "animate-spin text-[var(--teal-bright)]" : ""}`}
               />
-              <span>{isRefreshing ? "Analyzing..." : "Refresh"}</span>
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -1129,6 +1199,16 @@ export default function ProjectBriefView({
                       </div>
                     )}
                   </div>
+
+                  {/* Architectural Rationale */}
+                  {resume.suggestedStartingPoint?.rationale && (
+                    <p
+                      className="text-xs sm:text-sm leading-relaxed"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {resume.suggestedStartingPoint.rationale}
+                    </p>
+                  )}
 
                   {/* Recommendations Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
