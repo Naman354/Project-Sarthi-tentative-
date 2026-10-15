@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
-import type { InsightItem } from "../../types/project";
+import type { InsightItem, ProjectHealthReport } from "../../types/project";
 import {
   ShieldCheckIcon,
   ArrowRightIcon,
@@ -14,6 +14,7 @@ import {
 interface ArchitectureHealthSectionProps {
   brief: ProjectBrief;
   evidenceSummary?: EvidenceSummary;
+  storedHealth?: ProjectHealthReport | null;
   storedInsights?: InsightItem[];
   onNavigateToTopology?: () => void;
   onLocateInGraph?: (nodeOrModule: string) => void;
@@ -364,6 +365,7 @@ export function evaluateArchitectureHealth(brief: ProjectBrief, evidenceSummary?
 export default function ArchitectureHealthSection({
   brief,
   evidenceSummary,
+  storedHealth,
   storedInsights = [],
   onNavigateToTopology,
   onLocateInGraph,
@@ -372,10 +374,18 @@ export default function ArchitectureHealthSection({
   const [insightSeverityFilter, setInsightSeverityFilter] = useState<string>("all");
   const [insightSearchQuery, setInsightSearchQuery] = useState("");
 
-  const evaluation = useMemo(
-    () => evaluateArchitectureHealth(brief, evidenceSummary),
-    [brief, evidenceSummary]
-  );
+  const evaluation = useMemo(() => {
+    const res = evaluateArchitectureHealth(brief, evidenceSummary);
+    if (res.overallScore === null && storedHealth?.overallScore !== undefined) {
+      return {
+        ...res,
+        overallScore: storedHealth.overallScore,
+        overallStatus:
+          storedHealth.status === "healthy" ? ("healthy" as const) : ("needs-attention" as const),
+      };
+    }
+    return res;
+  }, [brief, evidenceSummary, storedHealth]);
 
   const { signals, overallScore, overallStatus, detectedCycles } = evaluation;
 

@@ -49,6 +49,45 @@ export default function RawEntitiesExplorer({
     });
   }, [entities, selectedTypeFilter, searchQuery]);
 
+  if (entities.length === 0) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div
+          className="p-10 rounded-2xl border text-center space-y-4 shadow-md"
+          style={{
+            backgroundColor: "var(--bg-elevated)",
+            borderColor: "var(--border-default)",
+          }}
+        >
+          <div
+            className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center"
+            style={{
+              backgroundColor: "rgba(15,138,131,0.12)",
+              color: "var(--teal-bright)",
+              border: "1px solid rgba(53,208,195,0.3)",
+            }}
+          >
+            <CodeIcon className="w-6 h-6" />
+          </div>
+          <div className="max-w-md mx-auto space-y-1.5">
+            <h3 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+              AST-Indexed Entities Not Stored
+            </h3>
+            <p
+              className="text-xs sm:text-sm leading-relaxed"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Detailed AST-level entities (routes, controllers, models, components, services) are
+              cataloged during persistent repository analysis of saved projects. You can inspect the
+              structural modules and files right now in Code Explorer and Dependencies &amp;
+              Structure.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header Banner */}

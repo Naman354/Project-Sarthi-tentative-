@@ -21,6 +21,7 @@ interface CodeExplorerWorkbenchProps {
   focusedAreaId?: string | null;
   onSelectArea?: (areaId: string) => void;
   onExploreAnother?: () => void;
+  onModeChange?: (mode: CodeExplorerMode) => void;
 }
 
 export default function CodeExplorerWorkbench({
@@ -34,13 +35,42 @@ export default function CodeExplorerWorkbench({
   focusedAreaId,
   onSelectArea,
   onExploreAnother,
+  onModeChange,
 }: CodeExplorerWorkbenchProps) {
   const [mode, setMode] = useState<CodeExplorerMode>(initialMode);
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(initialNodeId);
 
+  // Synchronize mode if changed by parent navigation
+  const [prevInitialMode, setPrevInitialMode] = useState(initialMode);
+  if (initialMode !== prevInitialMode) {
+    setPrevInitialMode(initialMode);
+    setMode(initialMode);
+  }
+
+  // Synchronize focused node if selected externally
+  const [prevInitialNodeId, setPrevInitialNodeId] = useState(initialNodeId);
+  if (initialNodeId !== prevInitialNodeId) {
+    setPrevInitialNodeId(initialNodeId);
+    setFocusedNodeId(initialNodeId);
+    if (initialNodeId) {
+      setMode("graph");
+    }
+  }
+
+  const handleModeChange = (newMode: CodeExplorerMode) => {
+    setMode(newMode);
+    onModeChange?.(newMode);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("section", "explorer");
+      params.set("mode", newMode);
+      window.history.replaceState(null, "", `?${params.toString()}`);
+    }
+  };
+
   const handleFocusModuleInGraph = (moduleName: string) => {
     setFocusedNodeId(moduleName);
-    setMode("graph");
+    handleModeChange("graph");
   };
 
   return (
@@ -72,7 +102,7 @@ export default function CodeExplorerWorkbench({
             <button
               type="button"
               id="code-explorer-mode-map-btn"
-              onClick={() => setMode("map")}
+              onClick={() => handleModeChange("map")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
               style={{
                 backgroundColor: mode === "map" ? "var(--teal-primary)" : "transparent",
@@ -88,7 +118,7 @@ export default function CodeExplorerWorkbench({
             <button
               type="button"
               id="code-explorer-mode-graph-btn"
-              onClick={() => setMode("graph")}
+              onClick={() => handleModeChange("graph")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
               style={{
                 backgroundColor: mode === "graph" ? "var(--teal-primary)" : "transparent",
@@ -116,7 +146,7 @@ export default function CodeExplorerWorkbench({
             <button
               type="button"
               id="code-explorer-mode-modules-btn"
-              onClick={() => setMode("modules")}
+              onClick={() => handleModeChange("modules")}
               className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
               style={{
                 backgroundColor: mode === "modules" ? "var(--teal-primary)" : "transparent",

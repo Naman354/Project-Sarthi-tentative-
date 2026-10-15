@@ -138,6 +138,15 @@ function HomeContent() {
         primaryLanguage: brief.technicalOverview.primaryLanguage,
         analyzedAt: brief.generatedAt,
       });
+
+      // Preserve repository URL in browser history for reload and deep-linking
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("repo", urlToAnalyze);
+        url.searchParams.delete("project");
+        url.searchParams.delete("projectId");
+        window.history.replaceState({}, "", url.toString());
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
@@ -275,6 +284,16 @@ function HomeContent() {
         primaryLanguage: finalBrief.technicalOverview.primaryLanguage,
         analyzedAt: finalBrief.generatedAt,
       });
+
+      // Preserve project and repo URL in browser history for reload and deep-linking
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("project", projectId);
+        if (project.githubUrl) {
+          url.searchParams.set("repo", project.githubUrl);
+        }
+        window.history.replaceState({}, "", url.toString());
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);

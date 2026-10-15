@@ -20,6 +20,7 @@ import CapabilityIndex from "./CapabilityIndex";
 import AdaptiveVisualModel from "./visual-models/AdaptiveVisualModel";
 import TechnicalOverviewHero from "./TechnicalOverviewHero";
 import RawEntitiesExplorer from "../entities/RawEntitiesExplorer";
+import { CommandPalette } from "../common/CommandPalette";
 import {
   ExternalLinkIcon,
   CompassIcon,
@@ -35,6 +36,7 @@ import {
   FolderIcon,
   CodeIcon,
   ArrowRightIcon,
+  SearchIcon,
 } from "../Icons";
 import { TechLogo } from "../TechIcons";
 
@@ -156,6 +158,7 @@ export default function ProjectBriefView({
   project,
   graph,
   modules = [],
+  storedHealth,
   insights = [],
   resume,
   entities = [],
@@ -185,6 +188,8 @@ export default function ProjectBriefView({
       const sec = params.get("section");
       if (sec === "graph") return "graph";
       if (sec === "modules") return "modules";
+      const mode = params.get("mode");
+      if (mode === "graph" || mode === "modules" || mode === "map") return mode;
     }
     return "map";
   });
@@ -193,14 +198,36 @@ export default function ProjectBriefView({
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global hotkey listener for Omnibar (Ctrl+K / Cmd+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const commitShort = brief.commitSha ? brief.commitSha.substring(0, 7) : "HEAD";
   const commitUrl = `https://github.com/${brief.owner}/${brief.repo}/tree/${brief.commitSha}`;
 
-  // Evaluate Architecture Health reliably using the shared evaluator
+  // Evaluate Architecture Health reliably using the shared evaluator with storedHealth fallback
   const healthEval = useMemo(() => {
-    return evaluateArchitectureHealth(brief, evidenceSummary);
-  }, [brief, evidenceSummary]);
+    const res = evaluateArchitectureHealth(brief, evidenceSummary);
+    if (res.overallScore === null && storedHealth?.overallScore !== undefined) {
+      return {
+        ...res,
+        overallScore: storedHealth.overallScore,
+        overallStatus:
+          storedHealth.status === "healthy" ? ("healthy" as const) : ("needs-attention" as const),
+      };
+    }
+    return res;
+  }, [brief, evidenceSummary, storedHealth]);
 
   const categoryKey: ProjectCategory = brief.technicalOverview.projectCategory || "universal";
   const categoryMeta = CATEGORY_STYLES[categoryKey] || CATEGORY_STYLES.universal;
@@ -237,11 +264,16 @@ export default function ProjectBriefView({
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
         params.set("section", section);
+        if (section === "explorer") {
+          params.set("mode", subMode || codeExplorerSubMode);
+        } else {
+          params.delete("mode");
+        }
         window.history.replaceState(null, "", `?${params.toString()}`);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
-    []
+    [codeExplorerSubMode]
   );
 
   const handleInspectAreaInMap = useCallback(
@@ -458,8 +490,34 @@ export default function ProjectBriefView({
             )}
           </div>
 
-          {/* Right Action: Re-run Analysis / Refresh */}
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          {/* Right Action: Omnibar Search, Re-run Analysis & Refresh */}
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+            {/* Omnibar Search Trigger (Ctrl+K) */}
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:text-white"
+              style={{
+                backgroundColor: "var(--bg-workspace)",
+                border: "1px solid var(--border-default)",
+                color: "var(--text-secondary)",
+              }}
+              title="Global Search & Omnibar (Ctrl+K)"
+            >
+              <SearchIcon className="w-3.5 h-3.5 opacity-70" />
+              <span className="hidden sm:inline">Search</span>
+              <kbd
+                className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono border"
+                style={{
+                  backgroundColor: "var(--bg-elevated)",
+                  borderColor: "var(--border-subtle)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                Ctrl+K
+              </kbd>
+            </button>
+
             {project?.id && (
               <Link
                 href={`/projects/${project.id}`}
@@ -549,7 +607,7 @@ export default function ProjectBriefView({
               title="Inspect snapshot commit tree on GitHub"
             >
               <GitBranchIcon className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-              <span>main</span>
+              <span>{project?.defaultBranch || "main"}</span>
               <span style={{ color: "var(--teal-bright)" }} className="text-[11px]">
                 @{commitShort}
               </span>
@@ -661,59 +719,137 @@ export default function ProjectBriefView({
             </button>
           </div>
 
-          {/* Navigation Items */}
+          {/* Navigation Items (Grouped: Core Destinations & Advanced Tools) */}
           <nav className="space-y-1">
-            {WORKSPACE_DESTINATIONS.map((dest) => {
-              const isActive = activeNavSection === dest.id;
-              const Icon = dest.icon;
-              const badge = getDestinationBadge(dest.id);
+            {WORKSPACE_DESTINATIONS.filter((d) => !("isAdvanced" in d && d.isAdvanced)).map(
+              (dest) => {
+                const isActive = activeNavSection === dest.id;
+                const Icon = dest.icon;
+                const badge = getDestinationBadge(dest.id);
 
-              return (
-                <button
-                  key={dest.id}
-                  type="button"
-                  id={`nav-dest-${dest.id}`}
-                  onClick={() => handleSelectNavSection(dest.id)}
-                  className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
-                    isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
-                  }`}
-                  style={{
-                    backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
-                    color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                    border: isActive ? "1px solid rgba(53,208,195,0.35)" : "1px solid transparent",
-                  }}
-                  title={isSidebarCollapsed ? dest.label : undefined}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className="shrink-0 transition-colors"
-                      style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </span>
-                    {!isSidebarCollapsed && (
-                      <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
-                        {dest.label}
+                return (
+                  <button
+                    key={dest.id}
+                    type="button"
+                    id={`nav-dest-${dest.id}`}
+                    onClick={() => handleSelectNavSection(dest.id)}
+                    className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
+                      isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
+                    }`}
+                    style={{
+                      backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
+                      color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                      border: isActive
+                        ? "1px solid rgba(53,208,195,0.35)"
+                        : "1px solid transparent",
+                    }}
+                    title={isSidebarCollapsed ? dest.label : undefined}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className="shrink-0 transition-colors"
+                        style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </span>
+                      {!isSidebarCollapsed && (
+                        <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
+                          {dest.label}
+                        </span>
+                      )}
+                    </div>
+
+                    {!isSidebarCollapsed && badge && (
+                      <span
+                        className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
+                        style={{
+                          backgroundColor: isActive
+                            ? "rgba(53,208,195,0.2)"
+                            : "rgba(255,255,255,0.06)",
+                          color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                        }}
+                      >
+                        {badge}
                       </span>
                     )}
-                  </div>
+                  </button>
+                );
+              }
+            )}
 
-                  {!isSidebarCollapsed && badge && (
-                    <span
-                      className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
-                      style={{
-                        backgroundColor: isActive
-                          ? "rgba(53,208,195,0.2)"
-                          : "rgba(255,255,255,0.06)",
-                        color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                      }}
-                    >
-                      {badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            {/* Advanced Navigation Group */}
+            {WORKSPACE_DESTINATIONS.some((d) => "isAdvanced" in d && d.isAdvanced) && (
+              <div
+                className="pt-2 mt-2 border-t space-y-1"
+                style={{ borderColor: "var(--border-subtle)" }}
+              >
+                {!isSidebarCollapsed && (
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider px-1 block mb-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Advanced Tools
+                  </span>
+                )}
+                {WORKSPACE_DESTINATIONS.filter((d) => "isAdvanced" in d && d.isAdvanced).map(
+                  (dest) => {
+                    const isActive = activeNavSection === dest.id;
+                    const Icon = dest.icon;
+                    const badge = getDestinationBadge(dest.id);
+
+                    return (
+                      <button
+                        key={dest.id}
+                        type="button"
+                        id={`nav-dest-${dest.id}`}
+                        onClick={() => handleSelectNavSection(dest.id)}
+                        className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
+                          isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
+                        }`}
+                        style={{
+                          backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
+                          color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                          border: isActive
+                            ? "1px solid rgba(53,208,195,0.35)"
+                            : "1px solid transparent",
+                        }}
+                        title={isSidebarCollapsed ? dest.label : undefined}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className="shrink-0 transition-colors"
+                            style={{
+                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                            }}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </span>
+                          {!isSidebarCollapsed && (
+                            <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
+                              {dest.label}
+                            </span>
+                          )}
+                        </div>
+
+                        {!isSidebarCollapsed && badge && (
+                          <span
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
+                            style={{
+                              backgroundColor: isActive
+                                ? "rgba(53,208,195,0.2)"
+                                : "rgba(255,255,255,0.06)",
+                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                            }}
+                          >
+                            {badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  }
+                )}
+              </div>
+            )}
           </nav>
         </aside>
 
@@ -759,49 +895,109 @@ export default function ProjectBriefView({
                   </button>
                 </div>
 
-                {/* Mobile Navigation List */}
+                {/* Mobile Navigation List (Grouped: Core Destinations & Advanced Tools) */}
                 <nav className="space-y-1.5">
-                  {WORKSPACE_DESTINATIONS.map((dest) => {
-                    const isActive = activeNavSection === dest.id;
-                    const Icon = dest.icon;
-                    const badge = getDestinationBadge(dest.id);
+                  {WORKSPACE_DESTINATIONS.filter((d) => !("isAdvanced" in d && d.isAdvanced)).map(
+                    (dest) => {
+                      const isActive = activeNavSection === dest.id;
+                      const Icon = dest.icon;
+                      const badge = getDestinationBadge(dest.id);
 
-                    return (
-                      <button
-                        key={dest.id}
-                        type="button"
-                        onClick={() => handleSelectNavSection(dest.id)}
-                        className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
-                        style={{
-                          backgroundColor: isActive
-                            ? "rgba(15,138,131,0.16)"
-                            : "var(--bg-workspace)",
-                          color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                          border: isActive
-                            ? "1px solid rgba(53,208,195,0.35)"
-                            : "1px solid var(--border-subtle)",
-                        }}
+                      return (
+                        <button
+                          key={dest.id}
+                          type="button"
+                          onClick={() => handleSelectNavSection(dest.id)}
+                          className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
+                          style={{
+                            backgroundColor: isActive
+                              ? "rgba(15,138,131,0.16)"
+                              : "var(--bg-workspace)",
+                            color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                            border: isActive
+                              ? "1px solid rgba(53,208,195,0.35)"
+                              : "1px solid var(--border-subtle)",
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-4 h-4" />
+                            <span className="text-sm font-semibold">{dest.label}</span>
+                          </div>
+                          {badge && (
+                            <span
+                              className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
+                              style={{
+                                backgroundColor: isActive
+                                  ? "rgba(53,208,195,0.2)"
+                                  : "rgba(255,255,255,0.06)",
+                                color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                              }}
+                            >
+                              {badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    }
+                  )}
+
+                  {/* Advanced Navigation Group */}
+                  {WORKSPACE_DESTINATIONS.some((d) => "isAdvanced" in d && d.isAdvanced) && (
+                    <div
+                      className="pt-2.5 mt-2.5 border-t space-y-1.5"
+                      style={{ borderColor: "var(--border-subtle)" }}
+                    >
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wider px-1 block mb-1"
+                        style={{ color: "var(--text-muted)" }}
                       >
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-4 h-4" />
-                          <span className="text-sm font-semibold">{dest.label}</span>
-                        </div>
-                        {badge && (
-                          <span
-                            className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
-                            style={{
-                              backgroundColor: isActive
-                                ? "rgba(53,208,195,0.2)"
-                                : "rgba(255,255,255,0.06)",
-                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                            }}
-                          >
-                            {badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                        Advanced Tools
+                      </span>
+                      {WORKSPACE_DESTINATIONS.filter((d) => "isAdvanced" in d && d.isAdvanced).map(
+                        (dest) => {
+                          const isActive = activeNavSection === dest.id;
+                          const Icon = dest.icon;
+                          const badge = getDestinationBadge(dest.id);
+
+                          return (
+                            <button
+                              key={dest.id}
+                              type="button"
+                              onClick={() => handleSelectNavSection(dest.id)}
+                              className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
+                              style={{
+                                backgroundColor: isActive
+                                  ? "rgba(15,138,131,0.16)"
+                                  : "var(--bg-workspace)",
+                                color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                                border: isActive
+                                  ? "1px solid rgba(53,208,195,0.35)"
+                                  : "1px solid var(--border-subtle)",
+                              }}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Icon className="w-4 h-4" />
+                                <span className="text-sm font-semibold">{dest.label}</span>
+                              </div>
+                              {badge && (
+                                <span
+                                  className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
+                                  style={{
+                                    backgroundColor: isActive
+                                      ? "rgba(53,208,195,0.2)"
+                                      : "rgba(255,255,255,0.06)",
+                                    color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                                  }}
+                                >
+                                  {badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+                  )}
                 </nav>
               </div>
 
@@ -920,8 +1116,10 @@ export default function ProjectBriefView({
                         <button
                           type="button"
                           onClick={() => {
-                            setCodeExplorerSubMode("modules");
-                            handleSelectNavSection("explorer");
+                            if (resume.suggestedStartingPoint.moduleName) {
+                              setFocusedNodeId(resume.suggestedStartingPoint.moduleName);
+                            }
+                            handleSelectNavSection("explorer", "modules");
                           }}
                           className="font-bold hover:underline cursor-pointer"
                           style={{ color: "var(--teal-bright)" }}
@@ -944,12 +1142,19 @@ export default function ProjectBriefView({
                         }}
                       >
                         <div className="min-w-0">
-                          <div
-                            className="font-semibold truncate"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (rec.targetModule) {
+                                setFocusedNodeId(rec.targetModule);
+                              }
+                              handleSelectNavSection("explorer", "modules");
+                            }}
+                            className="font-semibold truncate text-left hover:underline cursor-pointer block"
                             style={{ color: "var(--text-primary)" }}
                           >
                             {rec.title}
-                          </div>
+                          </button>
                           <div
                             className="text-[11px] truncate mt-0.5"
                             style={{ color: "var(--text-muted)" }}
@@ -960,10 +1165,12 @@ export default function ProjectBriefView({
                         <button
                           type="button"
                           onClick={() => {
-                            setCodeExplorerSubMode("modules");
-                            handleSelectNavSection("explorer");
+                            if (rec.targetModule) {
+                              setFocusedNodeId(rec.targetModule);
+                            }
+                            handleSelectNavSection("explorer", "modules");
                           }}
-                          className="p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors shrink-0"
+                          className="p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors shrink-0 cursor-pointer"
                           style={{ color: "var(--teal-bright)" }}
                           title="Inspect in Code Explorer"
                         >
@@ -1033,6 +1240,7 @@ export default function ProjectBriefView({
                 focusedAreaId={focusedAreaId}
                 onSelectArea={(id) => setFocusedAreaId(id)}
                 onExploreAnother={onReset}
+                onModeChange={(mode) => setCodeExplorerSubMode(mode)}
               />
             </div>
           )}
@@ -1046,6 +1254,7 @@ export default function ProjectBriefView({
               <ArchitectureHealthSection
                 brief={brief}
                 evidenceSummary={evidenceSummary}
+                storedHealth={storedHealth}
                 storedInsights={insights}
                 onNavigateToTopology={() => handleSelectNavSection("topology")}
                 onLocateInGraph={handleLocateInGraph}
@@ -1134,6 +1343,28 @@ export default function ProjectBriefView({
           )}
         </main>
       </div>
+
+      {/* Global Command Palette Omnibar (Milestone 9 Integration) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        graph={graph || null}
+        modules={modules}
+        insights={insights}
+        onSelectNode={handleLocateInGraph}
+        onSelectModule={(mod) => {
+          setFocusedNodeId(mod);
+          handleSelectNavSection("explorer", "modules");
+        }}
+        onSelectTab={(tab) => {
+          if (tab === "overview") handleSelectNavSection("overview");
+          else if (tab === "graph") handleSelectNavSection("explorer", "graph");
+          else if (tab === "modules") handleSelectNavSection("explorer", "modules");
+          else if (tab === "insights") handleSelectNavSection("health");
+          else if (tab === "entities") handleSelectNavSection("entities");
+        }}
+        onTriggerAnalysis={onRefresh}
+      />
     </div>
   );
 }

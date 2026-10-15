@@ -430,3 +430,42 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
    - Redesigned `ProjectCard` with language icons, status pills, in-place deletion confirmation, and direct "Open in Explorer" (`/?repo=...`) action.
    - Added query param support (`/?repo=...`) in `app/page.tsx` for seamless navigation between Projects and Explore.
    - Upgraded `Navbar.tsx` height (`h-14`), branding typography, and active indicator treatments.
+
+---
+
+## 12. Workspace Consolidation & Canonical Engineering Workbench (October 2026)
+
+**Status:** Completed & Validated  
+**Goal:** Consolidate the newer Explore workspace and the older `/projects/[id]` route into one coherent canonical repository-analysis workbench, preserving the accepted dark engineering-workbench layout without visual redesign or deletion of legacy capabilities.
+
+### 1. Unified Entrypoints & Canonical Workspace Architecture
+
+- **Single Canonical Destination**: Both public repository submission (`/` or `/?repo=...`) and saved project exploration (`/?project=...&repo=...`) open the unified engineering workbench (`ProjectBriefView.tsx`).
+- **Preserved Stored Analysis**: When opening a saved project from the Projects Hub ("Open in Explorer"), all stored AST graph nodes, module listings, evaluated health scores, actionable insights, resume session briefing, and normalized entities are loaded and fed directly into the canonical workspace without triggering a redundant AI re-analysis.
+- **Deep-Linking & Refresh Reliability**: Active repository URL, project ID, destination (`section`), and sub-mode (`mode`) synchronize cleanly with browser query parameters (`?project=...&repo=...&section=...&mode=...`), ensuring full state restoration upon page refresh.
+- **Preserved Legacy Route**: `/projects/[id]` remains completely operational, intact, and accessible via the "Classic Details" header link and the Details button on project cards.
+
+### 2. Feature Integrations into the Canonical Workbench
+
+- **Code Explorer (`CodeExplorerWorkbench.tsx`)**:
+  - Unifies three distinct code inspection modes under a secondary view selector:
+    1. **Map (Spatial Islands)**: Spatial domain clustering with interactive controls (Feature/Directory/Layer perspectives, minimap, 3D toggle, zoom) and contextual inspector.
+    2. **Interactive Graph**: Layered DAG/hierarchical node-and-edge relationship viewer with Focus Mode (1-hop neighborhood), preset filters (API, Database, Frontend, Risks), and node contextual inspector.
+    3. **Module Explorer**: Searchable module directory inspecting routes, handlers, data models, components, services, and docs with "Focus in Graph" actions.
+  - Automatically synchronizes `mode` with the URL and provides honest feedback when AST graph data is unseeded.
+- **Unified Architecture Health & Actionable Diagnostics (`ArchitectureHealthSection.tsx`)**:
+  - Retains the 5 verified architectural signals (Documentation Coverage, Dependency Complexity, Module Balance & Size, Circular Dependencies, Architecture Connectivity) and circular overall health score gauge.
+  - Seamlessly integrates stored backend health scores and actionable diagnostic findings with severity filters (Critical, High, Medium, Low), search filtering, and direct "Locate in Graph" buttons that focus the corresponding node in the graph viewer.
+- **Developer Briefing & Recommended Next Steps (Overview Destination)**:
+  - Embeds legacy orientation recommendations, suggested starting module, and rationale cleanly into the Overview tab without restoring bulky dashboard cards.
+  - Direct navigation from suggested modules and recommendations straight into Code Explorer.
+- **Advanced / Raw AST Entities Explorer (`RawEntitiesExplorer.tsx`)**:
+  - Placed under a restrained, distinct "Advanced Tools" group in the desktop sidebar and mobile drawer.
+  - Provides type filtering (module, route, model, controller, service, component, doc), search filtering, and direct source permalinks to GitHub, with graceful explanatory states when AST entities are unseeded.
+- **Omnibar Command Palette (Ctrl+K / Cmd+K)**:
+  - Accessible via global hotkey or the header search action, enabling instant keyboard navigation across tabs, modules, endpoints, and actions.
+
+### 3. Known Limitations & Remaining Differences
+
+- **AST Parsing Depth**: Anonymous public quick exploration generates evidence records and conceptual maps from repository manifests, documentation, and shallow source catalogs; fine-grained AST graph nodes and normalized entities require saving and running the multi-language parser pipeline on the repository.
+- **Legacy Route Retained**: The classic `/projects/[id]` page retains its tabbed layout as an alternative view for users accustomed to the previous interface, with reciprocal navigation ("Open in Explorer" / "Classic Details") linking the two seamlessly.
