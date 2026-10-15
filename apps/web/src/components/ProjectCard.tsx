@@ -216,7 +216,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
         <div className="flex items-center gap-2 self-end sm:self-auto">
           {/* Action 1: Reopen in Explorer */}
           <Link
-            href={`/?repo=${encodeURIComponent(project.githubUrl)}`}
+            href={`/?project=${encodeURIComponent(project.id)}&repo=${encodeURIComponent(project.githubUrl)}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs hover:brightness-110"
             style={{
               backgroundColor: "var(--teal-primary)",

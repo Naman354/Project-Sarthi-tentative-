@@ -107,17 +107,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
           className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
           style={{
             backgroundColor:
-              severityFilter === "critical"
-                ? "rgba(244, 63, 94, 0.12)"
-                : "var(--bg-elevated)",
-            borderColor:
-              severityFilter === "critical"
-                ? "var(--danger)"
-                : "var(--border-default)",
-            boxShadow:
-              severityFilter === "critical"
-                ? "0 0 15px rgba(244, 63, 94, 0.2)"
-                : "none",
+              severityFilter === "critical" ? "rgba(244, 63, 94, 0.12)" : "var(--bg-elevated)",
+            borderColor: severityFilter === "critical" ? "var(--danger)" : "var(--border-default)",
+            boxShadow: severityFilter === "critical" ? "0 0 15px rgba(244, 63, 94, 0.2)" : "none",
           }}
         >
           <div className="flex items-center justify-between mb-1.5">
@@ -136,17 +128,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
           className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
           style={{
             backgroundColor:
-              severityFilter === "high"
-                ? "rgba(249, 115, 22, 0.12)"
-                : "var(--bg-elevated)",
-            borderColor:
-              severityFilter === "high"
-                ? "rgb(249, 115, 22)"
-                : "var(--border-default)",
-            boxShadow:
-              severityFilter === "high"
-                ? "0 0 15px rgba(249, 115, 22, 0.2)"
-                : "none",
+              severityFilter === "high" ? "rgba(249, 115, 22, 0.12)" : "var(--bg-elevated)",
+            borderColor: severityFilter === "high" ? "rgb(249, 115, 22)" : "var(--border-default)",
+            boxShadow: severityFilter === "high" ? "0 0 15px rgba(249, 115, 22, 0.2)" : "none",
           }}
         >
           <div className="flex items-center justify-between mb-1.5">
@@ -156,7 +140,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
             <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50" />
           </div>
           <div className="text-2xl font-mono font-black text-white">{counts.high}</div>
-          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Cycles &amp; coupling</span>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">
+            Cycles &amp; coupling
+          </span>
         </button>
 
         <button
@@ -165,17 +151,10 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
           className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
           style={{
             backgroundColor:
-              severityFilter === "medium"
-                ? "rgba(245, 158, 11, 0.12)"
-                : "var(--bg-elevated)",
+              severityFilter === "medium" ? "rgba(245, 158, 11, 0.12)" : "var(--bg-elevated)",
             borderColor:
-              severityFilter === "medium"
-                ? "var(--accent-amber)"
-                : "var(--border-default)",
-            boxShadow:
-              severityFilter === "medium"
-                ? "0 0 15px rgba(245, 158, 11, 0.2)"
-                : "none",
+              severityFilter === "medium" ? "var(--accent-amber)" : "var(--border-default)",
+            boxShadow: severityFilter === "medium" ? "0 0 15px rgba(245, 158, 11, 0.2)" : "none",
           }}
         >
           <div className="flex items-center justify-between mb-1.5">
@@ -185,7 +164,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
           </div>
           <div className="text-2xl font-mono font-black text-white">{counts.medium}</div>
-          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Docs &amp; balance</span>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">
+            Docs &amp; balance
+          </span>
         </button>
 
         <button
@@ -194,17 +175,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
           className="p-4 rounded-2xl border text-left transition-all cursor-pointer"
           style={{
             backgroundColor:
-              severityFilter === "low"
-                ? "rgba(59, 130, 246, 0.12)"
-                : "var(--bg-elevated)",
-            borderColor:
-              severityFilter === "low"
-                ? "rgb(59, 130, 246)"
-                : "var(--border-default)",
-            boxShadow:
-              severityFilter === "low"
-                ? "0 0 15px rgba(59, 130, 246, 0.2)"
-                : "none",
+              severityFilter === "low" ? "rgba(59, 130, 246, 0.12)" : "var(--bg-elevated)",
+            borderColor: severityFilter === "low" ? "rgb(59, 130, 246)" : "var(--border-default)",
+            boxShadow: severityFilter === "low" ? "0 0 15px rgba(59, 130, 246, 0.2)" : "none",
           }}
         >
           <div className="flex items-center justify-between mb-1.5">
@@ -214,7 +187,9 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
           </div>
           <div className="text-2xl font-mono font-black text-white">{counts.low}</div>
-          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">Minor observations</span>
+          <span className="text-[11px] text-[var(--text-muted)] mt-1 block">
+            Minor observations
+          </span>
         </button>
       </div>
 
@@ -237,12 +212,8 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
                 onClick={() => setSeverityFilter(sev)}
                 className="px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer border"
                 style={{
-                  backgroundColor: isActive
-                    ? "var(--teal-primary)"
-                    : "var(--bg-surface)",
-                  borderColor: isActive
-                    ? "var(--teal-bright)"
-                    : "var(--border-subtle)",
+                  backgroundColor: isActive ? "var(--teal-primary)" : "var(--bg-surface)",
+                  borderColor: isActive ? "var(--teal-bright)" : "var(--border-subtle)",
                   color: isActive ? "#0a0f1d" : "var(--text-secondary)",
                 }}
               >
@@ -368,9 +339,7 @@ export function InsightsTab({ insights, health, onLocateInGraph }: InsightsTabPr
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm sm:text-base font-bold text-white">
-                      {insight.title}
-                    </h4>
+                    <h4 className="text-sm sm:text-base font-bold text-white">{insight.title}</h4>
                     <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-0.5">
                       {insight.description}
                     </p>

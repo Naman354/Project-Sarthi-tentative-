@@ -201,7 +201,10 @@ export function OverviewTab({
                     >
                       {rec.title}
                     </div>
-                    <div className="text-[11px] truncate mt-0.5" style={{ color: "var(--text-muted)" }}>
+                    <div
+                      className="text-[11px] truncate mt-0.5"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {rec.reason}
                     </div>
                   </div>
@@ -398,10 +401,7 @@ export function OverviewTab({
             <span style={{ color: "var(--teal-bright)" }}>
               <SparklesIcon className="w-5 h-5" />
             </span>
-            <h3
-              className="text-base font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <h3 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
               Key Engineering Insights ({insights.length})
             </h3>
           </div>

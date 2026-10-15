@@ -4,7 +4,26 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { api } from "../lib/api";
-import type { ExploreResponse } from "../types/brief";
+import {
+  fetchProjectStatus,
+  fetchProjectGraph,
+  fetchProjectModules,
+  fetchProjectHealth,
+  fetchProjectInsights,
+  fetchResumeSession,
+  fetchProjectEntities,
+} from "../lib/project";
+import type {
+  Project,
+  ProjectGraph,
+  ModuleSummaryItem,
+  ProjectHealthReport,
+  InsightItem,
+  ResumeSessionBriefing,
+  NormalizedEntity,
+} from "../types/project";
+import type { ExploreResponse, ProjectBrief, EvidenceSummary } from "../types/brief";
+import { adaptProjectToBrief } from "../lib/projectBriefAdapter";
 import ProjectBriefView from "../components/brief/ProjectBriefView";
 import RecentRepositoriesBar, { saveRecentRepo } from "../components/brief/RecentRepositoriesBar";
 import {
@@ -62,7 +81,21 @@ function HomeContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [exploreData, setExploreData] = useState<ExploreResponse | null>(null);
+  const [exploreData, setExploreData] = useState<{
+    brief: ProjectBrief;
+    evidenceSummary?: EvidenceSummary;
+  } | null>(null);
+
+  // Stored project analysis state for saved workspaces
+  const [savedProjectContext, setSavedProjectContext] = useState<{
+    project: Project;
+    graph?: ProjectGraph | null;
+    modules?: ModuleSummaryItem[];
+    storedHealth?: ProjectHealthReport | null;
+    insights?: InsightItem[];
+    resume?: ResumeSessionBriefing | null;
+    entities?: NormalizedEntity[];
+  } | null>(null);
 
   const handleExplore = async (targetUrl?: string, forceRefresh = false) => {
     const urlToAnalyze = (targetUrl || repoUrl).trim();
@@ -93,6 +126,7 @@ function HomeContent() {
       await new Promise((r) => setTimeout(r, 200));
 
       setExploreData(res.data);
+      setSavedProjectContext(null);
 
       const brief = res.data.brief;
       saveRecentRepo({
@@ -113,30 +147,197 @@ function HomeContent() {
     }
   };
 
+  const handleLoadSavedProject = async (projectId: string) => {
+    setErrorMessage(null);
+    setIsLoading(true);
+
+    try {
+      setLoadingStep("Connecting to saved repository database...");
+      const [statusRes, graphRes, modulesRes, healthRes, insightsRes, resumeRes, entitiesRes] =
+        await Promise.allSettled([
+          fetchProjectStatus(projectId),
+          fetchProjectGraph(projectId),
+          fetchProjectModules(projectId),
+          fetchProjectHealth(projectId),
+          fetchProjectInsights(projectId),
+          fetchResumeSession(projectId),
+          fetchProjectEntities(projectId),
+        ]);
+
+      if (statusRes.status !== "fulfilled" || !statusRes.value.success || !statusRes.value.data) {
+        throw new Error(
+          statusRes.status === "rejected"
+            ? String(statusRes.reason)
+            : statusRes.value.message || "Failed to load saved project"
+        );
+      }
+
+      const statusData = statusRes.value.data;
+      const project = statusData.project;
+      const metadata = statusData.metadata;
+
+      const graph =
+        graphRes.status === "fulfilled" && graphRes.value.success && graphRes.value.data
+          ? graphRes.value.data
+          : null;
+      const modules =
+        modulesRes.status === "fulfilled" && modulesRes.value.success && modulesRes.value.data
+          ? modulesRes.value.data.modules || []
+          : [];
+      const storedHealth =
+        healthRes.status === "fulfilled" && healthRes.value.success && healthRes.value.data
+          ? healthRes.value.data
+          : null;
+      const insights =
+        insightsRes.status === "fulfilled" && insightsRes.value.success && insightsRes.value.data
+          ? insightsRes.value.data.insights || []
+          : [];
+      const resume =
+        resumeRes.status === "fulfilled" && resumeRes.value.success && resumeRes.value.data
+          ? resumeRes.value.data
+          : null;
+      const entitiesResult =
+        entitiesRes.status === "fulfilled" && entitiesRes.value.success && entitiesRes.value.data
+          ? entitiesRes.value.data
+          : statusData.parseResult;
+      const entities = entitiesResult?.entities || [];
+
+      setSavedProjectContext({
+        project,
+        graph,
+        modules,
+        storedHealth,
+        insights,
+        resume,
+        entities,
+      });
+
+      setLoadingStep("Resolving canonical project workspace...");
+
+      let finalBrief: ProjectBrief | null = null;
+      let finalEvidence: EvidenceSummary | undefined = undefined;
+
+      // Check if a preview/cached brief exists for this public repo URL
+      try {
+        const previewRes = await api.get<{ available: boolean; brief?: ProjectBrief }>(
+          `/public/explore/preview?url=${encodeURIComponent(project.githubUrl)}`,
+          { skipAuth: true }
+        );
+        if (previewRes.success && previewRes.data?.available && previewRes.data.brief) {
+          finalBrief = previewRes.data.brief;
+        }
+      } catch {
+        // Fallback to adapter
+      }
+
+      if (!finalBrief) {
+        finalBrief = adaptProjectToBrief({
+          project,
+          metadata,
+          parseResult: entitiesResult || undefined,
+          graph,
+          modules,
+          resume,
+        });
+      }
+
+      if (!finalEvidence) {
+        finalEvidence = {
+          totalEvidenceRecords: Object.keys(finalBrief.evidenceMap || {}).length,
+          languages: [
+            {
+              language: finalBrief.technicalOverview.primaryLanguage || "TypeScript",
+              fileCount: metadata?.fileCount || 1,
+              percentage: 100,
+            },
+          ],
+          projectTypes: [finalBrief.technicalOverview.projectCategory || "universal"],
+          totalFiles: metadata?.fileCount || finalBrief.technicalOverview.totalFiles || 0,
+          totalDirectories:
+            metadata?.directoryCount || finalBrief.technicalOverview.totalDirectories || 0,
+          parserCoverage: "specialized-ast-graph",
+        };
+      }
+
+      setExploreData({
+        brief: finalBrief,
+        evidenceSummary: finalEvidence,
+      });
+
+      setRepoUrl(project.githubUrl);
+
+      saveRecentRepo({
+        repoUrl: finalBrief.repoUrl,
+        owner: finalBrief.owner,
+        repo: finalBrief.repo,
+        commitSha: finalBrief.commitSha,
+        purpose: finalBrief.purpose,
+        primaryLanguage: finalBrief.technicalOverview.primaryLanguage,
+        analyzedAt: finalBrief.generatedAt,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
+      setLoadingStep("");
+    }
+  };
+
   const handleRefresh = () => {
-    if (exploreData?.brief?.repoUrl) {
-      handleExplore(exploreData.brief.repoUrl, true);
+    if (savedProjectContext?.project?.id) {
+      void handleLoadSavedProject(savedProjectContext.project.id);
+    } else if (exploreData?.brief?.repoUrl) {
+      void handleExplore(exploreData.brief.repoUrl, true);
     }
   };
 
   const handleReset = () => {
     setExploreData(null);
+    setSavedProjectContext(null);
     setRepoUrl("");
     setErrorMessage(null);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.search = "";
+      window.history.pushState({}, "", url.toString());
+    }
   };
 
-  const handledRepoRef = useRef<string | null>(null);
+  const handledTargetRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const projectParam = searchParams.get("project") || searchParams.get("projectId");
     const repoParam = searchParams.get("repo");
-    if (repoParam && !exploreData && !isLoading && handledRepoRef.current !== repoParam) {
-      handledRepoRef.current = repoParam;
+
+    if (
+      projectParam &&
+      !exploreData &&
+      !isLoading &&
+      handledTargetRef.current !== `project:${projectParam}`
+    ) {
+      handledTargetRef.current = `project:${projectParam}`;
+      const timer = setTimeout(() => {
+        void handleLoadSavedProject(projectParam);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+
+    if (
+      !projectParam &&
+      repoParam &&
+      !exploreData &&
+      !isLoading &&
+      handledTargetRef.current !== `repo:${repoParam}`
+    ) {
+      handledTargetRef.current = `repo:${repoParam}`;
       const timer = setTimeout(() => {
         setRepoUrl(repoParam);
         void handleExplore(repoParam);
       }, 0);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, exploreData, isLoading]);
 
   // If a Project Brief is active
@@ -148,13 +349,20 @@ function HomeContent() {
       >
         {/* Subtle canvas texture */}
         <div className="absolute inset-0 canvas-texture opacity-40 pointer-events-none" />
-        <main className="w-full relative z-10 px-4 py-6">
+        <main className="w-full relative z-10 px-4 sm:px-6 lg:px-8 py-6">
           <ProjectBriefView
             brief={exploreData.brief}
             evidenceSummary={exploreData.evidenceSummary}
             onRefresh={handleRefresh}
             onReset={handleReset}
             isRefreshing={isLoading}
+            project={savedProjectContext?.project}
+            graph={savedProjectContext?.graph}
+            modules={savedProjectContext?.modules}
+            storedHealth={savedProjectContext?.storedHealth}
+            insights={savedProjectContext?.insights}
+            resume={savedProjectContext?.resume}
+            entities={savedProjectContext?.entities}
           />
         </main>
       </div>

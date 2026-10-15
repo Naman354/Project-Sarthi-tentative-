@@ -461,7 +461,7 @@ export default function ProjectDetailPage() {
             <div className="flex items-center gap-2.5 self-start flex-wrap">
               {/* Primary: Quick Switch to Main Explorer */}
               <Link
-                href={`/?repo=${encodeURIComponent(project.githubUrl)}`}
+                href={`/?project=${encodeURIComponent(project.id)}&repo=${encodeURIComponent(project.githubUrl)}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md hover:brightness-110 cursor-pointer"
                 style={{
                   backgroundColor: "var(--teal-primary)",
@@ -679,9 +679,7 @@ export default function ProjectDetailPage() {
                 style={{
                   backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
                   color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                  border: isActive
-                    ? "1px solid rgba(53,208,195,0.35)"
-                    : "1px solid transparent",
+                  border: isActive ? "1px solid rgba(53,208,195,0.35)" : "1px solid transparent",
                 }}
               >
                 <TabIcon className="w-4 h-4" />
@@ -690,9 +688,7 @@ export default function ProjectDetailPage() {
                   <span
                     className="text-[10px] font-mono px-1.5 py-0.2 rounded font-bold"
                     style={{
-                      backgroundColor: isActive
-                        ? "rgba(53,208,195,0.2)"
-                        : "rgba(255,255,255,0.06)",
+                      backgroundColor: isActive ? "rgba(53,208,195,0.2)" : "rgba(255,255,255,0.06)",
                       color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
                     }}
                   >
@@ -796,13 +792,9 @@ export default function ProjectDetailPage() {
                     className="px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer"
                     style={{
                       backgroundColor:
-                        selectedTypeFilter === t
-                          ? "var(--teal-primary)"
-                          : "var(--bg-surface)",
+                        selectedTypeFilter === t ? "var(--teal-primary)" : "var(--bg-surface)",
                       color:
-                        selectedTypeFilter === t
-                          ? "var(--text-primary)"
-                          : "var(--text-secondary)",
+                        selectedTypeFilter === t ? "var(--text-primary)" : "var(--text-secondary)",
                       border:
                         selectedTypeFilter === t
                           ? "1px solid var(--teal-bright)"
@@ -857,15 +849,9 @@ export default function ProjectDetailPage() {
                       <th className="py-3 px-4">Source File</th>
                     </tr>
                   </thead>
-                  <tbody
-                    className="divide-y"
-                    style={{ borderColor: "var(--border-subtle)" }}
-                  >
+                  <tbody className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
                     {filteredEntities.map((ent, idx) => (
-                      <tr
-                        key={idx}
-                        className="transition-colors hover:bg-white/[0.03]"
-                      >
+                      <tr key={idx} className="transition-colors hover:bg-white/[0.03]">
                         <td
                           className="py-3 px-4 font-bold"
                           style={{ color: "var(--text-primary)" }}

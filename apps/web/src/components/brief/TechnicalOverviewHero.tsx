@@ -12,6 +12,8 @@ interface TechnicalOverviewHeroProps {
   repoName: string;
   commitSha: string;
   showHeader?: boolean;
+  defaultTab?: "facts" | "dependencies" | "entrypoints" | "structure";
+  onNavigateDestination?: (dest: string) => void;
 }
 
 const CATEGORY_STYLES: Record<
@@ -69,11 +71,13 @@ export default function TechnicalOverviewHero({
   repoName,
   commitSha,
   showHeader = true,
+  defaultTab = "facts",
+  onNavigateDestination,
 }: TechnicalOverviewHeroProps) {
   // "facts" is the default — leftmost, selected by default
   const [activeTab, setActiveTab] = useState<
     "facts" | "dependencies" | "entrypoints" | "structure"
-  >("facts");
+  >(defaultTab);
   const [depSearch, setDepSearch] = useState("");
 
   const { displayLanguages, totalAnalyzedFiles } = useMemo(() => {
@@ -573,6 +577,29 @@ export default function TechnicalOverviewHero({
             ) : (
               <div className="text-center py-10 text-sm" style={{ color: "var(--text-muted)" }}>
                 <p>No distinctive structural facts detected for this repository.</p>
+              </div>
+            )}
+
+            {onNavigateDestination && (
+              <div
+                className="pt-4 flex items-center justify-between border-t mt-4"
+                style={{ borderColor: "var(--border-subtle)" }}
+              >
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  Need package manifests, entrypoint details, or the directory hierarchy?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onNavigateDestination("dependencies")}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer hover:brightness-110"
+                  style={{
+                    backgroundColor: "rgba(15,138,131,0.15)",
+                    color: "var(--teal-bright)",
+                    border: "1px solid rgba(53,208,195,0.3)",
+                  }}
+                >
+                  <span>Explore Dependencies &amp; Structure →</span>
+                </button>
               </div>
             )}
           </div>

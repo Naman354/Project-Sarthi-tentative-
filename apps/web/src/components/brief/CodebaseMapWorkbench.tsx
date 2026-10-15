@@ -14,11 +14,14 @@ import TechnicalOverviewHero from "./TechnicalOverviewHero";
 interface CodebaseMapWorkbenchProps {
   brief: ProjectBrief;
   evidenceSummary?: EvidenceSummary;
-  onExploreAnother: () => void;
-  activeNavSection: string;
-  onSelectNavSection: (section: string) => void;
+  onExploreAnother?: () => void;
+  activeNavSection?: string;
+  onSelectNavSection?: (section: string) => void;
   focusedAreaId?: string | null;
   onSelectArea?: (areaId: string) => void;
+  hideHeader?: boolean;
+  hideSidebar?: boolean;
+  initialMode?: "overview" | "map";
 }
 
 // Category palette mapping matching the engineering workbench design system
@@ -110,6 +113,9 @@ export default function CodebaseMapWorkbench({
   onSelectNavSection,
   focusedAreaId,
   onSelectArea,
+  hideHeader = false,
+  hideSidebar = false,
+  initialMode = "overview",
 }: CodebaseMapWorkbenchProps) {
   const areas = useMemo(() => brief.conceptualMap.areas || [], [brief.conceptualMap.areas]);
   const relationships = useMemo(
@@ -118,7 +124,7 @@ export default function CodebaseMapWorkbench({
   );
 
   // Explorer mode inside the unified hero: "overview" (default) or "map" (alternate view)
-  const [explorerMode, setExplorerMode] = useState<"overview" | "map">("overview");
+  const [explorerMode, setExplorerMode] = useState<"overview" | "map">(initialMode);
 
   // Grouping & view filters
   const [groupBy, setGroupBy] = useState<"feature" | "directory" | "layer">("feature");
@@ -271,261 +277,268 @@ export default function CodebaseMapWorkbench({
       {/* =========================================================
           1. COMPACT CONTEXT HEADER (Unified Explorer Identity & Hero Toolbar)
           ========================================================= */}
-      <div
-        className="rounded-2xl p-5 sm:p-6 space-y-4"
-        style={{
-          backgroundColor: "var(--bg-elevated)",
-          border: "1px solid var(--border-default)",
-          boxShadow: "0 6px 28px rgba(0,0,0,0.45)",
-        }}
-      >
-        {/* Top Row: Identity, Ecosystem Badges & Mode Switcher */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Category / Project Type Badge */}
-              <span
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+      {!hideHeader && (
+        <div
+          className="rounded-2xl p-5 sm:p-6 space-y-4"
+          style={{
+            backgroundColor: "var(--bg-elevated)",
+            border: "1px solid var(--border-default)",
+            boxShadow: "0 6px 28px rgba(0,0,0,0.45)",
+          }}
+        >
+          {/* Top Row: Identity, Ecosystem Badges & Mode Switcher */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Category / Project Type Badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+                  style={{
+                    backgroundColor: "rgba(15,138,131,0.15)",
+                    color: "var(--teal-bright)",
+                    border: "1px solid rgba(53,208,195,0.35)",
+                  }}
+                >
+                  <span>{categoryMeta.icon}</span>
+                  <span>{categoryMeta.label}</span>
+                </span>
+
+                {/* Ecosystem Badge */}
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <span className="font-mono">
+                    {brief.technicalOverview.ecosystem.toUpperCase()}
+                  </span>
+                  <span>Ecosystem</span>
+                </span>
+
+                {/* Confidence Badge */}
+                {brief.technicalOverview.categoryConfidence && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    style={{
+                      backgroundColor: "var(--bg-workspace)",
+                      color: "var(--text-muted)",
+                      border: "1px solid var(--border-subtle)",
+                    }}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        brief.technicalOverview.categoryConfidence === "high"
+                          ? "bg-emerald-500"
+                          : brief.technicalOverview.categoryConfidence === "medium"
+                            ? "bg-blue-500"
+                            : "bg-zinc-400"
+                      }`}
+                    />
+                    <span className="capitalize">
+                      {brief.technicalOverview.categoryConfidence} confidence
+                    </span>
+                  </span>
+                )}
+              </div>
+
+              {/* Repo Title & GitHub Link */}
+              <div className="flex items-center gap-3 pt-0.5">
+                <a
+                  href={brief.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2 transition-colors group"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  <span className="group-hover:text-[var(--teal-bright)]">
+                    {brief.owner} / {brief.repo}
+                  </span>
+                  <ExternalLinkIcon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </a>
+              </div>
+
+              {/* Concise Purpose Statement */}
+              <p
+                className="text-xs sm:text-sm leading-relaxed max-w-3xl"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                {brief.purpose}
+              </p>
+            </div>
+
+            {/* Right Column: Integrated Explorer Mode Switcher & Useful Metrics */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
+              {/* Mode Switcher Tabs */}
+              <div
+                className="flex items-center p-1 rounded-xl"
                 style={{
-                  backgroundColor: "rgba(15,138,131,0.15)",
-                  color: "var(--teal-bright)",
-                  border: "1px solid rgba(53,208,195,0.35)",
+                  backgroundColor: "var(--bg-workspace)",
+                  border: "1px solid var(--border-default)",
                 }}
               >
-                <span>{categoryMeta.icon}</span>
-                <span>{categoryMeta.label}</span>
-              </span>
+                <button
+                  type="button"
+                  id="hero-view-overview-btn"
+                  onClick={() => {
+                    setExplorerMode("overview");
+                    onSelectNavSection?.("overview");
+                  }}
+                  className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
+                  style={{
+                    backgroundColor:
+                      explorerMode === "overview" ? "var(--teal-primary)" : "transparent",
+                    color:
+                      explorerMode === "overview" ? "var(--text-primary)" : "var(--text-secondary)",
+                    boxShadow:
+                      explorerMode === "overview" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
+                  }}
+                >
+                  <SparklesIcon className="w-4 h-4" />
+                  <span>Technical Overview</span>
+                </button>
 
-              {/* Ecosystem Badge */}
+                <button
+                  type="button"
+                  id="hero-view-map-btn"
+                  onClick={() => {
+                    setExplorerMode("map");
+                    onSelectNavSection?.("map");
+                  }}
+                  className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
+                  style={{
+                    backgroundColor: explorerMode === "map" ? "var(--teal-primary)" : "transparent",
+                    color: explorerMode === "map" ? "var(--text-primary)" : "var(--text-secondary)",
+                    boxShadow: explorerMode === "map" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
+                  }}
+                >
+                  <NetworkGraphIcon className="w-4 h-4" />
+                  <span>Codebase Map</span>
+                </button>
+              </div>
+
+              {/* Restrained Metrics Strip */}
+              <div className="flex items-center gap-2 pt-0.5">
+                <div
+                  className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <span
+                    className="text-[9px] uppercase tracking-wider block font-semibold"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Files
+                  </span>
+                  <span
+                    className="text-xs sm:text-sm font-extrabold font-mono"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {totalFilesCount}
+                  </span>
+                </div>
+
+                <div
+                  className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <span
+                    className="text-[9px] uppercase tracking-wider block font-semibold"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Dirs
+                  </span>
+                  <span
+                    className="text-xs sm:text-sm font-extrabold font-mono"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {brief.technicalOverview.totalDirectories}
+                  </span>
+                </div>
+
+                <div
+                  className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <span
+                    className="text-[9px] uppercase tracking-wider block font-semibold"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Deps
+                  </span>
+                  <span
+                    className="text-xs sm:text-sm font-extrabold font-mono"
+                    style={{ color: "var(--teal-bright)" }}
+                  >
+                    {(brief.technicalOverview.dependencies?.length || 0) +
+                      (brief.technicalOverview.devDependencies?.length || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Technology Stack Strip with Recognizable Logos */}
+          <div
+            className="pt-3 border-t flex flex-wrap items-center gap-2 text-xs"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <span
+              className="text-[11px] font-semibold flex items-center gap-1.5"
+              style={{ color: "var(--text-muted)" }}
+            >
               <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: "var(--teal-bright)" }}
+              />
+              <span>Technologies:</span>
+            </span>
+
+            {brief.technicalOverview.primaryLanguage &&
+              brief.technicalOverview.primaryLanguage !== "Unknown" && (
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold"
+                  style={{
+                    backgroundColor: "var(--bg-workspace)",
+                    color: "var(--text-primary)",
+                    border: "1px solid var(--border-default)",
+                  }}
+                >
+                  <TechLogo
+                    name={brief.technicalOverview.primaryLanguage}
+                    className="w-3.5 h-3.5"
+                  />
+                  <span>{brief.technicalOverview.primaryLanguage}</span>
+                </span>
+              )}
+
+            {topFrameworksAndTools.map((tech) => (
+              <span
+                key={tech}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium"
                 style={{
                   backgroundColor: "var(--bg-workspace)",
                   color: "var(--text-secondary)",
                   border: "1px solid var(--border-subtle)",
                 }}
               >
-                <span className="font-mono">{brief.technicalOverview.ecosystem.toUpperCase()}</span>
-                <span>Ecosystem</span>
+                <TechLogo name={tech} className="w-3.5 h-3.5" />
+                <span>{tech}</span>
               </span>
-
-              {/* Confidence Badge */}
-              {brief.technicalOverview.categoryConfidence && (
-                <span
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  style={{
-                    backgroundColor: "var(--bg-workspace)",
-                    color: "var(--text-muted)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      brief.technicalOverview.categoryConfidence === "high"
-                        ? "bg-emerald-500"
-                        : brief.technicalOverview.categoryConfidence === "medium"
-                          ? "bg-blue-500"
-                          : "bg-zinc-400"
-                    }`}
-                  />
-                  <span className="capitalize">
-                    {brief.technicalOverview.categoryConfidence} confidence
-                  </span>
-                </span>
-              )}
-            </div>
-
-            {/* Repo Title & GitHub Link */}
-            <div className="flex items-center gap-3 pt-0.5">
-              <a
-                href={brief.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2 transition-colors group"
-                style={{ color: "var(--text-primary)" }}
-              >
-                <span className="group-hover:text-[var(--teal-bright)]">
-                  {brief.owner} / {brief.repo}
-                </span>
-                <ExternalLinkIcon className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-              </a>
-            </div>
-
-            {/* Concise Purpose Statement */}
-            <p
-              className="text-xs sm:text-sm leading-relaxed max-w-3xl"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {brief.purpose}
-            </p>
-          </div>
-
-          {/* Right Column: Integrated Explorer Mode Switcher & Useful Metrics */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
-            {/* Mode Switcher Tabs */}
-            <div
-              className="flex items-center p-1 rounded-xl"
-              style={{
-                backgroundColor: "var(--bg-workspace)",
-                border: "1px solid var(--border-default)",
-              }}
-            >
-              <button
-                type="button"
-                id="hero-view-overview-btn"
-                onClick={() => {
-                  setExplorerMode("overview");
-                  onSelectNavSection("overview");
-                }}
-                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
-                style={{
-                  backgroundColor:
-                    explorerMode === "overview" ? "var(--teal-primary)" : "transparent",
-                  color:
-                    explorerMode === "overview" ? "var(--text-primary)" : "var(--text-secondary)",
-                  boxShadow:
-                    explorerMode === "overview" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
-                }}
-              >
-                <SparklesIcon className="w-4 h-4" />
-                <span>Technical Overview</span>
-              </button>
-
-              <button
-                type="button"
-                id="hero-view-map-btn"
-                onClick={() => {
-                  setExplorerMode("map");
-                  onSelectNavSection("map");
-                }}
-                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2"
-                style={{
-                  backgroundColor: explorerMode === "map" ? "var(--teal-primary)" : "transparent",
-                  color: explorerMode === "map" ? "var(--text-primary)" : "var(--text-secondary)",
-                  boxShadow: explorerMode === "map" ? "0 2px 10px rgba(15,138,131,0.4)" : "none",
-                }}
-              >
-                <NetworkGraphIcon className="w-4 h-4" />
-                <span>Codebase Map</span>
-              </button>
-            </div>
-
-            {/* Restrained Metrics Strip */}
-            <div className="flex items-center gap-2 pt-0.5">
-              <div
-                className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
-                style={{
-                  backgroundColor: "var(--bg-workspace)",
-                  border: "1px solid var(--border-subtle)",
-                }}
-              >
-                <span
-                  className="text-[9px] uppercase tracking-wider block font-semibold"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Files
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-extrabold font-mono"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {totalFilesCount}
-                </span>
-              </div>
-
-              <div
-                className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
-                style={{
-                  backgroundColor: "var(--bg-workspace)",
-                  border: "1px solid var(--border-subtle)",
-                }}
-              >
-                <span
-                  className="text-[9px] uppercase tracking-wider block font-semibold"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Dirs
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-extrabold font-mono"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {brief.technicalOverview.totalDirectories}
-                </span>
-              </div>
-
-              <div
-                className="px-3 py-1.5 rounded-xl text-center min-w-[70px]"
-                style={{
-                  backgroundColor: "var(--bg-workspace)",
-                  border: "1px solid var(--border-subtle)",
-                }}
-              >
-                <span
-                  className="text-[9px] uppercase tracking-wider block font-semibold"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Deps
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-extrabold font-mono"
-                  style={{ color: "var(--teal-bright)" }}
-                >
-                  {(brief.technicalOverview.dependencies?.length || 0) +
-                    (brief.technicalOverview.devDependencies?.length || 0)}
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-
-        {/* Bottom Technology Stack Strip with Recognizable Logos */}
-        <div
-          className="pt-3 border-t flex flex-wrap items-center gap-2 text-xs"
-          style={{ borderColor: "var(--border-subtle)" }}
-        >
-          <span
-            className="text-[11px] font-semibold flex items-center gap-1.5"
-            style={{ color: "var(--text-muted)" }}
-          >
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: "var(--teal-bright)" }}
-            />
-            <span>Technologies:</span>
-          </span>
-
-          {brief.technicalOverview.primaryLanguage &&
-            brief.technicalOverview.primaryLanguage !== "Unknown" && (
-              <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold"
-                style={{
-                  backgroundColor: "var(--bg-workspace)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--border-default)",
-                }}
-              >
-                <TechLogo name={brief.technicalOverview.primaryLanguage} className="w-3.5 h-3.5" />
-                <span>{brief.technicalOverview.primaryLanguage}</span>
-              </span>
-            )}
-
-          {topFrameworksAndTools.map((tech) => (
-            <span
-              key={tech}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium"
-              style={{
-                backgroundColor: "var(--bg-workspace)",
-                color: "var(--text-secondary)",
-                border: "1px solid var(--border-subtle)",
-              }}
-            >
-              <TechLogo name={tech} className="w-3.5 h-3.5" />
-              <span>{tech}</span>
-            </span>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* =========================================================
           2. UNIFIED WORKBENCH (Map Mode vs Technical Overview Mode)
@@ -541,165 +554,171 @@ export default function CodebaseMapWorkbench({
         {/* =========================================================
             PANE 1: LEFT SIDEBAR (~260px)
             ========================================================= */}
-        <aside
-          className="w-full lg:w-[260px] shrink-0 flex flex-col justify-between p-4 border-b lg:border-b-0 lg:border-r"
-          style={{
-            backgroundColor: "var(--bg-sidebar)",
-            borderColor: "var(--border-default)",
-          }}
-        >
-          <div className="space-y-6">
-            {/* Back to Repositories Action */}
-            <button
-              type="button"
-              onClick={onExploreAnother}
-              className="inline-flex items-center gap-2 text-xs font-semibold transition-colors cursor-pointer group"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              <span className="transition-transform group-hover:-translate-x-1">←</span>
-              <span className="group-hover:text-white">Back to repositories</span>
-            </button>
-
-            {/* Workbench Navigation */}
-            <div className="space-y-1">
-              <span
-                className="text-[10px] font-bold uppercase tracking-wider block px-1 pb-1"
-                style={{ color: "var(--text-muted)" }}
+        {!hideSidebar && (
+          <aside
+            className="w-full lg:w-[260px] shrink-0 flex flex-col justify-between p-4 border-b lg:border-b-0 lg:border-r"
+            style={{
+              backgroundColor: "var(--bg-sidebar)",
+              borderColor: "var(--border-default)",
+            }}
+          >
+            <div className="space-y-6">
+              {/* Back to Repositories Action */}
+              <button
+                type="button"
+                onClick={() => onExploreAnother?.()}
+                className="inline-flex items-center gap-2 text-xs font-semibold transition-colors cursor-pointer group"
+                style={{ color: "var(--text-secondary)" }}
               >
-                Explorer Modes
-              </span>
+                <span className="transition-transform group-hover:-translate-x-1">←</span>
+                <span className="group-hover:text-white">Back to repositories</span>
+              </button>
 
-              {[
-                { id: "overview", label: "Technical Overview", icon: SparklesIcon, isMode: true },
-                { id: "map", label: "Codebase Map", icon: NetworkGraphIcon, isMode: true },
-                { id: "about", label: "What It Is About", icon: null, isMode: false },
-                { id: "tour", label: "Where to Start Reading", icon: null, isMode: false },
-                { id: "health", label: "Architecture Health", icon: null, isMode: false },
-                { id: "capabilities", label: "Capabilities", icon: null, isMode: false },
-                { id: "topology", label: "Deep Topology", icon: null, isMode: false },
-              ].map((item) => {
-                const isActive = item.isMode
-                  ? explorerMode === item.id
-                  : activeNavSection === item.id;
-                const Icon = item.icon;
-
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      if (item.isMode) {
-                        setExplorerMode(item.id as "map" | "overview");
-                        onSelectNavSection(item.id);
-                      } else {
-                        onSelectNavSection(item.id);
-                      }
-                    }}
-                    className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between transition-all cursor-pointer"
-                    style={{
-                      backgroundColor: isActive ? "var(--bg-hover)" : "transparent",
-                      color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-                      border: isActive ? "1px solid var(--teal-primary)" : "1px solid transparent",
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {Icon ? (
-                        <span
-                          className="shrink-0 flex items-center"
-                          style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
-                        >
-                          <Icon className="w-4 h-4 shrink-0" />
-                        </span>
-                      ) : (
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{
-                            backgroundColor: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                          }}
-                        />
-                      )}
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                    {isActive && (
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: "var(--teal-bright)" }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Map Filter Perspectives (only relevant in map mode) */}
-            {explorerMode === "map" && (
-              <div
-                className="space-y-2 pt-3 border-t animate-fade-in"
-                style={{ borderColor: "var(--border-subtle)" }}
-              >
+              {/* Workbench Navigation */}
+              <div className="space-y-1">
                 <span
-                  className="text-[10px] font-bold uppercase tracking-wider block"
+                  className="text-[10px] font-bold uppercase tracking-wider block px-1 pb-1"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  Map Perspectives
+                  Explorer Modes
                 </span>
-                <div className="space-y-1">
-                  {[
-                    { id: "by-feature", label: "By Feature Domain" },
-                    { id: "by-directory", label: "By Directory" },
-                    { id: "by-layer", label: "By Subsystem Layer" },
-                  ].map((v) => {
-                    const isSel = activeViewFilter === v.id;
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveViewFilter(v.id);
-                          if (v.id === "by-directory") setGroupBy("directory");
-                          else if (v.id === "by-layer") setGroupBy("layer");
-                          else setGroupBy("feature");
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer"
-                        style={{
-                          color: isSel ? "var(--text-primary)" : "var(--text-muted)",
-                          backgroundColor: isSel ? "rgba(255,255,255,0.04)" : "transparent",
-                        }}
-                      >
+
+                {[
+                  { id: "overview", label: "Technical Overview", icon: SparklesIcon, isMode: true },
+                  { id: "map", label: "Codebase Map", icon: NetworkGraphIcon, isMode: true },
+                  { id: "about", label: "What It Is About", icon: null, isMode: false },
+                  { id: "tour", label: "Where to Start Reading", icon: null, isMode: false },
+                  { id: "health", label: "Architecture Health", icon: null, isMode: false },
+                  { id: "capabilities", label: "Capabilities", icon: null, isMode: false },
+                  { id: "topology", label: "Deep Topology", icon: null, isMode: false },
+                ].map((item) => {
+                  const isActive = item.isMode
+                    ? explorerMode === item.id
+                    : activeNavSection === item.id;
+                  const Icon = item.icon;
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        if (item.isMode) {
+                          setExplorerMode(item.id as "map" | "overview");
+                          onSelectNavSection?.(item.id);
+                        } else {
+                          onSelectNavSection?.(item.id);
+                        }
+                      }}
+                      className="w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: isActive ? "var(--bg-hover)" : "transparent",
+                        color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                        border: isActive
+                          ? "1px solid var(--teal-primary)"
+                          : "1px solid transparent",
+                      }}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {Icon ? (
+                          <span
+                            className="shrink-0 flex items-center"
+                            style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
+                          >
+                            <Icon className="w-4 h-4 shrink-0" />
+                          </span>
+                        ) : (
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{
+                              backgroundColor: isActive
+                                ? "var(--teal-bright)"
+                                : "var(--text-muted)",
+                            }}
+                          />
+                        )}
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {isActive && (
                         <span
                           className="w-1.5 h-1.5 rounded-full shrink-0"
-                          style={{
-                            backgroundColor: isSel ? "var(--teal-bright)" : "transparent",
-                            border: isSel ? "none" : "1px solid var(--text-muted)",
-                          }}
+                          style={{ backgroundColor: "var(--teal-bright)" }}
                         />
-                        <span>{v.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </div>
 
-          {/* Bottom Atmosphere & Quote */}
-          <div className="pt-6 mt-6 border-t" style={{ borderColor: "var(--border-subtle)" }}>
-            <div className="space-y-1 text-xs">
-              <span
-                className="text-xl font-serif leading-none block"
-                style={{ color: "var(--accent-orange)" }}
-              >
-                “
-              </span>
-              <p
-                className="italic text-[11px] leading-relaxed"
-                style={{ color: "var(--text-muted)" }}
-              >
-                A clearer view of code leads to better builders.
-              </p>
+              {/* Map Filter Perspectives (only relevant in map mode) */}
+              {explorerMode === "map" && (
+                <div
+                  className="space-y-2 pt-3 border-t animate-fade-in"
+                  style={{ borderColor: "var(--border-subtle)" }}
+                >
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider block"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Map Perspectives
+                  </span>
+                  <div className="space-y-1">
+                    {[
+                      { id: "by-feature", label: "By Feature Domain" },
+                      { id: "by-directory", label: "By Directory" },
+                      { id: "by-layer", label: "By Subsystem Layer" },
+                    ].map((v) => {
+                      const isSel = activeViewFilter === v.id;
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveViewFilter(v.id);
+                            if (v.id === "by-directory") setGroupBy("directory");
+                            else if (v.id === "by-layer") setGroupBy("layer");
+                            else setGroupBy("feature");
+                          }}
+                          className="w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer"
+                          style={{
+                            color: isSel ? "var(--text-primary)" : "var(--text-muted)",
+                            backgroundColor: isSel ? "rgba(255,255,255,0.04)" : "transparent",
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{
+                              backgroundColor: isSel ? "var(--teal-bright)" : "transparent",
+                              border: isSel ? "none" : "1px solid var(--text-muted)",
+                            }}
+                          />
+                          <span>{v.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </aside>
+
+            {/* Bottom Atmosphere & Quote */}
+            <div className="pt-6 mt-6 border-t" style={{ borderColor: "var(--border-subtle)" }}>
+              <div className="space-y-1 text-xs">
+                <span
+                  className="text-xl font-serif leading-none block"
+                  style={{ color: "var(--accent-orange)" }}
+                >
+                  “
+                </span>
+                <p
+                  className="italic text-[11px] leading-relaxed"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  A clearer view of code leads to better builders.
+                </p>
+              </div>
+            </div>
+          </aside>
+        )}
 
         {/* =========================================================
             PANE 2 & 3: CENTER WORKSPACE + RIGHT INSPECTOR

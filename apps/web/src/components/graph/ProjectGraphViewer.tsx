@@ -511,7 +511,9 @@ export function ProjectGraphViewer({
                     className="w-full text-left p-2 rounded-lg hover:bg-[var(--bg-surface)] text-xs flex items-center justify-between text-white"
                   >
                     <span className="truncate font-medium">{res.name}</span>
-                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-mono">{res.nodeType}</span>
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-mono">
+                      {res.nodeType}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -586,7 +588,9 @@ export function ProjectGraphViewer({
               {selectedNode.nodeType}
             </span>
             <span className="text-zinc-600">/</span>
-            <span className="font-bold truncate text-[var(--teal-bright)]">{selectedNode.name}</span>
+            <span className="font-bold truncate text-[var(--teal-bright)]">
+              {selectedNode.name}
+            </span>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -603,10 +607,7 @@ export function ProjectGraphViewer({
                   isFocusMode && focusedNodeId === selectedNode.id
                     ? "var(--accent-purple)"
                     : "rgba(168, 85, 247, 0.3)",
-                color:
-                  isFocusMode && focusedNodeId === selectedNode.id
-                    ? "#ffffff"
-                    : "#d8b4fe",
+                color: isFocusMode && focusedNodeId === selectedNode.id ? "#ffffff" : "#d8b4fe",
               }}
             >
               <TargetIcon className="w-3.5 h-3.5" />
@@ -642,8 +643,8 @@ export function ProjectGraphViewer({
           >
             <TargetIcon className="w-4 h-4 text-[var(--teal-bright)] animate-pulse" />
             <span>
-              Focus Mode: <strong className="text-[var(--teal-bright)]">{focusedNode.name}</strong> • Showing{" "}
-              {visibleNodes.length} related entities
+              Focus Mode: <strong className="text-[var(--teal-bright)]">{focusedNode.name}</strong>{" "}
+              • Showing {visibleNodes.length} related entities
             </span>
             <button
               type="button"

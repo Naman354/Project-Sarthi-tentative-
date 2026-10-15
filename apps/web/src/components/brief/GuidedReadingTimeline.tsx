@@ -9,6 +9,8 @@ interface GuidedReadingTimelineProps {
   owner: string;
   repo: string;
   commitSha: string;
+  maxSteps?: number;
+  onViewAll?: () => void;
 }
 
 export default function GuidedReadingTimeline({
@@ -16,8 +18,12 @@ export default function GuidedReadingTimeline({
   owner,
   repo,
   commitSha,
+  maxSteps,
+  onViewAll,
 }: GuidedReadingTimelineProps) {
   if (!steps || steps.length === 0) return null;
+
+  const displaySteps = maxSteps ? steps.slice(0, maxSteps) : steps;
 
   return (
     <section
@@ -84,7 +90,7 @@ export default function GuidedReadingTimeline({
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
-          {steps.map((step, idx) => {
+          {displaySteps.map((step, idx) => {
             const targetUrl = step.targetFile
               ? `https://github.com/${owner}/${repo}/blob/${commitSha}/${step.targetFile.replace(/^\/+/, "")}`
               : null;
@@ -209,6 +215,30 @@ export default function GuidedReadingTimeline({
             );
           })}
         </div>
+
+        {/* View all steps button when previewing */}
+        {onViewAll && steps.length > displaySteps.length && (
+          <div
+            className="pt-4 flex items-center justify-between border-t mt-4"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+              Showing {displaySteps.length} of {steps.length} guided steps.
+            </span>
+            <button
+              type="button"
+              onClick={onViewAll}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer hover:brightness-110"
+              style={{
+                backgroundColor: "rgba(15,138,131,0.15)",
+                color: "var(--teal-bright)",
+                border: "1px solid rgba(53,208,195,0.3)",
+              }}
+            >
+              <span>View Full Reading Guide ({steps.length} Steps) →</span>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

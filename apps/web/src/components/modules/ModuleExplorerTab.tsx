@@ -117,35 +117,23 @@ export function ModuleExplorerTab({
                 onClick={() => setSelectedModuleId(mod.id)}
                 className="w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer"
                 style={{
-                  backgroundColor: isSelected
-                    ? "rgba(0, 194, 203, 0.12)"
-                    : "transparent",
-                  borderColor: isSelected
-                    ? "var(--teal-primary)"
-                    : "transparent",
-                  boxShadow: isSelected
-                    ? "0 0 15px rgba(0, 194, 203, 0.1)"
-                    : "none",
+                  backgroundColor: isSelected ? "rgba(0, 194, 203, 0.12)" : "transparent",
+                  borderColor: isSelected ? "var(--teal-primary)" : "transparent",
+                  boxShadow: isSelected ? "0 0 15px rgba(0, 194, 203, 0.1)" : "none",
                 }}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform"
                     style={{
-                      backgroundColor: isSelected
-                        ? "var(--teal-bright)"
-                        : "var(--text-muted)",
-                      boxShadow: isSelected
-                        ? "0 0 6px var(--teal-bright)"
-                        : "none",
+                      backgroundColor: isSelected ? "var(--teal-bright)" : "var(--text-muted)",
+                      boxShadow: isSelected ? "0 0 6px var(--teal-bright)" : "none",
                     }}
                   />
                   <span
                     className="text-xs truncate font-bold"
                     style={{
-                      color: isSelected
-                        ? "var(--teal-bright)"
-                        : "var(--text-primary)",
+                      color: isSelected ? "var(--teal-bright)" : "var(--text-primary)",
                     }}
                   >
                     {mod.name}

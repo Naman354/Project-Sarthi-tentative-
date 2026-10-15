@@ -137,9 +137,7 @@ export function ContextPanel({
                 </span>
               )}
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-white truncate">
-              {node.name}
-            </h3>
+            <h3 className="text-sm sm:text-base font-extrabold text-white truncate">{node.name}</h3>
           </div>
         </div>
 
@@ -212,12 +210,8 @@ export function ContextPanel({
             onClick={() => onToggleFocus(node.id)}
             className="w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer"
             style={{
-              backgroundColor: isFocused
-                ? "var(--accent-purple)"
-                : "rgba(168, 85, 247, 0.12)",
-              borderColor: isFocused
-                ? "var(--accent-purple)"
-                : "rgba(168, 85, 247, 0.3)",
+              backgroundColor: isFocused ? "var(--accent-purple)" : "rgba(168, 85, 247, 0.12)",
+              borderColor: isFocused ? "var(--accent-purple)" : "rgba(168, 85, 247, 0.3)",
               color: isFocused ? "#ffffff" : "#d8b4fe",
               boxShadow: isFocused ? "0 0 15px rgba(168, 85, 247, 0.3)" : "none",
             }}

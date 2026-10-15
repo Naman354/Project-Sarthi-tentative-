@@ -438,25 +438,17 @@ export function CommandPalette({
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className="flex items-center justify-between gap-3 p-3 rounded-xl cursor-pointer transition-all border"
                   style={{
-                    backgroundColor: isSelected
-                      ? "rgba(0, 194, 203, 0.12)"
-                      : "transparent",
-                    borderColor: isSelected
-                      ? "var(--teal-primary)"
-                      : "transparent",
+                    backgroundColor: isSelected ? "rgba(0, 194, 203, 0.12)" : "transparent",
+                    borderColor: isSelected ? "var(--teal-primary)" : "transparent",
                     color: isSelected ? "white" : "var(--text-secondary)",
-                    boxShadow: isSelected
-                      ? "0 0 12px rgba(0, 194, 203, 0.12)"
-                      : "none",
+                    boxShadow: isSelected ? "0 0 12px rgba(0, 194, 203, 0.12)" : "none",
                   }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className="p-2 rounded-xl flex-shrink-0"
                       style={{
-                        backgroundColor: isSelected
-                          ? "var(--teal-primary)"
-                          : "var(--bg-surface)",
+                        backgroundColor: isSelected ? "var(--teal-primary)" : "var(--bg-surface)",
                         color: isSelected ? "#0a0f1d" : "var(--text-muted)",
                       }}
                     >

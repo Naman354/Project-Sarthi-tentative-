@@ -153,9 +153,7 @@ export function AnalysisProgressModal({ isOpen, error, isComplete }: AnalysisPro
                       {stage.name}
                     </span>
                     {isDone && (
-                      <span className="text-[10px] font-mono font-bold text-emerald-400">
-                        Done
-                      </span>
+                      <span className="text-[10px] font-mono font-bold text-emerald-400">Done</span>
                     )}
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)] truncate mt-0.5">
