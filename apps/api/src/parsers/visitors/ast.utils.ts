@@ -103,3 +103,102 @@ export function getExpressionName(node: unknown): string | null {
   }
   return null;
 }
+
+export function formatArgument(arg: unknown): string | null {
+  if (!arg || typeof arg !== "object") return null;
+  const node = arg as AstNode;
+
+  if (node.type === "StringLiteral" && typeof node["value"] === "string") {
+    return `'${node["value"]}'`;
+  }
+  if (node.type === "NumericLiteral" && typeof node["value"] === "number") {
+    return String(node["value"]);
+  }
+  if (node.type === "BooleanLiteral" && typeof node["value"] === "boolean") {
+    return String(node["value"]);
+  }
+  if (node.type === "Identifier" && typeof node["name"] === "string") {
+    return node["name"];
+  }
+  if (node.type === "MemberExpression") {
+    return formatExpression(node);
+  }
+  if (node.type === "TemplateLiteral") {
+    const val = getStringLiteralValue(node);
+    return val !== null ? `\`${val}\`` : "`...`";
+  }
+  if (node.type === "ArrayExpression" && Array.isArray(node["elements"])) {
+    const elements = (node["elements"] as unknown[])
+      .map((el) => (el ? formatArgument(el) : ""))
+      .filter(Boolean);
+    return `[${elements.join(", ")}]`;
+  }
+  if (node.type === "ObjectExpression") {
+    return "{...}";
+  }
+  return "...";
+}
+
+export function formatExpression(node: unknown): string | null {
+  if (!node || typeof node !== "object") return null;
+  const astNode = node as AstNode;
+
+  if (astNode.type === "Identifier" && typeof astNode["name"] === "string") {
+    return astNode["name"];
+  }
+
+  if (astNode.type === "MemberExpression") {
+    const obj = formatExpression(astNode["object"]);
+    const prop = formatExpression(astNode["property"]);
+    return obj && prop ? `${obj}.${prop}` : prop || obj;
+  }
+
+  if (astNode.type === "CallExpression") {
+    const callee = formatExpression(astNode["callee"]) || "middleware";
+    const rawArgs = Array.isArray(astNode["arguments"])
+      ? (astNode["arguments"] as unknown[])
+          .map((arg) => formatArgument(arg))
+          .filter((v): v is string => v !== null)
+      : [];
+    return `${callee}(${rawArgs.join(", ")})`;
+  }
+
+  return getExpressionName(node);
+}
+
+export interface ParsedMiddleware {
+  name: string;
+  callee: string;
+  args: string[];
+  isCallExpression: boolean;
+  location: SourceLocation | null;
+}
+
+export function parseMiddlewareNode(node: AstNode, filePath: string): ParsedMiddleware {
+  const loc = extractSourceLocation(node, filePath);
+  if (node.type === "CallExpression") {
+    const callee = formatExpression(node["callee"]) || "middleware";
+    const rawArgs = Array.isArray(node["arguments"])
+      ? (node["arguments"] as unknown[])
+          .map((arg) => formatArgument(arg))
+          .filter((v): v is string => v !== null)
+      : [];
+    const name = `${callee}(${rawArgs.join(", ")})`;
+    return {
+      name,
+      callee,
+      args: rawArgs,
+      isCallExpression: true,
+      location: loc,
+    };
+  }
+
+  const name = formatExpression(node) || getExpressionName(node) || "middleware";
+  return {
+    name,
+    callee: name,
+    args: [],
+    isCallExpression: false,
+    location: loc,
+  };
+}

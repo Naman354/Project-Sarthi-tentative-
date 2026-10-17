@@ -17,12 +17,14 @@ interface ModuleExplorerTabProps {
   modules: ModuleSummaryItem[];
   insights: InsightItem[];
   onFocusModuleInGraph: (moduleName: string) => void;
+  onTraceFlow?: (routeIdOrName: string) => void;
 }
 
 export function ModuleExplorerTab({
   modules,
   insights,
   onFocusModuleInGraph,
+  onTraceFlow,
 }: ModuleExplorerTabProps) {
   const [selectedModuleId, setSelectedModuleId] = useState<string>(modules[0]?.id || "");
   const [searchQuery, setSearchQuery] = useState("");
@@ -363,14 +365,30 @@ export function ModuleExplorerTab({
                           {rt.path || rt.name}
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => onFocusModuleInGraph(rt.name)}
-                        className="text-[11px] font-semibold text-[var(--teal-bright)] hover:underline flex items-center gap-1.5 flex-shrink-0 ml-3 cursor-pointer"
-                      >
-                        <span>Graph</span>
-                        <ArrowRightIcon className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-2.5 flex-shrink-0 ml-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onTraceFlow
+                              ? onTraceFlow(rt.id || rt.name)
+                              : onFocusModuleInGraph(rt.name)
+                          }
+                          className="text-[11px] font-semibold text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          title="Trace Request Flow"
+                        >
+                          <span>Flow</span>
+                          <ArrowRightIcon className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onFocusModuleInGraph(rt.name)}
+                          className="text-[11px] font-semibold text-[var(--teal-bright)] hover:underline flex items-center gap-1 cursor-pointer"
+                          title="View in Interactive Graph"
+                        >
+                          <span>Graph</span>
+                          <ArrowRightIcon className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

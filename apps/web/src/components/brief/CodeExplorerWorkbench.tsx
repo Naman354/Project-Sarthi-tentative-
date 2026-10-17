@@ -5,10 +5,11 @@ import type { ProjectBrief, EvidenceSummary } from "../../types/brief";
 import type { ProjectGraph, ModuleSummaryItem, InsightItem } from "../../types/project";
 import CodebaseMapWorkbench from "./CodebaseMapWorkbench";
 import { ProjectGraphViewer } from "../graph/ProjectGraphViewer";
+import { RequestFlowExplorer } from "../graph/RequestFlowExplorer";
 import { ModuleExplorerTab } from "../modules/ModuleExplorerTab";
-import { NetworkGraphIcon, LayersIcon, ActivityIcon } from "../Icons";
+import { NetworkGraphIcon, LayersIcon, ActivityIcon, RouteIcon } from "../Icons";
 
-export type CodeExplorerMode = "map" | "graph" | "modules";
+export type CodeExplorerMode = "map" | "graph" | "flow" | "modules";
 
 interface CodeExplorerWorkbenchProps {
   brief: ProjectBrief;
@@ -72,6 +73,14 @@ export default function CodeExplorerWorkbench({
     setFocusedNodeId(moduleName);
     handleModeChange("graph");
   };
+
+  const handleTraceFlow = (routeIdOrName: string) => {
+    setFocusedNodeId(routeIdOrName);
+    handleModeChange("flow");
+  };
+
+  const routesCount =
+    graph?.stats?.routesCount || graph?.nodes?.filter((n) => n.nodeType === "route").length || 0;
 
   return (
     <div className="w-full space-y-4 animate-fade-in">
@@ -142,6 +151,34 @@ export default function CodeExplorerWorkbench({
               )}
             </button>
 
+            {/* Mode 3: Request Flow Explorer */}
+            <button
+              type="button"
+              id="code-explorer-mode-flow-btn"
+              onClick={() => handleModeChange("flow")}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2"
+              style={{
+                backgroundColor: mode === "flow" ? "var(--teal-primary)" : "transparent",
+                color: mode === "flow" ? "var(--text-primary)" : "var(--text-secondary)",
+                boxShadow: mode === "flow" ? "0 2px 8px rgba(15,138,131,0.3)" : "none",
+              }}
+            >
+              <RouteIcon className="w-3.5 h-3.5" />
+              <span>Request Flow</span>
+              {routesCount > 0 && (
+                <span
+                  className="text-[10px] font-mono px-1.5 py-0.2 rounded font-bold"
+                  style={{
+                    backgroundColor:
+                      mode === "flow" ? "rgba(255,255,255,0.2)" : "rgba(15,138,131,0.15)",
+                    color: mode === "flow" ? "#fff" : "var(--teal-bright)",
+                  }}
+                >
+                  {routesCount} routes
+                </span>
+              )}
+            </button>
+
             {/* Mode 3: Searchable Module Explorer */}
             <button
               type="button"
@@ -178,6 +215,7 @@ export default function CodeExplorerWorkbench({
             (graph
               ? `${graph.stats.totalNodes} nodes • ${graph.stats.totalEdges} edges`
               : "AST Relationship Graph")}
+          {mode === "flow" && `${routesCount} parsed endpoints • Lifecycle tracing`}
           {mode === "modules" &&
             `${modules.length || brief.conceptualMap.areas.length} indexed modules`}
         </div>
@@ -257,7 +295,46 @@ export default function CodeExplorerWorkbench({
         </div>
       )}
 
-      {/* Mode View 3: Searchable Module Explorer */}
+      {/* Mode View 3: Request Flow Explorer */}
+      {mode === "flow" && (
+        <div className="animate-fade-in">
+          {graph ? (
+            <RequestFlowExplorer
+              graph={graph}
+              modules={modules}
+              initialSelectedRouteId={focusedNodeId}
+              repoOwner={brief.owner}
+              repoName={brief.repo}
+              commitSha={brief.commitSha}
+            />
+          ) : (
+            <div
+              className="p-10 rounded-2xl border text-center space-y-4"
+              style={{
+                backgroundColor: "var(--bg-elevated)",
+                borderColor: "var(--border-default)",
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl"
+                style={{
+                  backgroundColor: "rgba(15,138,131,0.12)",
+                  color: "var(--teal-bright)",
+                  border: "1px solid rgba(53,208,195,0.3)",
+                }}
+              >
+                <RouteIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-white">No Graph Data for Request Flow</h3>
+              <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
+                Complete repository analysis to inspect verified request lifecycles.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mode View 4: Searchable Module Explorer */}
       {mode === "modules" && (
         <div className="animate-fade-in">
           {modules.length > 0 ? (
@@ -265,6 +342,7 @@ export default function CodeExplorerWorkbench({
               modules={modules}
               insights={insights}
               onFocusModuleInGraph={handleFocusModuleInGraph}
+              onTraceFlow={handleTraceFlow}
             />
           ) : (
             <div

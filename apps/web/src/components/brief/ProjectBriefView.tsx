@@ -178,7 +178,13 @@ export default function ProjectBriefView({
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const sec = params.get("section");
-      if (sec === "map" || sec === "graph" || sec === "modules" || sec === "explorer") {
+      if (
+        sec === "map" ||
+        sec === "graph" ||
+        sec === "flow" ||
+        sec === "modules" ||
+        sec === "explorer"
+      ) {
         return "explorer";
       }
       if (sec === "health" || sec === "insights") {
@@ -191,15 +197,16 @@ export default function ProjectBriefView({
     return "overview";
   });
 
-  // Sub-mode for Code Explorer (Map | Graph | Modules)
+  // Sub-mode for Code Explorer (Map | Graph | Flow | Modules)
   const [codeExplorerSubMode, setCodeExplorerSubMode] = useState<CodeExplorerMode>(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const sec = params.get("section");
       if (sec === "graph") return "graph";
+      if (sec === "flow") return "flow";
       if (sec === "modules") return "modules";
       const mode = params.get("mode");
-      if (mode === "graph" || mode === "modules" || mode === "map") return mode;
+      if (mode === "graph" || mode === "flow" || mode === "modules" || mode === "map") return mode;
     }
     return "map";
   });

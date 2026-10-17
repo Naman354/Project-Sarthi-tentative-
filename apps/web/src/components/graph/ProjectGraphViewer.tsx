@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import type { ProjectGraph, GraphNode, InsightItem, ModuleSummaryItem } from "../../types/project";
 import { ContextPanel } from "./ContextPanel";
+import { RequestFlowExplorer } from "./RequestFlowExplorer";
 import { ZoomInIcon, ZoomOutIcon, ResetIcon, SearchIcon, TargetIcon } from "../Icons";
 
 interface ProjectGraphViewerProps {
@@ -619,273 +620,299 @@ export function ProjectGraphViewer({
         </div>
       )}
 
-      {/* Main Canvas & SVG Area */}
-      <div
-        ref={containerRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onWheel={handleWheel}
-        className={`relative flex-1 overflow-hidden cursor-${isPanning ? "grabbing" : "grab"}`}
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(0, 194, 203, 0.1) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      >
-        {/* Floating Focus Mode Banner */}
-        {isFocusMode && focusedNode && (
-          <div
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full border shadow-2xl backdrop-blur-md animate-fade-in text-white text-xs"
-            style={{
-              backgroundColor: "rgba(10, 15, 29, 0.95)",
-              borderColor: "var(--teal-primary)",
-            }}
-          >
-            <TargetIcon className="w-4 h-4 text-[var(--teal-bright)] animate-pulse" />
-            <span>
-              Focus Mode: <strong className="text-[var(--teal-bright)]">{focusedNode.name}</strong>{" "}
-              • Showing {visibleNodes.length} related entities
-            </span>
-            <button
-              type="button"
-              onClick={handleExitFocus}
-              className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer"
-              style={{
-                backgroundColor: "rgba(0, 194, 203, 0.15)",
-                borderColor: "rgba(0, 194, 203, 0.4)",
-                color: "var(--teal-bright)",
-              }}
-            >
-              Exit Focus
-            </button>
-          </div>
-        )}
-
+      {/* Mode View: Request Flow vs Canvas */}
+      {mode === "flow" ? (
         <div
-          className="absolute inset-0 origin-top-left transition-transform duration-75"
-          style={{
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-          }}
+          className="flex-1 overflow-y-auto p-4 sm:p-6"
+          style={{ backgroundColor: "var(--bg-workspace)" }}
         >
-          {/* SVG Connections / Edges Layer */}
-          <svg
-            className="absolute inset-0 pointer-events-none"
-            style={{ width: "8000px", height: "8000px" }}
-          >
-            <defs>
-              <marker
-                id="arrowhead-normal"
-                markerWidth="8"
-                markerHeight="6"
-                refX="7"
-                refY="3"
-                orient="auto"
-              >
-                <polygon points="0 0, 8 3, 0 6" fill="#00c2cb" opacity="0.6" />
-              </marker>
-              <marker
-                id="arrowhead-active"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#00e5ff" />
-              </marker>
-            </defs>
-
-            {visibleEdges.map((edge) => {
-              const src = layoutMap.get(edge.sourceNodeId);
-              const tgt = layoutMap.get(edge.targetNodeId);
-              if (!src || !tgt) return null;
-
-              const isHighlighted =
-                activeConnections.edgeIds.has(edge.id) ||
-                selectedNodeId === edge.sourceNodeId ||
-                selectedNodeId === edge.targetNodeId;
-
-              // Coordinates from right of source to left of target
-              const x1 = src.x + src.width;
-              const y1 = src.y + src.height / 2;
-              const x2 = tgt.x;
-              const y2 = tgt.y + tgt.height / 2;
-              const dx = Math.abs(x2 - x1) * 0.5;
-
-              const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-
-              return (
-                <g key={edge.id}>
-                  <path
-                    d={pathData}
-                    fill="none"
-                    stroke={isHighlighted ? "#00e5ff" : "rgba(0, 194, 203, 0.45)"}
-                    strokeWidth={isHighlighted ? 3 : 1.5}
-                    strokeOpacity={isHighlighted ? 1 : selectedNodeId ? 0.15 : 0.5}
-                    strokeDasharray={isHighlighted ? "6 3" : undefined}
-                    className={isHighlighted ? "animate-edge-flow" : ""}
-                    markerEnd={isHighlighted ? "url(#arrowhead-active)" : "url(#arrowhead-normal)"}
-                  />
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* HTML Nodes Layer */}
-          {layoutNodes.map((node) => {
-            const isSelected = selectedNodeId === node.id;
-            const isConnected = activeConnections.nodeIds.has(node.id);
-            const isDimmed = selectedNodeId && !isSelected && !isConnected;
-
-            const metadata = node.metadata || {};
-            const method = (metadata["httpMethod"] as string) || (metadata["method"] as string);
-
-            return (
-              <div
-                key={node.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedNodeId(node.id);
-                }}
-                className={`graph-node absolute rounded-2xl cursor-pointer transition-all duration-200 border p-3.5 flex flex-col justify-between ${
-                  isSelected
-                    ? "bg-zinc-900 border-[var(--teal-bright)] shadow-2xl ring-2 ring-[var(--teal-primary)]/50 scale-105 z-20"
-                    : isConnected
-                      ? "bg-zinc-900/90 border-[var(--teal-primary)]/80 shadow-lg z-10"
-                      : "bg-zinc-900/80 border-zinc-800 hover:border-[var(--teal-primary)]/40 hover:bg-zinc-850"
-                } ${isDimmed ? "opacity-25" : "opacity-100"}`}
-                style={{
-                  left: `${node.x}px`,
-                  top: `${node.y}px`,
-                  width: `${node.width}px`,
-                  height: `${node.height}px`,
-                }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        node.nodeType === "module"
-                          ? "bg-purple-500"
-                          : node.nodeType === "route"
-                            ? "bg-blue-500"
-                            : node.nodeType === "model"
-                              ? "bg-emerald-500"
-                              : "bg-amber-500"
-                      }`}
-                    />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                      {node.nodeType}
-                    </span>
-                  </div>
-                  {method && (
-                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
-                      {method}
-                    </span>
-                  )}
-                  {node.nodeType === "module" && (
-                    <span className="text-[10px] font-mono text-purple-400">
-                      {node.outgoingCount ?? 0} items
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-1">
-                  <div className="text-xs font-bold text-zinc-100 truncate" title={node.name}>
-                    {node.name}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Floating Zoom & Controls Widget */}
-        <div
-          className="graph-ctrl absolute bottom-4 left-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl backdrop-blur-md border shadow-xl text-zinc-300"
-          style={{
-            backgroundColor: "rgba(10, 15, 29, 0.95)",
-            borderColor: "var(--border-subtle)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
-            title="Zoom In"
-          >
-            <ZoomInIcon className="w-4 h-4" />
-          </button>
-          <span className="text-[11px] font-mono px-2 text-[var(--text-muted)]">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
-            title="Zoom Out"
-          >
-            <ZoomOutIcon className="w-4 h-4" />
-          </button>
-          <div className="w-[1px] h-4 bg-zinc-800 mx-1" />
-          <button
-            type="button"
-            onClick={handleReset}
-            className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
-            title="Reset View"
-          >
-            <ResetIcon className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Mini-map Widget */}
-        <div
-          className="hidden sm:block absolute bottom-4 right-4 z-20 w-36 h-28 rounded-xl backdrop-blur-md border p-2 shadow-xl pointer-events-none"
-          style={{
-            backgroundColor: "rgba(10, 15, 29, 0.95)",
-            borderColor: "var(--border-subtle)",
-          }}
-        >
-          <div className="text-[9px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">
-            Overview Minimap
-          </div>
-          <div
-            className="relative w-full h-[76px] rounded-lg border overflow-hidden"
-            style={{
-              backgroundColor: "rgba(6, 9, 19, 0.8)",
-              borderColor: "var(--border-subtle)",
-            }}
-          >
-            {layoutNodes.map((n) => (
-              <div
-                key={n.id}
-                className={`absolute w-1.5 h-1 rounded-sm ${
-                  selectedNodeId === n.id ? "bg-[var(--teal-bright)]" : "bg-zinc-600"
-                }`}
-                style={{
-                  left: `${(n.x / 2500) * 100}%`,
-                  top: `${(n.y / 1800) * 100}%`,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Context Panel (Slide in from right) */}
-      {selectedNode && (
-        <div className="absolute top-0 right-0 bottom-0 z-30 animate-slide-in-right">
-          <ContextPanel
-            node={selectedNode}
-            edges={graph.edges}
-            allNodes={graph.nodes}
-            insights={insights}
-            isFocused={isFocusMode && focusedNodeId === selectedNode.id}
-            onToggleFocus={handleToggleFocus}
-            onClose={() => setSelectedNodeId(null)}
-            onSelectNode={(n) => handleSearchSelect(n.id)}
+          <RequestFlowExplorer
+            graph={graph}
+            modules={modules}
+            initialSelectedRouteId={
+              selectedNodeId &&
+              graph.nodes.find((n) => n.id === selectedNodeId)?.nodeType === "route"
+                ? selectedNodeId
+                : null
+            }
+            onSelectRoute={(id) => setSelectedNodeId(id)}
           />
         </div>
+      ) : (
+        <>
+          {/* Main Canvas & SVG Area */}
+          <div
+            ref={containerRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onWheel={handleWheel}
+            className={`relative flex-1 overflow-hidden cursor-${isPanning ? "grabbing" : "grab"}`}
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, rgba(0, 194, 203, 0.1) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          >
+            {/* Floating Focus Mode Banner */}
+            {isFocusMode && focusedNode && (
+              <div
+                className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full border shadow-2xl backdrop-blur-md animate-fade-in text-white text-xs"
+                style={{
+                  backgroundColor: "rgba(10, 15, 29, 0.95)",
+                  borderColor: "var(--teal-primary)",
+                }}
+              >
+                <TargetIcon className="w-4 h-4 text-[var(--teal-bright)] animate-pulse" />
+                <span>
+                  Focus Mode:{" "}
+                  <strong className="text-[var(--teal-bright)]">{focusedNode.name}</strong> •
+                  Showing {visibleNodes.length} related entities
+                </span>
+                <button
+                  type="button"
+                  onClick={handleExitFocus}
+                  className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: "rgba(0, 194, 203, 0.15)",
+                    borderColor: "rgba(0, 194, 203, 0.4)",
+                    color: "var(--teal-bright)",
+                  }}
+                >
+                  Exit Focus
+                </button>
+              </div>
+            )}
+
+            <div
+              className="absolute inset-0 origin-top-left transition-transform duration-75"
+              style={{
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              }}
+            >
+              {/* SVG Connections / Edges Layer */}
+              <svg
+                className="absolute inset-0 pointer-events-none"
+                style={{ width: "8000px", height: "8000px" }}
+              >
+                <defs>
+                  <marker
+                    id="arrowhead-normal"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 8 3, 0 6" fill="#00c2cb" opacity="0.6" />
+                  </marker>
+                  <marker
+                    id="arrowhead-active"
+                    markerWidth="9"
+                    markerHeight="7"
+                    refX="8"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 9 3.5, 0 7" fill="#00e5ff" />
+                  </marker>
+                </defs>
+
+                {visibleEdges.map((edge) => {
+                  const src = layoutMap.get(edge.sourceNodeId);
+                  const tgt = layoutMap.get(edge.targetNodeId);
+                  if (!src || !tgt) return null;
+
+                  const isHighlighted =
+                    activeConnections.edgeIds.has(edge.id) ||
+                    selectedNodeId === edge.sourceNodeId ||
+                    selectedNodeId === edge.targetNodeId;
+
+                  // Coordinates from right of source to left of target
+                  const x1 = src.x + src.width;
+                  const y1 = src.y + src.height / 2;
+                  const x2 = tgt.x;
+                  const y2 = tgt.y + tgt.height / 2;
+                  const dx = Math.abs(x2 - x1) * 0.5;
+
+                  const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+                  return (
+                    <g key={edge.id}>
+                      <path
+                        d={pathData}
+                        fill="none"
+                        stroke={isHighlighted ? "#00e5ff" : "rgba(0, 194, 203, 0.45)"}
+                        strokeWidth={isHighlighted ? 3 : 1.5}
+                        strokeOpacity={isHighlighted ? 1 : selectedNodeId ? 0.15 : 0.5}
+                        strokeDasharray={isHighlighted ? "6 3" : undefined}
+                        className={isHighlighted ? "animate-edge-flow" : ""}
+                        markerEnd={
+                          isHighlighted ? "url(#arrowhead-active)" : "url(#arrowhead-normal)"
+                        }
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* HTML Nodes Layer */}
+              {layoutNodes.map((node) => {
+                const isSelected = selectedNodeId === node.id;
+                const isConnected = activeConnections.nodeIds.has(node.id);
+                const isDimmed = selectedNodeId && !isSelected && !isConnected;
+
+                const metadata = node.metadata || {};
+                const method = (metadata["httpMethod"] as string) || (metadata["method"] as string);
+
+                return (
+                  <div
+                    key={node.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedNodeId(node.id);
+                    }}
+                    className={`graph-node absolute rounded-2xl cursor-pointer transition-all duration-200 border p-3.5 flex flex-col justify-between ${
+                      isSelected
+                        ? "bg-zinc-900 border-[var(--teal-bright)] shadow-2xl ring-2 ring-[var(--teal-primary)]/50 scale-105 z-20"
+                        : isConnected
+                          ? "bg-zinc-900/90 border-[var(--teal-primary)]/80 shadow-lg z-10"
+                          : "bg-zinc-900/80 border-zinc-800 hover:border-[var(--teal-primary)]/40 hover:bg-zinc-850"
+                    } ${isDimmed ? "opacity-25" : "opacity-100"}`}
+                    style={{
+                      left: `${node.x}px`,
+                      top: `${node.y}px`,
+                      width: `${node.width}px`,
+                      height: `${node.height}px`,
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            node.nodeType === "module"
+                              ? "bg-purple-500"
+                              : node.nodeType === "route"
+                                ? "bg-blue-500"
+                                : node.nodeType === "model"
+                                  ? "bg-emerald-500"
+                                  : "bg-amber-500"
+                          }`}
+                        />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                          {node.nodeType}
+                        </span>
+                      </div>
+                      {method && (
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                          {method}
+                        </span>
+                      )}
+                      {node.nodeType === "module" && (
+                        <span className="text-[10px] font-mono text-purple-400">
+                          {node.outgoingCount ?? 0} items
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-1">
+                      <div className="text-xs font-bold text-zinc-100 truncate" title={node.name}>
+                        {node.name}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Floating Zoom & Controls Widget */}
+            <div
+              className="graph-ctrl absolute bottom-4 left-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl backdrop-blur-md border shadow-xl text-zinc-300"
+              style={{
+                backgroundColor: "rgba(10, 15, 29, 0.95)",
+                borderColor: "var(--border-subtle)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
+                title="Zoom In"
+              >
+                <ZoomInIcon className="w-4 h-4" />
+              </button>
+              <span className="text-[11px] font-mono px-2 text-[var(--text-muted)]">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
+                title="Zoom Out"
+              >
+                <ZoomOutIcon className="w-4 h-4" />
+              </button>
+              <div className="w-[1px] h-4 bg-zinc-800 mx-1" />
+              <button
+                type="button"
+                onClick={handleReset}
+                className="p-1.5 rounded-lg hover:bg-[var(--bg-surface)] hover:text-white transition-colors cursor-pointer"
+                title="Reset View"
+              >
+                <ResetIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mini-map Widget */}
+            <div
+              className="hidden sm:block absolute bottom-4 right-4 z-20 w-36 h-28 rounded-xl backdrop-blur-md border p-2 shadow-xl pointer-events-none"
+              style={{
+                backgroundColor: "rgba(10, 15, 29, 0.95)",
+                borderColor: "var(--border-subtle)",
+              }}
+            >
+              <div className="text-[9px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">
+                Overview Minimap
+              </div>
+              <div
+                className="relative w-full h-[76px] rounded-lg border overflow-hidden"
+                style={{
+                  backgroundColor: "rgba(6, 9, 19, 0.8)",
+                  borderColor: "var(--border-subtle)",
+                }}
+              >
+                {layoutNodes.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`absolute w-1.5 h-1 rounded-sm ${
+                      selectedNodeId === n.id ? "bg-[var(--teal-bright)]" : "bg-zinc-600"
+                    }`}
+                    style={{
+                      left: `${(n.x / 2500) * 100}%`,
+                      top: `${(n.y / 1800) * 100}%`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Context Panel (Slide in from right) */}
+          {selectedNode && (
+            <div className="absolute top-0 right-0 bottom-0 z-30 animate-slide-in-right">
+              <ContextPanel
+                node={selectedNode}
+                edges={graph.edges}
+                allNodes={graph.nodes}
+                insights={insights}
+                isFocused={isFocusMode && focusedNodeId === selectedNode.id}
+                onToggleFocus={handleToggleFocus}
+                onClose={() => setSelectedNodeId(null)}
+                onSelectNode={(n) => handleSearchSelect(n.id)}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

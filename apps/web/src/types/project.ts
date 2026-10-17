@@ -107,12 +107,22 @@ export interface AnalyzeResultData {
   };
 }
 
+export interface SourceLocation {
+  filePath?: string;
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+}
+
 export interface GraphNode {
   id: string;
   entityId: string;
   graphVersionId?: string;
   nodeType: EntityType | string;
   name: string;
+  filePath?: string;
+  location?: SourceLocation | null;
   metadata: Record<string, unknown>;
   incomingCount?: number;
   outgoingCount?: number;
