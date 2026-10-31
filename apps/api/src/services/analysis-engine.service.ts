@@ -72,7 +72,10 @@ export class AnalysisEngineService {
     return result;
   }
 
-  private assertProjectAccess(project: { githubUrl?: string | null; ownerId: string }, userId?: string | null): void {
+  private assertProjectAccess(
+    project: { githubUrl?: string | null; ownerId: string },
+    userId?: string | null
+  ): void {
     const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
     if (!isPublic && (!userId || project.ownerId !== userId)) {
       throw new ForbiddenError("You do not have access to this project");

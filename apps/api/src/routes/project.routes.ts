@@ -33,5 +33,4 @@ router.get("/:id/insights", optionalAuthenticate, analysisEngineController.getIn
 router.get("/:id/health", optionalAuthenticate, analysisEngineController.getHealth);
 router.get("/:id/resume", optionalAuthenticate, analysisEngineController.getResume);
 
-
 export default router;

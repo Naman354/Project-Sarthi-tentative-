@@ -145,14 +145,20 @@ export class AnalysisService {
     }
   }
 
-  private assertProjectAccess(project: { githubUrl?: string | null; ownerId: string }, userId?: string | null): void {
+  private assertProjectAccess(
+    project: { githubUrl?: string | null; ownerId: string },
+    userId?: string | null
+  ): void {
     const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
     if (!isPublic && (!userId || project.ownerId !== userId)) {
       throw new ForbiddenError("You do not have access to this project");
     }
   }
 
-  async getProjectStatus(projectId: string, userId?: string | null): Promise<AnalysisStatusResponse> {
+  async getProjectStatus(
+    projectId: string,
+    userId?: string | null
+  ): Promise<AnalysisStatusResponse> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
@@ -189,7 +195,10 @@ export class AnalysisService {
     };
   }
 
-  async getProjectEntities(projectId: string, userId?: string | null): Promise<ParserManagerResult> {
+  async getProjectEntities(
+    projectId: string,
+    userId?: string | null
+  ): Promise<ParserManagerResult> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");

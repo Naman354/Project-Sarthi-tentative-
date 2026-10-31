@@ -410,11 +410,7 @@ function HomeContent() {
     const projectParam = searchParams.get("project") || searchParams.get("projectId");
     const repoParam = searchParams.get("repo");
 
-    if (
-      projectParam &&
-      !isLoading &&
-      handledTargetRef.current !== `project:${projectParam}`
-    ) {
+    if (projectParam && !isLoading && handledTargetRef.current !== `project:${projectParam}`) {
       handledTargetRef.current = `project:${projectParam}`;
       const timer = setTimeout(() => {
         void handleLoadSavedProject(projectParam);

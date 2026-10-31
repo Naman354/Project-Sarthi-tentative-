@@ -141,7 +141,6 @@ export function CommandPalette({
           onSelectTab("insights");
           handleClose();
         },
-
       },
       {
         id: "action-reanalyze",

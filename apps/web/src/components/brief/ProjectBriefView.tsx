@@ -803,9 +803,7 @@ export default function ProjectBriefView({
                   style={{
                     backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
                     color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                    border: isActive
-                      ? "1px solid rgba(53,208,195,0.35)"
-                      : "1px solid transparent",
+                    border: isActive ? "1px solid rgba(53,208,195,0.35)" : "1px solid transparent",
                   }}
                   title={isSidebarCollapsed ? dest.label : undefined}
                 >
@@ -1266,7 +1264,6 @@ export default function ProjectBriefView({
               />
             </div>
           )}
-
         </main>
       </div>
 
