@@ -73,6 +73,7 @@ export interface RepositoryEvidenceBundle {
   evidenceRecords: EvidenceRecord[];
   parserCoverage: "specialized-ast-graph" | "universal-baseline";
   fileCategories?: FileCategoryStat[] | undefined;
+  parseResult?: import("../parsers/types.js").ParserManagerResult | null | undefined;
   classification?:
     | {
         category: ProjectCategory;

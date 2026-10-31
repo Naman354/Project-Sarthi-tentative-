@@ -113,9 +113,14 @@ export interface EvidenceSummary {
   fileCategories?: FileCategoryStat[];
 }
 
+import type { Project, ProjectGraph, ModuleSummaryItem } from "./project";
+
 export interface ExploreResponse {
   brief: ProjectBrief;
   evidenceSummary: EvidenceSummary;
+  graph?: ProjectGraph | null;
+  modules?: ModuleSummaryItem[];
+  project?: Project | null;
 }
 
 export interface RecentRepositoryItem {

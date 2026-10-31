@@ -47,7 +47,7 @@ export class ProjectController {
 
   getById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = this.getAuthenticatedUserId(req);
+      const userId = req.user?.id;
       const projectId = req.params["id"];
       if (!projectId || typeof projectId !== "string") {
         res.status(400).json({ success: false, message: "Valid project ID is required" });

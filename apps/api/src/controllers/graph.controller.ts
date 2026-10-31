@@ -1,16 +1,12 @@
 import type { Response, NextFunction } from "express";
 import { graphService, type GraphService } from "../services/graph.service.js";
 import type { AuthenticatedRequest } from "../types/auth.types.js";
-import { UnauthorizedError } from "../utils/errors.js";
 
 export class GraphController {
   constructor(private readonly service: GraphService = graphService) {}
 
-  private getAuthenticatedUserId(req: AuthenticatedRequest): string {
-    if (!req.user?.id) {
-      throw new UnauthorizedError("Authentication required", "UNAUTHORIZED");
-    }
-    return req.user.id;
+  private getAuthenticatedUserId(req: AuthenticatedRequest): string | undefined {
+    return req.user?.id;
   }
 
   getGraph = async (

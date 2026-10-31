@@ -38,13 +38,14 @@ export class ProjectService {
     return this.projectRepo.findByOwnerId(userId);
   }
 
-  async getProjectById(userId: string, projectId: string): Promise<Project> {
+  async getProjectById(userId: string | undefined | null, projectId: string): Promise<Project> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found", "PROJECT_NOT_FOUND");
     }
 
-    if (project.ownerId !== userId) {
+    const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
+    if (!isPublic && (!userId || project.ownerId !== userId)) {
       throw new ForbiddenError(
         "You do not have permission to access this project",
         "FORBIDDEN_PROJECT_ACCESS"

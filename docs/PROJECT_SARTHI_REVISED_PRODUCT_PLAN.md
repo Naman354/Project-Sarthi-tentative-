@@ -459,9 +459,9 @@ The immediate task is a focused product/UX iteration, not another backend rebuil
 - **Developer Briefing & Recommended Next Steps (Overview Destination)**:
   - Embeds legacy orientation recommendations, suggested starting module, and rationale cleanly into the Overview tab without restoring bulky dashboard cards.
   - Direct navigation from suggested modules and recommendations straight into Code Explorer.
-- **Advanced / Raw AST Entities Explorer (`RawEntitiesExplorer.tsx`)**:
-  - Placed under a restrained, distinct "Advanced Tools" group in the desktop sidebar and mobile drawer.
-  - Provides type filtering (module, route, model, controller, service, component, doc), search filtering, and direct source permalinks to GitHub, with graceful explanatory states when AST entities are unseeded.
+- **Retirement of Raw AST Entities UI**:
+  - The dedicated Raw Entities UI and its Advanced Tools navigation entry have been retired from the user-facing canonical repository workspace to keep developer exploration focused on verified architectural models (Overview, Code Explorer with AST Graph/Flow/Modules, Health & Diagnostics, Guided Tour, Dependencies, and Topology).
+  - Internal entity models, AST parsers, database persistence, and API endpoints are preserved for dependency graph generation and analytical features.
 - **Omnibar Command Palette (Ctrl+K / Cmd+K)**:
   - Accessible via global hotkey or the header search action, enabling instant keyboard navigation across tabs, modules, endpoints, and actions.
 

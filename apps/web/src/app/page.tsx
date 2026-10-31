@@ -129,10 +129,31 @@ function HomeContent() {
       setLoadingStep("Finalizing evidence-backed Project Brief...");
       await new Promise((r) => setTimeout(r, 200));
 
-      setExploreData(res.data);
-      setSavedProjectContext(null);
-
       const brief = res.data.brief;
+      setExploreData(res.data);
+      if (res.data.graph) {
+        const existingProj = res.data.project;
+        setSavedProjectContext({
+          project:
+            existingProj ||
+            ({
+              id: "preview-project",
+              name: brief.repo,
+              githubUrl: brief.repoUrl,
+              status: "ready",
+              updatedAt: brief.generatedAt,
+            } as unknown as Project),
+          graph: res.data.graph,
+          modules: res.data.modules || [],
+          storedHealth: null,
+          insights: [],
+          resume: null,
+          entities: [],
+        });
+      } else {
+        setSavedProjectContext(null);
+      }
+
       saveRecentRepo({
         repoUrl: brief.repoUrl,
         owner: brief.owner,
@@ -143,12 +164,17 @@ function HomeContent() {
         analyzedAt: brief.generatedAt,
       });
 
-      // Preserve repository URL in browser history for reload and deep-linking
+      // Preserve repository URL and project ID in browser history for reload and deep-linking
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
         url.searchParams.set("repo", urlToAnalyze);
-        url.searchParams.delete("project");
-        url.searchParams.delete("projectId");
+        if (res.data.project?.id) {
+          url.searchParams.set("project", res.data.project.id);
+          handledTargetRef.current = `project:${res.data.project.id}`;
+        } else {
+          url.searchParams.delete("project");
+          url.searchParams.delete("projectId");
+        }
         window.history.replaceState({}, "", url.toString());
       }
     } catch (err: unknown) {
@@ -386,7 +412,6 @@ function HomeContent() {
 
     if (
       projectParam &&
-      !exploreData &&
       !isLoading &&
       handledTargetRef.current !== `project:${projectParam}`
     ) {
@@ -400,7 +425,6 @@ function HomeContent() {
     if (
       !projectParam &&
       repoParam &&
-      !exploreData &&
       !isLoading &&
       handledTargetRef.current !== `repo:${repoParam}`
     ) {
@@ -412,7 +436,7 @@ function HomeContent() {
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, exploreData, isLoading]);
+  }, [searchParams, isLoading]);
 
   // If a Project Brief is active
   if (exploreData) {

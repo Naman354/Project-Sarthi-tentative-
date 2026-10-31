@@ -72,14 +72,19 @@ export class AnalysisEngineService {
     return result;
   }
 
-  async getOverview(projectId: string, userId: string): Promise<ProjectOverviewData> {
+  private assertProjectAccess(project: { githubUrl?: string | null; ownerId: string }, userId?: string | null): void {
+    const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
+    if (!isPublic && (!userId || project.ownerId !== userId)) {
+      throw new ForbiddenError("You do not have access to this project");
+    }
+  }
+
+  async getOverview(projectId: string, userId?: string | null): Promise<ProjectOverviewData> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     const latestAnalysis = await this.analysisRepo.findLatestByProjectId(projectId);
     const versions = await this.graphRepo.listVersions(projectId);
@@ -124,26 +129,22 @@ export class AnalysisEngineService {
     };
   }
 
-  async getInsights(projectId: string, userId: string): Promise<Insight[]> {
+  async getInsights(projectId: string, userId?: string | null): Promise<Insight[]> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     return this.insightRepo.findByProjectId(projectId);
   }
 
-  async getHealth(projectId: string, userId: string): Promise<ProjectHealthReport> {
+  async getHealth(projectId: string, userId?: string | null): Promise<ProjectHealthReport> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     const latestVersion = await this.graphRepo.findLatestVersion(projectId);
     if (!latestVersion) {
@@ -199,14 +200,12 @@ export class AnalysisEngineService {
     return computed.health;
   }
 
-  async getResume(projectId: string, userId: string): Promise<ResumeSessionBriefing> {
+  async getResume(projectId: string, userId?: string | null): Promise<ResumeSessionBriefing> {
     const project = await this.projectRepo.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     const versions = await this.graphRepo.listVersions(projectId);
     const currentVersionSummary = versions[0];

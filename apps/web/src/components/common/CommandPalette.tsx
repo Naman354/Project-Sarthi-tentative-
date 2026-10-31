@@ -25,7 +25,7 @@ export interface CommandPaletteProps {
   insights: InsightItem[];
   onSelectNode: (nodeId: string) => void;
   onSelectModule: (moduleName: string) => void;
-  onSelectTab: (tab: "overview" | "graph" | "modules" | "insights" | "entities") => void;
+  onSelectTab: (tab: "overview" | "graph" | "modules" | "insights") => void;
   onTriggerAnalysis: () => void;
 }
 
@@ -141,18 +141,7 @@ export function CommandPalette({
           onSelectTab("insights");
           handleClose();
         },
-      },
-      {
-        id: "tab-entities",
-        category: "Actions & Tabs",
-        title: "Inspect Normalized AST Entities",
-        subtitle: "Raw parsed routes, components, schemas and documents",
-        icon: <CodeIcon className="w-4 h-4 text-cyan-400" />,
-        badge: "Tab",
-        onSelect: () => {
-          onSelectTab("entities");
-          handleClose();
-        },
+
       },
       {
         id: "action-reanalyze",

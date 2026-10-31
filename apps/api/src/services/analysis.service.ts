@@ -145,14 +145,19 @@ export class AnalysisService {
     }
   }
 
-  async getProjectStatus(projectId: string, userId: string): Promise<AnalysisStatusResponse> {
+  private assertProjectAccess(project: { githubUrl?: string | null; ownerId: string }, userId?: string | null): void {
+    const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
+    if (!isPublic && (!userId || project.ownerId !== userId)) {
+      throw new ForbiddenError("You do not have access to this project");
+    }
+  }
+
+  async getProjectStatus(projectId: string, userId?: string | null): Promise<AnalysisStatusResponse> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     const latestAnalysis = await this.analysisRepo.findLatestByProjectId(projectId);
     const isCloned = await this.repoService.isCloned(projectId);
@@ -184,14 +189,12 @@ export class AnalysisService {
     };
   }
 
-  async getProjectEntities(projectId: string, userId: string): Promise<ParserManagerResult> {
+  async getProjectEntities(projectId: string, userId?: string | null): Promise<ParserManagerResult> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     const isCloned = await this.repoService.isCloned(projectId);
     if (!isCloned) {

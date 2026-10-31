@@ -18,7 +18,6 @@ import ArchitectureHealthSection, { evaluateArchitectureHealth } from "./Archite
 import CapabilityIndex from "./CapabilityIndex";
 import AdaptiveVisualModel from "./visual-models/AdaptiveVisualModel";
 import TechnicalOverviewHero from "./TechnicalOverviewHero";
-import RawEntitiesExplorer from "../entities/RawEntitiesExplorer";
 import { CommandPalette } from "../common/CommandPalette";
 import {
   ExternalLinkIcon,
@@ -33,7 +32,6 @@ import {
   RefreshIcon,
   XMarkIcon,
   FolderIcon,
-  CodeIcon,
   ArrowRightIcon,
   SearchIcon,
   TrashIcon,
@@ -142,13 +140,6 @@ const WORKSPACE_DESTINATIONS = [
     description: "Subsystem architectural model",
     icon: GitBranchIcon,
   },
-  {
-    id: "entities",
-    label: "Raw Entities",
-    description: "Low-level AST-indexed entities",
-    icon: CodeIcon,
-    isAdvanced: true,
-  },
 ] as const;
 
 type DestinationId = (typeof WORKSPACE_DESTINATIONS)[number]["id"];
@@ -165,7 +156,6 @@ export default function ProjectBriefView({
   storedHealth,
   insights = [],
   resume,
-  entities = [],
   onReanalyze,
   onDelete,
   isAnalyzing = false,
@@ -323,8 +313,6 @@ export default function ProjectBriefView({
         return `${brief.guidedTour?.length || 0} steps`;
       case "dependencies":
         return `${(brief.technicalOverview.dependencies?.length || 0) + (brief.technicalOverview.devDependencies?.length || 0)}`;
-      case "entities":
-        return entities.length > 0 ? `${entities.length}` : null;
       default:
         return null;
     }
@@ -796,137 +784,61 @@ export default function ProjectBriefView({
             </button>
           </div>
 
-          {/* Navigation Items (Grouped: Core Destinations & Advanced Tools) */}
+          {/* Navigation Items */}
           <nav className="space-y-1">
-            {WORKSPACE_DESTINATIONS.filter((d) => !("isAdvanced" in d && d.isAdvanced)).map(
-              (dest) => {
-                const isActive = activeNavSection === dest.id;
-                const Icon = dest.icon;
-                const badge = getDestinationBadge(dest.id);
+            {WORKSPACE_DESTINATIONS.map((dest) => {
+              const isActive = activeNavSection === dest.id;
+              const Icon = dest.icon;
+              const badge = getDestinationBadge(dest.id);
 
-                return (
-                  <button
-                    key={dest.id}
-                    type="button"
-                    id={`nav-dest-${dest.id}`}
-                    onClick={() => handleSelectNavSection(dest.id)}
-                    className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
-                      isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
-                    }`}
-                    style={{
-                      backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
-                      color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                      border: isActive
-                        ? "1px solid rgba(53,208,195,0.35)"
-                        : "1px solid transparent",
-                    }}
-                    title={isSidebarCollapsed ? dest.label : undefined}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span
-                        className="shrink-0 transition-colors"
-                        style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </span>
-                      {!isSidebarCollapsed && (
-                        <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
-                          {dest.label}
-                        </span>
-                      )}
-                    </div>
-
-                    {!isSidebarCollapsed && badge && (
-                      <span
-                        className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
-                        style={{
-                          backgroundColor: isActive
-                            ? "rgba(53,208,195,0.2)"
-                            : "rgba(255,255,255,0.06)",
-                          color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                        }}
-                      >
-                        {badge}
+              return (
+                <button
+                  key={dest.id}
+                  type="button"
+                  id={`nav-dest-${dest.id}`}
+                  onClick={() => handleSelectNavSection(dest.id)}
+                  className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
+                    isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
+                  }`}
+                  style={{
+                    backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
+                    color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                    border: isActive
+                      ? "1px solid rgba(53,208,195,0.35)"
+                      : "1px solid transparent",
+                  }}
+                  title={isSidebarCollapsed ? dest.label : undefined}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className="shrink-0 transition-colors"
+                      style={{ color: isActive ? "var(--teal-bright)" : "var(--text-muted)" }}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </span>
+                    {!isSidebarCollapsed && (
+                      <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
+                        {dest.label}
                       </span>
                     )}
-                  </button>
-                );
-              }
-            )}
+                  </div>
 
-            {/* Advanced Navigation Group */}
-            {WORKSPACE_DESTINATIONS.some((d) => "isAdvanced" in d && d.isAdvanced) && (
-              <div
-                className="pt-2 mt-2 border-t space-y-1"
-                style={{ borderColor: "var(--border-subtle)" }}
-              >
-                {!isSidebarCollapsed && (
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-wider px-1 block mb-1"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    Advanced Tools
-                  </span>
-                )}
-                {WORKSPACE_DESTINATIONS.filter((d) => "isAdvanced" in d && d.isAdvanced).map(
-                  (dest) => {
-                    const isActive = activeNavSection === dest.id;
-                    const Icon = dest.icon;
-                    const badge = getDestinationBadge(dest.id);
-
-                    return (
-                      <button
-                        key={dest.id}
-                        type="button"
-                        id={`nav-dest-${dest.id}`}
-                        onClick={() => handleSelectNavSection(dest.id)}
-                        className={`w-full text-left rounded-xl transition-all cursor-pointer flex items-center justify-between group ${
-                          isSidebarCollapsed ? "p-3 justify-center" : "px-3.5 py-2.5"
-                        }`}
-                        style={{
-                          backgroundColor: isActive ? "rgba(15,138,131,0.16)" : "transparent",
-                          color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                          border: isActive
-                            ? "1px solid rgba(53,208,195,0.35)"
-                            : "1px solid transparent",
-                        }}
-                        title={isSidebarCollapsed ? dest.label : undefined}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="shrink-0 transition-colors"
-                            style={{
-                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                            }}
-                          >
-                            <Icon className="w-4 h-4" />
-                          </span>
-                          {!isSidebarCollapsed && (
-                            <span className="text-xs sm:text-sm font-semibold truncate group-hover:text-white">
-                              {dest.label}
-                            </span>
-                          )}
-                        </div>
-
-                        {!isSidebarCollapsed && badge && (
-                          <span
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
-                            style={{
-                              backgroundColor: isActive
-                                ? "rgba(53,208,195,0.2)"
-                                : "rgba(255,255,255,0.06)",
-                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                            }}
-                          >
-                            {badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  }
-                )}
-              </div>
-            )}
+                  {!isSidebarCollapsed && badge && (
+                    <span
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0 ml-2"
+                      style={{
+                        backgroundColor: isActive
+                          ? "rgba(53,208,195,0.2)"
+                          : "rgba(255,255,255,0.06)",
+                        color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                      }}
+                    >
+                      {badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
         </aside>
 
@@ -972,109 +884,49 @@ export default function ProjectBriefView({
                   </button>
                 </div>
 
-                {/* Mobile Navigation List (Grouped: Core Destinations & Advanced Tools) */}
+                {/* Mobile Navigation List */}
                 <nav className="space-y-1.5">
-                  {WORKSPACE_DESTINATIONS.filter((d) => !("isAdvanced" in d && d.isAdvanced)).map(
-                    (dest) => {
-                      const isActive = activeNavSection === dest.id;
-                      const Icon = dest.icon;
-                      const badge = getDestinationBadge(dest.id);
+                  {WORKSPACE_DESTINATIONS.map((dest) => {
+                    const isActive = activeNavSection === dest.id;
+                    const Icon = dest.icon;
+                    const badge = getDestinationBadge(dest.id);
 
-                      return (
-                        <button
-                          key={dest.id}
-                          type="button"
-                          onClick={() => handleSelectNavSection(dest.id)}
-                          className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
-                          style={{
-                            backgroundColor: isActive
-                              ? "rgba(15,138,131,0.16)"
-                              : "var(--bg-workspace)",
-                            color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                            border: isActive
-                              ? "1px solid rgba(53,208,195,0.35)"
-                              : "1px solid var(--border-subtle)",
-                          }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon className="w-4 h-4" />
-                            <span className="text-sm font-semibold">{dest.label}</span>
-                          </div>
-                          {badge && (
-                            <span
-                              className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
-                              style={{
-                                backgroundColor: isActive
-                                  ? "rgba(53,208,195,0.2)"
-                                  : "rgba(255,255,255,0.06)",
-                                color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                              }}
-                            >
-                              {badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    }
-                  )}
-
-                  {/* Advanced Navigation Group */}
-                  {WORKSPACE_DESTINATIONS.some((d) => "isAdvanced" in d && d.isAdvanced) && (
-                    <div
-                      className="pt-2.5 mt-2.5 border-t space-y-1.5"
-                      style={{ borderColor: "var(--border-subtle)" }}
-                    >
-                      <span
-                        className="text-[10px] font-bold uppercase tracking-wider px-1 block mb-1"
-                        style={{ color: "var(--text-muted)" }}
+                    return (
+                      <button
+                        key={dest.id}
+                        type="button"
+                        onClick={() => handleSelectNavSection(dest.id)}
+                        className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
+                        style={{
+                          backgroundColor: isActive
+                            ? "rgba(15,138,131,0.16)"
+                            : "var(--bg-workspace)",
+                          color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
+                          border: isActive
+                            ? "1px solid rgba(53,208,195,0.35)"
+                            : "1px solid var(--border-subtle)",
+                        }}
                       >
-                        Advanced Tools
-                      </span>
-                      {WORKSPACE_DESTINATIONS.filter((d) => "isAdvanced" in d && d.isAdvanced).map(
-                        (dest) => {
-                          const isActive = activeNavSection === dest.id;
-                          const Icon = dest.icon;
-                          const badge = getDestinationBadge(dest.id);
-
-                          return (
-                            <button
-                              key={dest.id}
-                              type="button"
-                              onClick={() => handleSelectNavSection(dest.id)}
-                              className="w-full text-left px-3.5 py-3 rounded-xl transition-all cursor-pointer flex items-center justify-between"
-                              style={{
-                                backgroundColor: isActive
-                                  ? "rgba(15,138,131,0.16)"
-                                  : "var(--bg-workspace)",
-                                color: isActive ? "var(--teal-bright)" : "var(--text-secondary)",
-                                border: isActive
-                                  ? "1px solid rgba(53,208,195,0.35)"
-                                  : "1px solid var(--border-subtle)",
-                              }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <Icon className="w-4 h-4" />
-                                <span className="text-sm font-semibold">{dest.label}</span>
-                              </div>
-                              {badge && (
-                                <span
-                                  className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
-                                  style={{
-                                    backgroundColor: isActive
-                                      ? "rgba(53,208,195,0.2)"
-                                      : "rgba(255,255,255,0.06)",
-                                    color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
-                                  }}
-                                >
-                                  {badge}
-                                </span>
-                              )}
-                            </button>
-                          );
-                        }
-                      )}
-                    </div>
-                  )}
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-4 h-4" />
+                          <span className="text-sm font-semibold">{dest.label}</span>
+                        </div>
+                        {badge && (
+                          <span
+                            className="text-[10px] font-mono px-2 py-0.5 rounded font-bold"
+                            style={{
+                              backgroundColor: isActive
+                                ? "rgba(53,208,195,0.2)"
+                                : "rgba(255,255,255,0.06)",
+                              color: isActive ? "var(--teal-bright)" : "var(--text-muted)",
+                            }}
+                          >
+                            {badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </nav>
               </div>
 
@@ -1415,19 +1267,6 @@ export default function ProjectBriefView({
             </div>
           )}
 
-          {/* =========================================================
-              DESTINATION 8: RAW ENTITIES (ADVANCED)
-              Detailed AST normalized entities table with filter & search
-              ========================================================= */}
-          {activeNavSection === "entities" && (
-            <div className="space-y-6 animate-fade-in">
-              <RawEntitiesExplorer
-                entities={entities}
-                repoUrl={brief.repoUrl}
-                commitSha={brief.commitSha}
-              />
-            </div>
-          )}
         </main>
       </div>
 
@@ -1448,7 +1287,6 @@ export default function ProjectBriefView({
           else if (tab === "graph") handleSelectNavSection("explorer", "graph");
           else if (tab === "modules") handleSelectNavSection("explorer", "modules");
           else if (tab === "insights") handleSelectNavSection("health");
-          else if (tab === "entities") handleSelectNavSection("entities");
         }}
         onTriggerAnalysis={onRefresh}
       />

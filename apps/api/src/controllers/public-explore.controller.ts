@@ -7,6 +7,11 @@ import { universalEvidenceCollector } from "../brief/evidence-collector.js";
 import { groqBriefService } from "../brief/groq-brief.service.js";
 import { projectBriefCache } from "../brief/brief-cache.js";
 
+import prisma from "../config/prisma.js";
+import { graphRepository } from "../repositories/graph.repository.js";
+import { graphBuilder } from "../graph/builder.js";
+import type { ProjectGraphResponse, ModuleSummaryItem } from "../graph/types.js";
+
 export class PublicExploreController {
   async explore(req: Request, res: Response): Promise<void> {
     const parseResult = exploreRepositoryInputSchema.safeParse(req.body);
@@ -91,6 +96,60 @@ export class PublicExploreController {
         forceRefresh: Boolean(forceRefresh),
       });
 
+      // 4b. Wire up Project Graph and Module context (saved or fresh AST graph)
+      const existingProject = await prisma.project.findFirst({
+        where: {
+          githubUrl: {
+            equals: canonicalUrl,
+            mode: "insensitive",
+          },
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+
+      let graph: ProjectGraphResponse | null = null;
+      let modules: ModuleSummaryItem[] = [];
+
+      if (existingProject?.currentGraphVersionId) {
+        try {
+          graph = await graphRepository.getGraph(existingProject.currentGraphVersionId);
+          modules = await graphRepository.getModules(existingProject.currentGraphVersionId);
+        } catch {
+          // Fallback to transient graph if DB load fails
+        }
+      }
+
+      if (!graph && bundle.parseResult) {
+        try {
+          const built = graphBuilder.build(bundle.parseResult);
+          graph = {
+            version: {
+              id: "transient-explore-v1",
+              versionNumber: 1,
+              analysisTimestamp: new Date(),
+              gitCommitHash: commitSha,
+              repositoryBranch: branch,
+              parserVersion: "v1.0.0-m6",
+            },
+            nodes: built.nodes.map((n) => {
+              const incoming = built.edges.filter((e) => e.targetNodeId === n.id).length;
+              const outgoing = built.edges.filter((e) => e.sourceNodeId === n.id).length;
+              return {
+                ...n,
+                incomingCount: incoming,
+                outgoingCount: outgoing,
+              };
+            }),
+            edges: built.edges,
+            stats: built.stats,
+          };
+        } catch {
+          // Ignore fallback error
+        }
+      }
+
       res.status(200).json({
         success: true,
         data: {
@@ -104,6 +163,17 @@ export class PublicExploreController {
             parserCoverage: bundle.parserCoverage,
             fileCategories: bundle.fileCategories,
           },
+          graph,
+          modules,
+          project: existingProject
+            ? {
+                id: existingProject.id,
+                name: existingProject.name,
+                githubUrl: existingProject.githubUrl,
+                status: existingProject.currentGraphVersionId ? "ready" : "pending",
+                updatedAt: existingProject.updatedAt,
+              }
+            : null,
         },
       });
     } catch (err: unknown) {
@@ -140,8 +210,20 @@ export class PublicExploreController {
     const canonicalUrl = `https://github.com/${owner}/${repo}`;
     const model = process.env.GROQ_MODEL?.trim() || "openai/gpt-oss-120b";
 
+    // Check if we have an existing project in database with graph
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        githubUrl: {
+          equals: canonicalUrl,
+          mode: "insensitive",
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
     // Check if we have any cached brief for this repo URL (e.g. from previous run)
-    // We look in projectBriefCache for matching repoUrl
     const cached = await projectBriefCache.get(canonicalUrl, "HEAD", model);
     if (cached) {
       res.status(200).json({
@@ -149,6 +231,8 @@ export class PublicExploreController {
         data: {
           available: true,
           brief: cached,
+          projectId: existingProject?.id || null,
+          hasGraph: Boolean(existingProject?.currentGraphVersionId),
         },
       });
       return;
@@ -161,6 +245,8 @@ export class PublicExploreController {
         canonicalUrl,
         owner,
         repo,
+        projectId: existingProject?.id || null,
+        hasGraph: Boolean(existingProject?.currentGraphVersionId),
       },
     });
   }

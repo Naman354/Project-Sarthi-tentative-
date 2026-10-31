@@ -65,18 +65,23 @@ export class GraphService {
     };
   }
 
+  private assertProjectAccess(project: { githubUrl?: string | null; ownerId: string }, userId?: string | null): void {
+    const isPublic = Boolean(project.githubUrl && project.githubUrl.startsWith("http"));
+    if (!isPublic && (!userId || project.ownerId !== userId)) {
+      throw new ForbiddenError("You do not have access to this project");
+    }
+  }
+
   async getGraph(
     projectId: string,
-    userId: string,
+    userId?: string | null,
     versionId?: string
   ): Promise<ProjectGraphResponse> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     let targetVersionId = versionId;
     if (!targetVersionId) {
@@ -104,16 +109,14 @@ export class GraphService {
 
   async getModules(
     projectId: string,
-    userId: string,
+    userId?: string | null,
     versionId?: string
   ): Promise<ModuleSummaryItem[]> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     let targetVersionId = versionId || project.currentGraphVersionId;
     if (!targetVersionId) {
@@ -129,7 +132,7 @@ export class GraphService {
 
   async getModuleDetails(
     projectId: string,
-    userId: string,
+    userId: string | null | undefined,
     moduleId: string,
     versionId?: string
   ): Promise<ModuleDetailResponse> {
@@ -137,9 +140,7 @@ export class GraphService {
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     let targetVersionId = versionId || project.currentGraphVersionId;
     if (!targetVersionId) {
@@ -158,14 +159,12 @@ export class GraphService {
     return details;
   }
 
-  async getVersions(projectId: string, userId: string): Promise<GraphVersionSummary[]> {
+  async getVersions(projectId: string, userId?: string | null): Promise<GraphVersionSummary[]> {
     const project = await projectRepository.findById(projectId);
     if (!project) {
       throw new NotFoundError("Project not found");
     }
-    if (project.ownerId !== userId) {
-      throw new ForbiddenError("You do not have access to this project");
-    }
+    this.assertProjectAccess(project, userId);
 
     return this.graphRepo.listVersions(projectId);
   }

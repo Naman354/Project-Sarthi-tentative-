@@ -629,8 +629,10 @@ export class UniversalEvidenceCollector {
 
     // 6. Specialized Parser Engine Integration (where supported)
     let parserCoverage: "specialized-ast-graph" | "universal-baseline" = "universal-baseline";
+    let collectedParseResult: import("../parsers/types.js").ParserManagerResult | null = null;
     try {
       const parseResult = await parserManager.parseRepository(repoPath);
+      collectedParseResult = parseResult;
       const frameworkEntities = parseResult.entities.filter((e) =>
         ["route", "controller", "service", "model", "component", "page"].includes(e.type)
       );
@@ -996,6 +998,7 @@ export class UniversalEvidenceCollector {
       parserCoverage,
       fileCategories,
       classification,
+      parseResult: collectedParseResult,
     };
   }
 }

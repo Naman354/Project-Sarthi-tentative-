@@ -32,3 +32,26 @@ export async function authenticate(
     next(error);
   }
 }
+
+export async function optionalAuthenticate(
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      if (token) {
+        const payload = authService.verifyAccessToken(token);
+        const user = await authService.getUserProfile(payload.userId);
+        req.user = user;
+      }
+    }
+    next();
+  } catch {
+    // Unauthenticated / guest access - proceed without user
+    next();
+  }
+}
+

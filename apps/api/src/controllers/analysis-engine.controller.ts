@@ -4,16 +4,12 @@ import {
   type AnalysisEngineService,
 } from "../services/analysis-engine.service.js";
 import type { AuthenticatedRequest } from "../types/auth.types.js";
-import { UnauthorizedError } from "../utils/errors.js";
 
 export class AnalysisEngineController {
   constructor(private readonly service: AnalysisEngineService = analysisEngineService) {}
 
-  private getAuthenticatedUserId(req: AuthenticatedRequest): string {
-    if (!req.user?.id) {
-      throw new UnauthorizedError("Authentication required", "UNAUTHORIZED");
-    }
-    return req.user.id;
+  private getAuthenticatedUserId(req: AuthenticatedRequest): string | undefined {
+    return req.user?.id;
   }
 
   getOverview = async (
