@@ -8,7 +8,7 @@ import { groqBriefService } from "../brief/groq-brief.service.js";
 import { projectBriefCache } from "../brief/brief-cache.js";
 
 import prisma from "../config/prisma.js";
-import { graphRepository } from "../repositories/graph.repository.js";
+import { graphRepository, buildModuleSummaries } from "../repositories/graph.repository.js";
 import { graphBuilder } from "../graph/builder.js";
 import type { ProjectGraphResponse, ModuleSummaryItem } from "../graph/types.js";
 
@@ -145,6 +145,7 @@ export class PublicExploreController {
             edges: built.edges,
             stats: built.stats,
           };
+          modules = buildModuleSummaries(built.nodes, built.edges);
         } catch {
           // Ignore fallback error
         }

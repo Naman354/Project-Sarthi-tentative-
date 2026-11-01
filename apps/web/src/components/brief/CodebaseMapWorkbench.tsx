@@ -227,14 +227,13 @@ export default function CodebaseMapWorkbench({
 
   const githubFileUrl = `https://github.com/${brief.owner}/${brief.repo}/blob/${brief.commitSha}/${primaryFile.replace(/^\/+/, "")}`;
 
-  // Estimate metric stats for inspector display
+  // Verified architectural metrics for selected area: Files, Outbound, Inbound, Evidence
   const metrics = useMemo(() => {
-    const baseFiles = selectedArea?.associatedFiles?.length || 1;
     return {
-      lines: Math.max(120, baseFiles * 180 + (selectedArea?.name.length || 0) * 8),
-      functions: Math.max(6, baseFiles * 5 + outgoingRels.length * 2),
-      imports: Math.max(4, outgoingRels.length * 3 + 2),
-      exports: Math.max(2, incomingRels.length * 2 + 1),
+      files: selectedArea?.associatedFiles?.length || 0,
+      outbound: outgoingRels.length,
+      inbound: incomingRels.length,
+      evidence: selectedArea?.evidenceIds?.length || 0,
     };
   }, [selectedArea, outgoingRels, incomingRels]);
 
@@ -1214,17 +1213,25 @@ export default function CodebaseMapWorkbench({
                       {selectedArea.role}
                     </p>
 
-                    {/* 4 Metrics Strip */}
+                    {/* 4 Verified Metrics Strip */}
                     <div className="grid grid-cols-4 gap-1.5 pt-2">
                       {[
-                        { label: "Lines", value: metrics.lines, color: "var(--accent-orange)" },
+                        { label: "Files", value: metrics.files, color: "var(--teal-bright)" },
                         {
-                          label: "Functions",
-                          value: metrics.functions,
-                          color: "var(--teal-bright)",
+                          label: "Calls Out",
+                          value: metrics.outbound,
+                          color: "var(--accent-blue)",
                         },
-                        { label: "Imports", value: metrics.imports, color: "var(--accent-blue)" },
-                        { label: "Exports", value: metrics.exports, color: "var(--accent-purple)" },
+                        {
+                          label: "Called By",
+                          value: metrics.inbound,
+                          color: "var(--accent-orange)",
+                        },
+                        {
+                          label: "Evidence",
+                          value: metrics.evidence,
+                          color: "var(--accent-purple)",
+                        },
                       ].map((m) => (
                         <div
                           key={m.label}

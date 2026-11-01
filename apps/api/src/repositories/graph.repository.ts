@@ -35,6 +35,90 @@ function parseNodeMetadata(metadata: Prisma.JsonValue | null): NodeMetadata {
   return {};
 }
 
+export function buildModuleSummaries(
+  nodes: Array<{ id: string; nodeType: string; name: string; metadata?: unknown }>,
+  edges: Array<{ relationshipType: string; sourceNodeId: string; targetNodeId: string }>
+): ModuleSummaryItem[] {
+  const nodeMap = new Map<string, (typeof nodes)[0]>();
+  for (const node of nodes) {
+    nodeMap.set(node.id, node);
+  }
+
+  const moduleNodes = nodes.filter((n) => n.nodeType === "module");
+
+  // Group items contained by each module
+  const moduleToContainedNodes = new Map<string, (typeof nodes)[0][]>();
+  for (const mod of moduleNodes) {
+    moduleToContainedNodes.set(mod.id, []);
+  }
+
+  for (const edge of edges) {
+    if (edge.relationshipType === "contains" && moduleToContainedNodes.has(edge.sourceNodeId)) {
+      const target = nodeMap.get(edge.targetNodeId);
+      if (target) {
+        moduleToContainedNodes.get(edge.sourceNodeId)?.push(target);
+      }
+    }
+  }
+
+  return moduleNodes.map((mod) => {
+    const contained = moduleToContainedNodes.get(mod.id) || [];
+
+    const routes = contained
+      .filter((n) => n.nodeType === "route")
+      .map((n) => {
+        const meta = parseNodeMetadata(n.metadata as Prisma.JsonValue);
+        return {
+          id: n.id,
+          name: n.name,
+          ...(meta.method ? { method: meta.method } : {}),
+          ...(meta.path ? { path: meta.path } : {}),
+        };
+      });
+
+    const models = contained
+      .filter((n) => n.nodeType === "model")
+      .map((n) => ({ id: n.id, name: n.name }));
+
+    const services = contained
+      .filter((n) => n.nodeType === "service" || n.nodeType === "controller")
+      .map((n) => ({ id: n.id, name: n.name }));
+
+    const components = contained
+      .filter((n) => n.nodeType === "component" || n.nodeType === "page")
+      .map((n) => ({ id: n.id, name: n.name }));
+
+    const docs = contained
+      .filter((n) => n.nodeType === "doc")
+      .map((n) => {
+        const meta = parseNodeMetadata(n.metadata as Prisma.JsonValue);
+        return {
+          id: n.id,
+          name: n.name,
+          ...(meta.filePath ? { filePath: meta.filePath } : {}),
+        };
+      });
+
+    const modMeta = parseNodeMetadata(mod.metadata as Prisma.JsonValue);
+
+    return {
+      id: mod.id,
+      name: mod.name,
+      entityId: modMeta.entityId ?? modMeta.originalEntityId ?? mod.id,
+      routesCount: routes.length,
+      modelsCount: models.length,
+      servicesCount: services.length,
+      componentsCount: components.length,
+      docsCount: docs.length,
+      routes,
+      models,
+      services,
+      components,
+      docs,
+    };
+  });
+}
+
 export class GraphRepository {
   async persistGraph(
     projectId: string,
@@ -246,84 +330,7 @@ export class GraphRepository {
       where: { graphVersionId },
     });
 
-    const nodeMap = new Map<string, (typeof nodes)[0]>();
-    for (const node of nodes) {
-      nodeMap.set(node.id, node);
-    }
-
-    const moduleNodes = nodes.filter((n) => n.nodeType === "module");
-
-    // Group items contained by each module
-    const moduleToContainedNodes = new Map<string, (typeof nodes)[0][]>();
-    for (const mod of moduleNodes) {
-      moduleToContainedNodes.set(mod.id, []);
-    }
-
-    for (const edge of edges) {
-      if (edge.relationshipType === "contains" && moduleToContainedNodes.has(edge.sourceNodeId)) {
-        const target = nodeMap.get(edge.targetNodeId);
-        if (target) {
-          moduleToContainedNodes.get(edge.sourceNodeId)?.push(target);
-        }
-      }
-    }
-
-    return moduleNodes.map((mod) => {
-      const contained = moduleToContainedNodes.get(mod.id) || [];
-
-      const routes = contained
-        .filter((n) => n.nodeType === "route")
-        .map((n) => {
-          const meta = parseNodeMetadata(n.metadata);
-          return {
-            id: n.id,
-            name: n.name,
-            ...(meta.method ? { method: meta.method } : {}),
-            ...(meta.path ? { path: meta.path } : {}),
-          };
-        });
-
-      const models = contained
-        .filter((n) => n.nodeType === "model")
-        .map((n) => ({ id: n.id, name: n.name }));
-
-      const services = contained
-        .filter((n) => n.nodeType === "service" || n.nodeType === "controller")
-        .map((n) => ({ id: n.id, name: n.name }));
-
-      const components = contained
-        .filter((n) => n.nodeType === "component" || n.nodeType === "page")
-        .map((n) => ({ id: n.id, name: n.name }));
-
-      const docs = contained
-        .filter((n) => n.nodeType === "doc")
-        .map((n) => {
-          const meta = parseNodeMetadata(n.metadata);
-          return {
-            id: n.id,
-            name: n.name,
-            ...(meta.filePath ? { filePath: meta.filePath } : {}),
-          };
-        });
-
-      const modMeta = parseNodeMetadata(mod.metadata);
-
-      return {
-        id: mod.id,
-        name: mod.name,
-        entityId: modMeta.entityId ?? modMeta.originalEntityId ?? mod.id,
-        routesCount: routes.length,
-        modelsCount: models.length,
-        servicesCount: services.length,
-        componentsCount: components.length,
-        docsCount: docs.length,
-        routes,
-        models,
-        services,
-        components,
-        docs,
-      };
-    });
+    return buildModuleSummaries(nodes, edges);
   }
 
   async getModuleDetails(
