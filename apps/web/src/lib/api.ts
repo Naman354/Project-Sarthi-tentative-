@@ -1,6 +1,21 @@
 import type { ApiResponse } from "../types/auth";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+export function getApiBaseUrl(): string {
+  // If running in browser on localhost or 127.0.0.1, always route to local backend
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocalhost =
+      hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+
+    if (isLocalhost) {
+      return (process.env.NEXT_PUBLIC_DEV_API_URL || "http://localhost:5000").replace(/\/+$/, "");
+    }
+  }
+
+  // In production (e.g. Vercel) or server-side, use the configured production API URL
+  const configured = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  return configured.replace(/\/+$/, "");
+}
 
 let inMemoryAccessToken: string | null = null;
 let refreshPromise: Promise<string | null> | null = null;
@@ -18,7 +33,8 @@ interface RequestOptions extends RequestInit {
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
-  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const headers = new Headers(options.headers || {});
   headers.set("Content-Type", "application/json");
@@ -87,7 +103,7 @@ async function attemptSilentRefresh(): Promise<string | null> {
 
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      const res = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

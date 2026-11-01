@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "../lib/api";
 
 interface HealthData {
   status: string;
@@ -17,7 +18,7 @@ export default function SystemStatus() {
     setLoading(true);
     setError(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const apiUrl = getApiBaseUrl();
       const res = await fetch(`${apiUrl}/health`);
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -36,7 +37,7 @@ export default function SystemStatus() {
 
     async function checkHealth() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const apiUrl = getApiBaseUrl();
         const res = await fetch(`${apiUrl}/health`);
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -90,7 +91,7 @@ export default function SystemStatus() {
               }`}
             />
             <span className="font-medium text-zinc-900 dark:text-zinc-100">
-              {loading ? "Connecting..." : health?.status === "ok" ? "Online (:5000)" : "Offline"}
+              {loading ? "Connecting..." : health?.status === "ok" ? "Online" : "Offline"}
             </span>
           </div>
         </div>

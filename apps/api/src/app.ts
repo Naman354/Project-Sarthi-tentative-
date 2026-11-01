@@ -10,14 +10,56 @@ import { errorHandler, notFoundHandler } from "./middleware/error.middleware.js"
 
 const app = express();
 
-// CORS configuration allowing credentials for cookies
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:3000";
-app.use(
-  cors({
-    origin: allowedOrigin,
-    credentials: true,
-  })
-);
+// Helper to determine if an incoming request origin is allowed by CORS
+function isOriginAllowed(origin: string | undefined): boolean {
+  // Allow requests with no origin (like curl, Postman, server-to-server, internal health checks)
+  if (!origin) return true;
+
+  const cleanOrigin = origin.trim().replace(/\/+$/, "");
+
+  // 1. Always allow localhost and 127.0.0.1 on any port (for local development)
+  if (
+    /^https?:\/\/localhost(:\d+)?$/.test(cleanOrigin) ||
+    /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(cleanOrigin)
+  ) {
+    return true;
+  }
+
+  // 2. Allow configured CLIENT_URL (supports comma-separated list and strips trailing slashes)
+  if (process.env.CLIENT_URL) {
+    const configuredOrigins = process.env.CLIENT_URL.split(",")
+      .map((url) => url.trim().replace(/\/+$/, ""))
+      .filter(Boolean);
+
+    if (configuredOrigins.includes(cleanOrigin)) {
+      return true;
+    }
+  }
+
+  // 3. Allow any Vercel deployment domain (production, preview branches, and team deployments)
+  if (/^https:\/\/[a-zA-Z0-9_\-.]+\.vercel\.app$/.test(cleanOrigin)) {
+    return true;
+  }
+
+  return false;
+}
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  exposedHeaders: ["Set-Cookie"],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing and cookie parsing middlewares
 app.use(express.json());
